@@ -55,13 +55,24 @@
       </button>
     </nav>
     <div class="callMenu">
-      <button class="leaveThisPlace pegasusTooltip">
-        <i class="fa-regular fa-arrow-left-from-bracket"></i>
-      </button>
-      <button class="menuToggle pegasusTooltip">
-        <i class="fa-solid fa-bars"></i>
-      </button>
-      <h1>Магистрали</h1>
+      <div class="cellMenu-container">
+        <button class="leaveThisPlace pegasusTooltip">
+          <i class="fa-regular fa-arrow-left-from-bracket"></i>
+        </button>
+        <button class="menuToggle pegasusTooltip">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <h1>Магистрали</h1>
+      </div>
+      <div class="cellMenu-container">
+        <label for="disableTooltip">
+          <input type="checkbox" id="disableTooltip">
+          <div class="disableTooltip-buttton-container">
+            <div class="disableTooltip-buttton-ball"></div>
+          </div>
+          <p>Подсказки</p>
+        </label>
+      </div>
     </div>
     <canvas id="headerArrowCanvas"></canvas>
   </header>

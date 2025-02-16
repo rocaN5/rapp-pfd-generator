@@ -860,6 +860,12 @@ header.onLoading{
 
 .callMenu{
   display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.callMenu .cellMenu-container{
+  display: flex;
   gap: 10px;
 }
 
@@ -873,10 +879,18 @@ header.onLoading{
   font-family: 'Roboto';
   font-size: 2rem;
   font-weight: 800;
-  transition: 300ms;
   padding: 10px;
   border-radius: 10px;
   overflow: hidden;
+
+  opacity: 0;
+  transform: translateY(-15px);
+  transition: 300ms;
+}
+
+header.active .menuItem{
+  opacity: 1;
+  transform: translateY(0);
 }
 
 button.menuItem:focus-visible,
@@ -1025,6 +1039,12 @@ header button.leaveThisPlace:hover{
   background: #222222 !important;
   transition: 200ms;
   box-shadow: 0px 0px 10px #000, 0px 0px 10px #000, 0px 0px 10px #000;
+}
+
+header.active button.menuToggle:hover,
+header.active button.leaveThisPlace:hover{
+  background: #cc0000 !important;
+  transition: 200ms;
 }
 
 header h1{
@@ -1565,4 +1585,68 @@ header h1{
   --tooltipArrowPosition-type-y: 1;
   --tooltipArrowRotation: 0deg;
   --tooltipText: "Выбор СЦ, принимающего грузоместо(а)";
+}
+
+#disableTooltip{
+  width: 1px;
+  height: 1px;
+  position: absolute;
+  opacity: 0;
+}
+
+label[for="disableTooltip"]{
+  position: relative;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 10px;
+  background: #00000029;
+  border-radius: 10px;
+  backdrop-filter: blur(2px);
+  border: 2px solid #2e2e2e;
+}
+
+label[for="disableTooltip"] p {
+  margin: 0;
+  font-size: 1rem;
+  color: #fff;
+}
+
+.disableTooltip-buttton-container{
+  width: 36px;
+  height: 22px;
+  border-radius: 20px;
+  background: linear-gradient(45deg, #00dcff, #0093ff);
+  box-shadow: 0px 0px 10px 0px #000, 0px 0px 8px 0px #000 inset;
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding: 0px 4px;
+  transition: 200ms;
+  filter: grayscale(1);
+}
+
+.disableTooltip-buttton-ball{
+  --bwh: 16px;
+  width: var(--bwh);
+  height: var(--bwh);
+  background: #ffffff;
+  border-radius: 50%;
+  position: relative;
+  left: calc(100% - var(--bwh));
+  transition: 200ms ease-in-out;
+  box-shadow: -2px 2px 6px 0px #000;
+}
+
+label[for="disableTooltip"]:has(input#disableTooltip:checked) .disableTooltip-buttton-container{
+  transition: 200ms;
+  filter: grayscale(0);
+}
+
+label[for="disableTooltip"]:has(input#disableTooltip:checked) .disableTooltip-buttton-ball{
+  left: 0;
+  transition: 200ms ease-in-out;
+  box-shadow: 2px 2px 6px 0px #000;
 }

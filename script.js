@@ -635,9 +635,10 @@ previewScaleBtn.forEach(button => {
 document.getElementById("pdf-form").addEventListener("submit", function (event) {
   event.preventDefault();
   
-  // Проверяем, была ли нажата кнопка внутри календаря
   if (event.submitter && document.getElementById("calendar").contains(event.submitter)) {
-    return; // Если кнопка внутри календаря — выходим
+    return;
+  }else if(document.getElementById("disableTooltip")){
+    return;
   }
 
   formatingAnimation();
