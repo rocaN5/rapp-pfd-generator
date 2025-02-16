@@ -90,7 +90,7 @@ form {
   width: 60%;
   height: 100%;
   overflow-y: auto;
-  padding: 0px 10px;
+  padding: 0px 18px;
   gap: 10px;
 }
 
@@ -168,6 +168,10 @@ label {
   border: 1px solid #ccc;
   border-radius: 4px;
 } */
+
+select {
+  cursor: pointer;
+}
 
 select option:hover {
   box-shadow: 0 0 10px 100px #24a818 inset;
@@ -1409,6 +1413,26 @@ header h1{
   --tooltipArrowPosition-type-y: 1;
   --tooltipArrowRotation: 0deg;
   --tooltipText: "Распечатать документ";
+}
+
+.fromScSelection,
+.fromScSelection > *{
+  cursor: not-allowed !important;
+  position: relative;
+}
+
+.fromScSelection > input:focus{
+  outline: 2px solid red;
+}
+
+.scNameLock{
+  position: absolute;
+  top: 50%;
+  right: 10%;
+  z-index: 99;
+  color: #b5b5b5;
+  font-size: .8rem;
+  cursor: not-allowed;
 }
 
 /* .pegasusTooltip{
