@@ -52,6 +52,19 @@ body {
   width: 100%;
 }
 
+.modalWindow{
+  background: #00000099;
+  position: fixed;
+  z-index: 999999;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: flex-start;
+  top: 0;
+  backdrop-filter: blur(4px) grayscale(1);
+  box-shadow: 0px 0px 100px 10px #000 inset, 0px 0px 100px 10px #000 inset, 0px 0px 100px 10px #000 inset;
+}
+
 .container {
   background: #232323;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -93,8 +106,8 @@ form::before {
   pointer-events: none;
 }
 
-input:focus,
-select:focus{
+input:focus-visible,
+select:focus-visible{
   outline: 1px solid #b3ff00;
 }
 
@@ -452,6 +465,13 @@ button.switchCargo{
   background: #393939;
   box-shadow: 0px 0px 4px 0px #000 inset;
   transition: 200ms;
+  
+  position: relative;
+  --tooltipPosition-x: 50%;
+  --tooltipPosition-y: -20px;
+  --tooltipArrowPosition-type-y: 1;
+  --tooltipArrowRotation: 0deg;
+  --tooltipText: "Поменять номер заказа/грузоместо местами";
   &:hover{
     box-shadow: 0px 0px 10px 0px #000 inset;
   }
@@ -807,23 +827,180 @@ button.previewScale-btn:hover{
 header{
   position: fixed;
   width: -webkit-fill-available;
-  height: 40px;
-  align-items: center;
-  display: flex;
   background: linear-gradient(45deg, black, #232323);
   background-color: #000;
   padding: 10px;
-  gap: 20px;
   box-shadow: 0px 0px 10px 0px #000, 0px 0px 10px 0px #000, 0px 0px 10px 0px #000, 0px 0px 10px 0px #000;
-  z-index: 999;;
+  z-index: 999999999999;
+  display: flex;
+  flex-flow: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 20px;
+
+  transition: 500ms cubic-bezier(0.39, 0.58, 0.57, 1);
+  transform: translateY(calc(-100% + 60px));
+}
+
+header.onLoading{
+  transition: 0ms cubic-bezier(0.39, 0.58, 0.57, 1);
+}
+
+.menuSelection{
+  display: flex;
+  width: 100%;
+  gap: 20px;
+  justify-content: space-evenly;
+  margin-top: 10px;
+}
+
+.callMenu{
+  display: flex;
+  gap: 10px;
+}
+
+.menuItem{
+  width: 250px;
+  height: 130px;
+  border: 4px solid #1c1c1c;
+  background: #1c1c1c;
+  background-size: 100%;
+  box-shadow: 0px 0px 20px 10px #000 inset, 0px 0px 0px 1000px #0000006b inset, 0px 0px 10px #000, 0px 0px 10px #000, 0px 0px 10px #000;
+  font-family: 'Roboto';
+  font-size: 2rem;
+  font-weight: 800;
+  transition: 300ms;
+  padding: 10px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+button.menuItem:focus-visible,
+button.menuItem:hover {
+  outline: none;
+  transition: 300ms;
+  border-color: #ffffff;
+  transform: scale(1.05);
+}
+
+.menuItemInfo-container {
+  display: flex;
+  position: absolute;
+  top: 0;
+  justify-content: center;
+  align-items: center;
+  left: 0;
+  --gradientBgColor: #000000b0;
+  --gradientDotsColor: #ffffff12;
+  background-color: var(--gradientBgColor);
+  background-image: radial-gradient(var(--gradientDotsColor) 10%, transparent 20%);
+  background-size: 6px 6px;
+  backdrop-filter: blur(4px);
+  flex-flow: column;
+  font-size: 1rem;
+  gap: 10px;
+  pointer-events: none;
+  border-radius: 10px;
+  overflow: hidden;
+  padding: 10px;
+  width: fit-content;
+  height: -webkit-fill-available;
+
+  opacity: 0;
+  transition: 300ms;
+}
+
+.menuItemInfo-title{
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #fff;
+  
+  transform: translateY(-14px);
+  transition: 300ms;
+}
+
+.menuItemInfo-descripton{
+  margin: 0;
+  font-weight: 400;
+  font-size: .7rem;
+  color: #fff;
+
+  transform: translateY(14px);
+  transition: 300ms;
+}
+
+button.menuItem:focus-visible .menuItemInfo-container,
+button.menuItem:hover .menuItemInfo-container{
+  opacity: 1;
+  transition: 300ms;
+}
+
+button.menuItem:focus-visible p.menuItemTitle,
+button.menuItem:hover p.menuItemTitle{
+  opacity: 0;
+  transition: 300ms;
+}
+
+
+button.menuItem:hover .menuItemInfo-descripton,
+button.menuItem:focus-visible .menuItemInfo-descripton,
+button.menuItem:hover .menuItemInfo-title,
+button.menuItem:focus-visible .menuItemInfo-title{
+  transform: translateY(0);
+  transition: 300ms;
+}
+
+.menuItem p.menuItemTitle{
+  opacity: 1;
+  transition: 300ms;
+  text-shadow: 0px 0px 20px #000, 0px 0px 20px #000, 0px 0px 20px #000, 0px 0px 20px #000;
+  margin: 0;
+}
+
+#menuItem-1{
+  background-image: url("https://www.goship.com/wp-content/uploads/2022/08/AdobeStock_96820284-scaled.jpeg");
+}
+#menuItem-2{
+  background-image: url("https://tg777.ru/upload/iblock/cd9/l1vxe1ba9g8gc72fcqps8lrpofsert38.jpg");
+}
+#menuItem-3{
+  background-image: url("seller.webp");
+}
+#menuItem-4{
+  background-image: url("https://zastavki.gas-kvas.com/uploads/posts/2024-09/zastavki-gas-kvas-com-9r42-p-zastavki-stalker-anomaliya-2.jpg");
+}
+#menuItem-5{
+  background-image: url("https://media.gettyimages.com/id/79122754/photo/goalkeeper-making-a-save.jpg?s=612x612&w=gi&k=20&c=hwYpxDuPT3aG84NFabkzEBdCI8DSJ7KmqRU5qNSbNH8=");
+}
+#menuItem-5 > p{
+  font-size: 1.6rem;
 }
 
 #headerArrowCanvas{
   position: absolute;
   z-index: -1;
+  top: 0px;
 }
 
-header > button{
+header button.menuToggle{
+  --tooltipPosition-x: 220%;
+  --tooltipPosition-y: 90px;
+  --tooltipArrowPosition-type-y: 2;
+  --tooltipArrowRotation: 180deg;
+  --tooltipText: "Меню выбора варианта РАПП";
+}
+
+header button.leaveThisPlace{
+  --tooltipPosition-x: 220%;
+  --tooltipPosition-y: 90px;
+  --tooltipArrowPosition-type-y: 2;
+  --tooltipArrowRotation: 180deg;
+  --tooltipText: "Покинуть генератор РАПП";
+}
+
+header button.leaveThisPlace,
+header button.menuToggle{
   width: 40px;
   height: 40px;
   justify-content: center;
@@ -836,12 +1013,17 @@ header > button{
   border-radius: 50%;
   transition: 200ms;
 }
-header > button:hover{
-  background: #222222;
+
+header button.menuToggle:focus-visible,
+header button.leaveThisPlace:focus-visible,
+header button.menuToggle:hover,
+header button.leaveThisPlace:hover{
+  background: #222222 !important;
   transition: 200ms;
+  box-shadow: 0px 0px 10px #000, 0px 0px 10px #000, 0px 0px 10px #000;
 }
 
-header > h1{
+header h1{
   font-size: 2rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -854,7 +1036,7 @@ header > h1{
 /*~ Календарь */
 .date-picker-container {
   position: relative;
-  z-index: 999999;
+  z-index: 9999;
 }
 .custom-date-display {
   color: #fff;
@@ -877,6 +1059,7 @@ header > h1{
   justify-content: center;
   align-items: flex-start;
   top: 0;
+  backdrop-filter: blur(4px) grayscale(1);
   box-shadow: 0px 0px 100px 10px #000 inset, 0px 0px 100px 10px #000 inset, 0px 0px 100px 10px #000 inset;
   display: none;
 }
@@ -1202,6 +1385,8 @@ header > h1{
 
   --tooltipPosition-x: 50%;
   --tooltipPosition-y: -20px;
+  --tooltipArrowPosition-type-y: 1;
+  --tooltipArrowRotation: 0deg;
   --tooltipText: "Сгенерировать документ";
 }
 
@@ -1221,12 +1406,16 @@ header > h1{
 
   --tooltipPosition-x: 50%;
   --tooltipPosition-y: -20px;
+  --tooltipArrowPosition-type-y: 1;
+  --tooltipArrowRotation: 0deg;
   --tooltipText: "Распечатать документ";
 }
 
 /* .pegasusTooltip{
   --tooltipPosition-x: 50%;
   --tooltipPosition-y: -20px;
+  --tooltipArrowPosition-type-y: 1;
+  --tooltipArrowRotation: 0deg;
   --tooltipText: "Сгенерировать документ";
 } */
 
@@ -1256,7 +1445,7 @@ header > h1{
   border-top: 6px solid #ffffff;
   top: calc(var(--tooltipPosition-y) - -18px);
   z-index: 99999999;
-  transform: translate(-50%, -4px);
+  transform: translate(-50%, -4px) rotate(var(--tooltipArrowRotation));
   left: 50%;
   transition: 200ms;
   pointer-events: none;
@@ -1270,13 +1459,15 @@ header > h1{
 .pegasusTooltip:hover:after{
   opacity: 1;
   transition: 200ms;
-  top: calc(var(--tooltipPosition-y) - -8px);
+  top: calc((var(--tooltipPosition-y) / var(--tooltipArrowPosition-type-y)) - -8px);
 }
 
 #allSelect-btn{
   position: relative;
   --tooltipPosition-x: 150%;
   --tooltipPosition-y: -20px;
+  --tooltipArrowPosition-type-y: 1;
+  --tooltipArrowRotation: 0deg;
   --tooltipText: "Выделить весь текст";
 }
 
@@ -1284,6 +1475,8 @@ header > h1{
   position: relative;
   --tooltipPosition-x: 50%;
   --tooltipPosition-y: -20px;
+  --tooltipArrowPosition-type-y: 1;
+  --tooltipArrowRotation: 0deg;
   --tooltipText: "Удалить пустые строки";
 }
 
@@ -1291,6 +1484,8 @@ header > h1{
   position: relative;
   --tooltipPosition-x: 50%;
   --tooltipPosition-y: -20px;
+  --tooltipArrowPosition-type-y: 1;
+  --tooltipArrowRotation: 0deg;
   --tooltipText: "Очистить поле ввода";
 }
 
@@ -1298,6 +1493,8 @@ header > h1{
   position: relative;
   --tooltipPosition-x: 50%;
   --tooltipPosition-y: -20px;
+  --tooltipArrowPosition-type-y: 1;
+  --tooltipArrowRotation: 0deg;
   --tooltipText: "История изменения: Назад";
 }
 
@@ -1305,6 +1502,8 @@ header > h1{
   position: relative;
   --tooltipPosition-x: 50%;
   --tooltipPosition-y: -20px;
+  --tooltipArrowPosition-type-y: 1;
+  --tooltipArrowRotation: 0deg;
   --tooltipText: "История изменения: Вперед";
 }
 
@@ -1312,6 +1511,8 @@ header > h1{
   position: relative;
   --tooltipPosition-x: 150%;
   --tooltipPosition-y: -20px;
+  --tooltipArrowPosition-type-y: 1;
+  --tooltipArrowRotation: 0deg;
   --tooltipText: "Номер РАПП, не подлежит изменению";
 }
 
@@ -1319,6 +1520,8 @@ header > h1{
   position: relative;
   --tooltipPosition-x: 50%;
   --tooltipPosition-y: -20px;
+  --tooltipArrowPosition-type-y: 1;
+  --tooltipArrowRotation: 0deg;
   --tooltipText: "Выбор даты передачи грузомест по РАПП";
 }
 
@@ -1326,6 +1529,8 @@ header > h1{
   position: relative;
   --tooltipPosition-x: 50%;
   --tooltipPosition-y: -20px;
+  --tooltipArrowPosition-type-y: 1;
+  --tooltipArrowRotation: 0deg;
   --tooltipText: "Выбор СЦ, отпраляющего грузоместо(а) 🔒";
 }
 
@@ -1333,5 +1538,7 @@ header > h1{
   position: relative;
   --tooltipPosition-x: 50%;
   --tooltipPosition-y: -20px;
+  --tooltipArrowPosition-type-y: 1;
+  --tooltipArrowRotation: 0deg;
   --tooltipText: "Выбор СЦ, принимающего грузоместо(а)";
 }

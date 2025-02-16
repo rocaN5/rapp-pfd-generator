@@ -16,12 +16,57 @@
   <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.5.2/css/all.css">
 </head>
 <body>
-  <header>
-    <button class="menuToggle"><i class="fa-solid fa-bars"></i></button>
-    <h1>Магистрали</h1>
+  <header class="onloading">
+    <nav class="menuSelection">
+      <button class="menuItem" id="menuItem-1">
+        <p class="menuItemTitle">Магистрали</p>
+        <div class="menuItemInfo-container">
+          <p class="menuItemInfo-title">РАПП на Магистраль</p>
+          <p class="menuItemInfo-descripton">Документ для передачи заказа(ов) на другие СЦ, если нет системной возможности</p>
+        </div>
+      </button>
+      <button class="menuItem" id="menuItem-2">
+        <p class="menuItemTitle">Курьеры</p>
+        <div class="menuItemInfo-container">
+          <p class="menuItemInfo-title">РАПП на Курьера</p>
+          <p class="menuItemInfo-descripton">Документ для передачи заказа(ов) в доставку курьером или СРК, если нет системной возможности</p>
+        </div>
+      </button>
+      <button class="menuItem" id="menuItem-3">
+        <p class="menuItemTitle">Селлеры</p>
+        <div class="menuItemInfo-container">
+          <p class="menuItemInfo-title">РАПП на Селлера</p>
+          <p class="menuItemInfo-descripton">Документ для передачи заказа(ов) мерчу, если нет системной возможности</p>
+        </div>
+      </button>
+      <button class="menuItem" id="menuItem-4">
+        <p class="menuItemTitle">Аномалии</p>
+        <div class="menuItemInfo-container">
+          <p class="menuItemInfo-title">РАПП на Аномалии</p>
+          <p class="menuItemInfo-descripton">Документ для передачи аномалий на ЕВСЦ</p>
+        </div>
+      </button>
+      <button class="menuItem" id="menuItem-5">
+        <p class="menuItemTitle">Засылы / Дубли</p>
+        <div class="menuItemInfo-container">
+          <p class="menuItemInfo-title">РАПП на Засылы / Дубли</p>
+          <p class="menuItemInfo-descripton">Документ для передачи дублей / засылов на другие СЦ</p>
+        </div>
+      </button>
+    </nav>
+    <div class="callMenu">
+      <button class="leaveThisPlace pegasusTooltip">
+        <i class="fa-regular fa-arrow-left-from-bracket"></i>
+      </button>
+      <button class="menuToggle pegasusTooltip">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <h1>Магистрали</h1>
+    </div>
     <canvas id="headerArrowCanvas"></canvas>
   </header>
-    <div class="container">
+  <div class="modalWindow"></div>
+  <div class="container">
     <form id="pdf-form">
       <h1>Генерация PDF-файла</h1>
 

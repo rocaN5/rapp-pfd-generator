@@ -1,10 +1,61 @@
+//~ HEADER toggle button
+const header = document.querySelector('header');
+const container = document.querySelector('.container');
+const menuToggle = document.querySelector('.menuToggle');
+const modalWindow = document.querySelector('.modalWindow');
+const menuSelection = document.querySelector('.menuSelection');
+
+menuToggle.addEventListener('click', () => {
+  if (header.classList.contains("active")) {
+    hideMenu()
+  } else {
+    showMenu()
+  }
+});
+
+modalWindow.addEventListener('click', ()=>{
+  hideMenu()
+})
+
+hideMenu()
+
+function hideMenu(){
+  if(header.classList.contains("onLoading")){
+    header.classList.remove("onLoading")
+  }
+  modalWindow.style.display = "none"
+  menuToggle.style.backgroundColor = "transparent"
+  let menuToggleHeight = menuToggle.getBoundingClientRect().height + 20;
+  header.style.transform = `translateY(calc(-100% + ${menuToggleHeight}px))`;
+  menuToggle.innerHTML = `<i class=\"fa-solid fa-bars\"></i>`
+  header.classList.remove("active");
+  container.removeAttribute("inert")
+  menuSelection.setAttribute("inert", true)
+  const pdfForm = document.getElementById("pdf-form")
+  pdfForm.removeAttribute("inert")
+}
+
+function showMenu(){
+  if(header.classList.contains("onLoading")){
+    header.classList.remove("onLoading")
+  }
+  calendarModalWindow.classList.remove("active")
+  modalWindow.style.display = "flex"
+  menuToggle.style.backgroundColor = "#ff0000"
+  header.style.transform = `translateY(0)`;
+  menuToggle.innerHTML = `<i class=\"fa-solid fa-xmark\"></i>`
+  header.classList.add("active");
+  container.setAttribute("inert", true)
+  menuSelection.removeAttribute("inert")
+}
+//~ HEADER toggle button END
+
 
 //~ CANVAS
 const canvas = document.getElementById('headerArrowCanvas');
 const ctx = canvas.getContext('2d');
 
 // Устанавливаем размер canvas равным размеру header
-const header = document.querySelector('header');
 canvas.width = header.clientWidth;
 canvas.height = header.clientHeight;
 
@@ -170,19 +221,17 @@ let spawnInterval;
 // Создаём стрелки с интервалом
 spawnInterval = setInterval(createArrow, arrowSpawnRate);
 
-canvas.addEventListener('mouseenter', () => {
-    isMouseOnCanvas = true; // Курсор на canvas
-});
-
-canvas.addEventListener('mouseleave', () => {
-    isMouseOnCanvas = false; // Курсор покинул canvas
-});
-
-canvas.addEventListener('mousemove', (e) => {
-    // Обновляем позицию мыши
+// Отслеживаем движение мыши по всему документу
+document.addEventListener('mousemove', (e) => {
     const rect = canvas.getBoundingClientRect();
     mouseX = e.clientX - rect.left;
     mouseY = e.clientY - rect.top;
+
+    // Проверяем, находится ли курсор в пределах canvas
+    isMouseOnCanvas = (
+        mouseX >= 0 && mouseX <= canvas.width &&
+        mouseY >= 0 && mouseY <= canvas.height
+    );
 });
 
 animate();
@@ -762,7 +811,7 @@ document.querySelector("textarea.allOrders").addEventListener("input", function 
       <label for="orderNumber${index + 1}" class="orderData-label">Номер отправления:</label>
     </div>
 
-    <button type="button" class="switchCargo" title="Поменять местами">
+    <button type="button" class="switchCargo pegasusTooltip" title="Поменять местами">
       <i class="fa-solid fa-arrows-repeat"></i>
     <div class="orderData-container">
       <input type="text" class="orderData-input cargoGroup" id="cargoCode${index + 1}" value="${cargoCode}" placeholder="Введите код грузоместа" ${oneRow === true ? 'disabled' : ''} autocomplete="off">
@@ -967,7 +1016,7 @@ document.querySelector("textarea.allOrders").addEventListener("input", function 
           <input type="text" class="orderData-input" id="orderNumber${index + 1}" value="${orderNumber}" placeholder="Введите номер отправления" autocomplete="off" required>
           <label for="orderNumber${index + 1}" class="orderData-label">Номер отправления:</label>
         </div>
-        <button type="button" class="switchCargo" title="Поменять местами">
+        <button type="button" class="switchCargo pegasusTooltip" title="Поменять местами">
           <i class="fa-solid fa-arrows-repeat"></i>
         </button>
 
