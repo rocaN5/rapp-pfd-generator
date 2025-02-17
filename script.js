@@ -1,3 +1,8 @@
+
+window.onload = () => {
+  console.log("Page loaded ✅");
+};
+
 //~ HEADER toggle button
 const header = document.querySelector('header');
 const container = document.querySelector('.container');
@@ -50,8 +55,29 @@ function showMenu(){
 }
 //~ HEADER toggle button END
 
+//~ Tootltip toggle
 
-//~ CANVAS
+const checkbox = document.getElementById("disableTooltip");
+
+    function toggleTooltipClass() {
+        const elements = document.querySelectorAll(".pegasusTooltip, .tooltipRemoved");
+        elements.forEach(el => {
+            if (checkbox.checked) {
+                el.classList.add("pegasusTooltip");
+                el.classList.remove("tooltipRemoved");
+            } else {
+                el.classList.remove("pegasusTooltip");
+                el.classList.add("tooltipRemoved"); // Сохраняем возможность вернуть класс
+            }
+        });
+    }
+
+    checkbox.addEventListener("change", toggleTooltipClass);
+    toggleTooltipClass(); // Вызываем при загрузке, чтобы применить начальное состояние
+
+//~ Tootltip toggle END
+
+//~ CANVAS header
 const canvas = document.getElementById('headerArrowCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -247,7 +273,77 @@ window.addEventListener('resize', () => {
         }
     }
 });
-//~ CANVAS END
+//~ CANVAS header END
+
+//~ CANVAS Container
+
+const containerCanvas = document.getElementById('containerCanvas');
+const containerCanvas_ctx = containerCanvas.getContext('2d');
+
+document.body.style.margin = '0';
+document.body.style.overflow = 'hidden';
+
+let containerCanvas_bgColor = '#2E2E2E';
+let containerCanvas_gridColor = '#232323';
+let containerCanvas_highlightColor = '#5E5E5E';
+const containerCanvas_gridSize = 50;  // Размер квадрата
+const containerCanvas_gap = 2;  // Расстояние между квадратами
+let containerCanvas_offsetX = 0;
+let containerCanvas_offsetY = 0;
+let containerCanvas_mouseX = -1000;
+let containerCanvas_mouseY = -1000;
+const containerCanvas_circleSize = 80;  // Размер круга, который будет следовать за курсором
+const containerCanvas_circleYOffset = -60;  // Смещение круга по вертикали
+
+function containerCanvas_resizeCanvas() {
+    containerCanvas.width = window.innerWidth;
+    containerCanvas.height = window.innerHeight;
+}
+
+function containerCanvas_drawGrid() {
+    containerCanvas_ctx.fillStyle = containerCanvas_bgColor;
+    containerCanvas_ctx.fillRect(0, 0, containerCanvas.width, containerCanvas.height);
+
+    // Сначала рисуем круг за квадратами, смещая его по вертикали на -60 пикселей
+    const gradient = containerCanvas_ctx.createRadialGradient(containerCanvas_mouseX, containerCanvas_mouseY + containerCanvas_circleYOffset, 0, containerCanvas_mouseX, containerCanvas_mouseY + containerCanvas_circleYOffset, containerCanvas_circleSize);
+    gradient.addColorStop(0, containerCanvas_highlightColor);
+    gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    
+    containerCanvas_ctx.fillStyle = gradient;
+    containerCanvas_ctx.beginPath();
+    containerCanvas_ctx.arc(containerCanvas_mouseX, containerCanvas_mouseY + containerCanvas_circleYOffset, containerCanvas_circleSize, 0, 2 * Math.PI);
+    containerCanvas_ctx.fill();
+    
+    // Теперь рисуем квадраты, которые будут поверх круга
+    for (let x = -containerCanvas_gridSize; x < containerCanvas.width + containerCanvas_gridSize; x += containerCanvas_gridSize + containerCanvas_gap) {
+        for (let y = -containerCanvas_gridSize; y < containerCanvas.height + containerCanvas_gridSize; y += containerCanvas_gridSize + containerCanvas_gap) {
+            let drawX = x + containerCanvas_offsetX % (containerCanvas_gridSize + containerCanvas_gap);
+            let drawY = y + containerCanvas_offsetY % (containerCanvas_gridSize + containerCanvas_gap);
+            
+            containerCanvas_ctx.fillStyle = containerCanvas_gridColor;
+            containerCanvas_ctx.fillRect(drawX, drawY, containerCanvas_gridSize, containerCanvas_gridSize);
+        }
+    }
+}
+
+function containerCanvas_animate() {
+    containerCanvas_offsetX += 0.2;
+    containerCanvas_offsetY += 0.2;
+    containerCanvas_drawGrid();
+    requestAnimationFrame(containerCanvas_animate);
+}
+
+window.addEventListener('resize', containerCanvas_resizeCanvas);
+window.addEventListener('mousemove', (e) => {
+    containerCanvas_mouseX = e.clientX;
+    containerCanvas_mouseY = e.clientY;
+});
+
+containerCanvas_resizeCanvas();
+containerCanvas_animate();
+
+
+//~ CANVAS Container END
 
 //~ Календарь
 
@@ -653,6 +749,7 @@ function formatingAnimation() {
   const dashboardIconEND = document.querySelector('.textAreaDashboard > i.fa-check')
   const statusFinishIcon = document.querySelector('.statusFinishIcon')
   const dashboardInfoText = document.querySelector('.dashboardInfoText');
+  containerCanvas_highlightColor = "#00dcff"
   if (dashboardInfoText) {
     dashboardInfoText.classList.add("generating");
   } else {
@@ -1324,6 +1421,7 @@ reader.readAsArrayBuffer(pdfBlob);
 let generateRenderTime = 0;
 
 async function renderPDF(pdfData) {
+  containerCanvas_highlightColor = "#b3ff00"
   const pdfjsLib = window['pdfjsLib'];
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.9.179/pdf.worker.min.js';
 
@@ -1412,6 +1510,7 @@ async function renderPDF(pdfData) {
       canvasContainer.removeChild(loaderContainer);
     }
 
+    containerCanvas_highlightColor = '#5E5E5E';
     canvasContainer.style.overflowY = "auto";
     // Показываем все canvas обратно
     Array.from(canvasContainer.getElementsByTagName("canvas")).forEach(c => c.style.display = "flex");

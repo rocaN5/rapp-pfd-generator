@@ -84,7 +84,7 @@ h1 {
   color: #d8d8d8;
 }
 
-form {
+form#pdf-form {
   display: flex;
   flex-direction: column;
   width: 60%;
@@ -92,9 +92,16 @@ form {
   overflow-y: auto;
   padding: 0px 18px;
   gap: 10px;
+  z-index: 1;
 }
 
-form::before {
+#containerCanvas{
+  position: fixed;
+  background: #232323;
+  width: 100%;
+}
+
+form#pdf-form::before {
   content: '';
   position: fixed;
   bottom: 10px;
@@ -149,6 +156,13 @@ a{
   padding: 0px 50px;
   background: linear-gradient(90deg, #171717, #232323);
   width: 30%;
+}
+
+#previewCanvas{
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
 }
 
 .preview h2 {
@@ -229,6 +243,9 @@ select option:hover {
   background: #363636;
   border-radius: 10px;
   flex-flow: column;
+
+  scale: 1;
+  animation: loadingAnimation 500ms ease-in-out;
 }
 
 #line-numbers {
@@ -332,6 +349,9 @@ textarea.allOrders {
   padding-top: 20px;
   padding-bottom: 50px;
   transition: 50ms;
+
+  scale: 1;
+  animation: loadingAnimation 500ms ease-in-out;
   canvas{
     border-bottom: 2px solid #464646;
     box-shadow: 0px 0px 10px 0px #000, 0px 0px 10px 0px #000;
@@ -550,6 +570,9 @@ button.no-cargo {
   padding: 10px;
   background: #363636;
   border-radius: 10px;
+
+  scale: 1;
+  animation: loadingAnimation 500ms ease-in-out;
 }
 
 .orderData-input{
@@ -681,6 +704,9 @@ button.textAreaControls-button{
   padding-left: 34px;
   align-items: center;
   border-radius: 10px;
+  
+  scale: 1;
+  animation: loadingAnimation 500ms ease-in-out;
 }
 
 .textAreaDashboard:has(span.statusFinishIcon) .dashboardInfoText{
@@ -834,6 +860,7 @@ header{
   background: linear-gradient(45deg, black, #232323);
   background-color: #000;
   padding: 10px;
+  padding-bottom: 8px;
   box-shadow: 0px 0px 10px 0px #000, 0px 0px 10px 0px #000, 0px 0px 10px 0px #000, 0px 0px 10px 0px #000;
   z-index: 999999999999;
   display: flex;
@@ -844,6 +871,10 @@ header{
 
   transition: 500ms cubic-bezier(0.39, 0.58, 0.57, 1);
   transform: translateY(calc(-100% + 60px));
+}
+
+header.active{
+  padding-bottom: 10px;
 }
 
 header.onLoading{
@@ -862,6 +893,7 @@ header.onLoading{
   display: flex;
   width: 100%;
   justify-content: space-between;
+  align-items: center;
 }
 
 .callMenu .cellMenu-container{
@@ -986,10 +1018,10 @@ button.menuItem:focus-visible .menuItemInfo-title{
   background-image: url("seller.webp");
 }
 #menuItem-4{
-  background-image: url("https://zastavki.gas-kvas.com/uploads/posts/2024-09/zastavki-gas-kvas-com-9r42-p-zastavki-stalker-anomaliya-2.jpg");
+  background-image: url("anmoaly.webp");
 }
 #menuItem-5{
-  background-image: url("https://media.gettyimages.com/id/79122754/photo/goalkeeper-making-a-save.jpg?s=612x612&w=gi&k=20&c=hwYpxDuPT3aG84NFabkzEBdCI8DSJ7KmqRU5qNSbNH8=");
+  background-image: url("duble-zasil.webp");
 }
 #menuItem-5 > p{
   font-size: 1.6rem;
@@ -1313,6 +1345,19 @@ header h1{
   border-radius: 10px;
   display: flex;
   width: fit-content;
+  scale: 1;
+  animation: loadingAnimation 500ms ease-in-out;
+}
+
+@keyframes loadingAnimation{
+  from{
+    opacity: 0;
+    scale: .8;
+  }
+  to{
+    opacity: 1;
+    scale: 1;
+  }
 }
 
 .documentDataBlock{
@@ -1606,6 +1651,12 @@ label[for="disableTooltip"]{
   border-radius: 10px;
   backdrop-filter: blur(2px);
   border: 2px solid #2e2e2e;
+
+  --tooltipPosition-x: 50%;
+  --tooltipPosition-y: 80px;
+  --tooltipArrowPosition-type-y: 2.2;
+  --tooltipArrowRotation: 180deg;
+  --tooltipText: "Вкл/выкл подсказки";
 }
 
 label[for="disableTooltip"] p {
@@ -1615,21 +1666,21 @@ label[for="disableTooltip"] p {
 }
 
 .disableTooltip-buttton-container{
-  width: 36px;
-  height: 22px;
+  width: 26px;
+  height: 18px;
   border-radius: 20px;
-  background: linear-gradient(45deg, #00dcff, #0093ff);
-  box-shadow: 0px 0px 10px 0px #000, 0px 0px 8px 0px #000 inset;
+  background: linear-gradient(45deg, #cf0, #fff700);
+  box-shadow: #cf0 0px 0px 6px 0px;
   display: flex;
   align-items: center;
   position: relative;
   padding: 0px 4px;
   transition: 200ms;
-  filter: grayscale(1);
+  filter: grayscale(1) brightness(0.9);
 }
 
 .disableTooltip-buttton-ball{
-  --bwh: 16px;
+  --bwh: 12px;
   width: var(--bwh);
   height: var(--bwh);
   background: #ffffff;

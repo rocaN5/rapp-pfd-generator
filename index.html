@@ -10,8 +10,6 @@
   <link href="Roboto-Regular.ttf">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.28/dist/jspdf.plugin.autotable.min.js"></script>
-  <!-- <link rel="stylesheet" href="https://mozilla.github.io/pdf.js/web/viewer.css"> -->
-  <script src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.9.179/pdf.min.js"></script>
   <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.5.2/css/all.css">
 </head>
@@ -65,8 +63,8 @@
         <h1>Магистрали</h1>
       </div>
       <div class="cellMenu-container">
-        <label for="disableTooltip">
-          <input type="checkbox" id="disableTooltip">
+        <label for="disableTooltip" class="pegasusTooltip">
+          <input type="checkbox" id="disableTooltip" checked>
           <div class="disableTooltip-buttton-container">
             <div class="disableTooltip-buttton-ball"></div>
           </div>
@@ -78,6 +76,7 @@
   </header>
   <div class="modalWindow"></div>
   <div class="container">
+    <canvas id="containerCanvas"></canvas>
     <form id="pdf-form">
       <h1>Генерация PDF-файла</h1>
 
@@ -239,6 +238,7 @@
       </div>
     </div>
     <div class="preview">
+      <canvas id="previewCanvas"></canvas>
       <h1>Предварительный просмотр</h1>
       <div id="canvasContainer">
         <div class="previewScaleControl">
@@ -266,6 +266,6 @@
   <script src="https://cdn.jsdelivr.net/gh/sphilee/jsPDF-CustomFonts-support/dist/jspdf.customfonts.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/sphilee/jsPDF-CustomFonts-support/dist/fonts/pt-sans-normal.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.9.179/pdf.min.js"></script>
-  <script src="script.js"></script>
+  <script src="script.js" defer></script>
 </body>
 </html>
