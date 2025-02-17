@@ -911,13 +911,73 @@ header.onLoading{
   font-family: 'Roboto';
   font-size: 2rem;
   font-weight: 800;
-  padding: 10px;
   border-radius: 10px;
   overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  text-align: center;
 
   opacity: 0;
   transform: translateY(-15px);
   transition: 300ms;
+}
+
+label.menuItem input{
+  display: none;
+}
+
+label.menuItem:has(input:checked){
+  border-color: #cf0 !important;
+}
+
+label.menuItem::before{
+  position: absolute;
+  content: 'Выбран';
+  z-index: 999999;
+  font-size: .8rem;
+  color: #000;
+  padding: 4px 20px;
+  padding-bottom: 6px;
+  background: #fff;
+  border-radius: 0px 20px 0px 0px;
+  margin: 0;
+  bottom: -4px;
+  left: 0;
+  box-shadow: 0px 6px 10px #000, 0px 5px 10px #000;
+  transition: 300ms;
+  transform: translate(-150%, 150%);
+  opacity: 1;
+}
+
+label.menuItem:has(input:checked)::before {
+  background: #cf0;
+  transform: translateY(0);
+  transition: 300ms;
+  opacity: 1;
+}
+
+.menuItemBadge{
+  position: absolute;
+  z-index: 999999999;
+  color: #000000;
+  padding: 6px 6px 10px 10px;
+  border-radius: 0px 0px 0px 50%;
+  background: #fff;
+  font-size: 1rem;
+  line-height: 1rem;
+  transition: 300ms;
+  top: -2px;
+  right: -2px;
+  transform: translate(150%, -150%);
+  box-shadow: 0px 0px 10px #000, 0px 0px 10px #000;
+}
+
+label.menuItem:has(input:checked) .menuItemBadge{
+  transition: 300ms;
+  background: #cf0;
+  transform: unset;
 }
 
 header.active .menuItem{
@@ -925,8 +985,8 @@ header.active .menuItem{
   transform: translateY(0);
 }
 
-button.menuItem:focus-visible,
-button.menuItem:hover {
+label.menuItem:focus-visible,
+label.menuItem:hover {
   outline: none;
   transition: 300ms;
   border-color: #ffffff;
@@ -980,23 +1040,23 @@ button.menuItem:hover {
   transition: 300ms;
 }
 
-button.menuItem:focus-visible .menuItemInfo-container,
-button.menuItem:hover .menuItemInfo-container{
+label.menuItem:focus-visible .menuItemInfo-container,
+label.menuItem:hover .menuItemInfo-container{
   opacity: 1;
   transition: 300ms;
 }
 
-button.menuItem:focus-visible p.menuItemTitle,
-button.menuItem:hover p.menuItemTitle{
+label.menuItem:focus-visible p.menuItemTitle,
+label.menuItem:hover p.menuItemTitle{
   opacity: 0;
   transition: 300ms;
 }
 
 
-button.menuItem:hover .menuItemInfo-descripton,
-button.menuItem:focus-visible .menuItemInfo-descripton,
-button.menuItem:hover .menuItemInfo-title,
-button.menuItem:focus-visible .menuItemInfo-title{
+label.menuItem:hover .menuItemInfo-descripton,
+label.menuItem:focus-visible .menuItemInfo-descripton,
+label.menuItem:hover .menuItemInfo-title,
+label.menuItem:focus-visible .menuItemInfo-title{
   transform: translateY(0);
   transition: 300ms;
 }
@@ -1006,6 +1066,7 @@ button.menuItem:focus-visible .menuItemInfo-title{
   transition: 300ms;
   text-shadow: 0px 0px 20px #000, 0px 0px 20px #000, 0px 0px 20px #000, 0px 0px 20px #000;
   margin: 0;
+  color: #fff;
 }
 
 #menuItem-1{

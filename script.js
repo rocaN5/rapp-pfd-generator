@@ -3,6 +3,44 @@ window.onload = () => {
   console.log("Page loaded ✅");
 };
 
+//A- Global variables
+
+let currentRappGenetarType = 1;
+
+const currentGeneratorType_title = document.getElementById("currentGeneratorType-title");
+const currentGeneratorType_selection = document.querySelectorAll("input.currentGeneratorType-selection");
+
+//A- Global variables END
+
+//~ CHANGE generator type
+
+currentGeneratorType_selection.forEach(input => {
+  input.addEventListener("change", () => {
+    let title = "";
+    if (input.id === "rapp-1") {
+      title = "Магистрали";
+      currentRappGenetarType = 1
+    } else if (input.id === "rapp-2") {
+      title = "Курьеры";
+      currentRappGenetarType = 2
+    } else if (input.id === "rapp-3") {
+      title = "Мерчи";
+      currentRappGenetarType = 3
+    } else if (input.id === "rapp-4") {
+      title = "Аномалии";
+      currentRappGenetarType = 4
+    } else if (input.id === "rapp-5") {
+      title = "Засылы / Дубли";
+      currentRappGenetarType = 5
+    } else {
+      title = "Что-то новенькое 😐";
+    }
+    currentGeneratorType_title.innerText = title;
+  });
+});
+
+//~ CHANGE generator type END
+
 //~ HEADER toggle button
 const header = document.querySelector('header');
 const container = document.querySelector('.container');

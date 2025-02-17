@@ -16,41 +16,61 @@
 <body>
   <header class="onloading">
     <nav class="menuSelection">
-      <button class="menuItem" id="menuItem-1">
+      <label for="rapp-1" class="menuItem" id="menuItem-1">
+        <input type="radio" class="currentGeneratorType-selection" id="rapp-1" name="rapp" checked>
+        <div class="menuItemBadge">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
         <p class="menuItemTitle">Магистрали</p>
         <div class="menuItemInfo-container">
           <p class="menuItemInfo-title">РАПП на Магистраль</p>
           <p class="menuItemInfo-descripton">Документ для передачи заказа(ов) на другие СЦ, если нет системной возможности</p>
         </div>
-      </button>
-      <button class="menuItem" id="menuItem-2">
+      </label>
+      <label for="rapp-2" class="menuItem" id="menuItem-2">
+        <input type="radio" class="currentGeneratorType-selection" id="rapp-2" name="rapp">
+        <div class="menuItemBadge">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
         <p class="menuItemTitle">Курьеры</p>
         <div class="menuItemInfo-container">
           <p class="menuItemInfo-title">РАПП на Курьера</p>
           <p class="menuItemInfo-descripton">Документ для передачи заказа(ов) в доставку курьером или СРК, если нет системной возможности</p>
         </div>
-      </button>
-      <button class="menuItem" id="menuItem-3">
-        <p class="menuItemTitle">Селлеры</p>
+      </label>
+      <label for="rapp-3" class="menuItem" id="menuItem-3">
+        <input type="radio" class="currentGeneratorType-selection" id="rapp-3" name="rapp">
+        <div class="menuItemBadge">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <p class="menuItemTitle">Мерчи</p>
         <div class="menuItemInfo-container">
-          <p class="menuItemInfo-title">РАПП на Селлера</p>
+          <p class="menuItemInfo-title">РАПП на Мерчей</p>
           <p class="menuItemInfo-descripton">Документ для передачи заказа(ов) мерчу, если нет системной возможности</p>
         </div>
-      </button>
-      <button class="menuItem" id="menuItem-4">
+      </label>
+      <label for="rapp-4" class="menuItem" id="menuItem-4">
+        <input type="radio" class="currentGeneratorType-selection" id="rapp-4" name="rapp">
+        <div class="menuItemBadge">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
         <p class="menuItemTitle">Аномалии</p>
         <div class="menuItemInfo-container">
           <p class="menuItemInfo-title">РАПП на Аномалии</p>
           <p class="menuItemInfo-descripton">Документ для передачи аномалий на ЕВСЦ</p>
         </div>
-      </button>
-      <button class="menuItem" id="menuItem-5">
+      </label>
+      <label for="rapp-5" class="menuItem" id="menuItem-5">
+        <input type="radio" class="currentGeneratorType-selection" id="rapp-5" name="rapp">
+        <div class="menuItemBadge">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
         <p class="menuItemTitle">Засылы / Дубли</p>
         <div class="menuItemInfo-container">
           <p class="menuItemInfo-title">РАПП на Засылы / Дубли</p>
           <p class="menuItemInfo-descripton">Документ для передачи дублей / засылов на другие СЦ</p>
         </div>
-      </button>
+      </label>
     </nav>
     <div class="callMenu">
       <div class="cellMenu-container">
@@ -60,7 +80,7 @@
         <button class="menuToggle pegasusTooltip">
           <i class="fa-solid fa-bars"></i>
         </button>
-        <h1>Магистрали</h1>
+        <h1 id="currentGeneratorType-title">Магистрали</h1>
       </div>
       <div class="cellMenu-container">
         <label for="disableTooltip" class="pegasusTooltip">
