@@ -109,7 +109,7 @@
               <input type="text" id="actNumber" class="pegasusTooltip" placeholder="Введите номер акта" required value="MAAT-ir-000000001">
             </div>
             <div class="documentDataItem">
-              <label for="actTime">Время:</label>
+              <label for="actTime">Дата:</label>
               <div class="date-picker-container">
                 <div class="custom-date-display" id="dateDisplay">Выбор даты</div>
               </div>
@@ -143,10 +143,12 @@
                 <option value="СЦ Дзержинский">СЦ Дзержинский</option>
                 <option value="СЦ Троицкий">СЦ Троицкий</option>
                 <option value="СЦ Казань">СЦ Казань</option>
+                <option value="СЦ Запад">СЦ Запад</option>
                 <option value="СЦ Самара">СЦ Самара</option>
                 <option value="СЦ Грибки">СЦ Грибки</option>
                 <option value="СЦ Ставрополь">СЦ Ставрополь</option>
                 <option value="СЦ Дмитровское">СЦ Дмитровское</option>
+                <option value="СЦ Ставрополь">СЦ Ставрополь</option>
               </select>
             </div>
           </div>
@@ -181,15 +183,92 @@
             <div>1</div>
           </div>
           <textarea class="allOrders" placeholder="″Номер заказа″ + ″Код грузоместа″"></textarea>
+          <div class="hints-container">
+            <h1 class="hints-container-title">Подсказка</h1>
+            <div class="hints-container-icon pegasusTooltip">
+              <i class="fa-solid fa-question"></i>
+            </div>
+            <div class="hints-container-block hints-card-container">
+              <div class="hints-container-item">
+                <h2 class="hints-container-item-title">
+                  Автораспознавание грузомест:
+                </h2>
+                <p class="hints-container-item-description">
+                  Генератор автоматически распознаёт текст, который начинается с "YP", "P0", "F0254" как грузоместо. Если в строчке, в которой указаны данные значения нет номера заказа, вместо него ставится прочерк
+                </p>
+              </div>
+              <div class="hints-container-item">
+                <h2 class="hints-container-item-title">
+                  Автозаполнение типа ГМ:
+                </h2>
+                <p class="hints-container-item-description">
+                  При генерации документа на отгрузку Засылов, Дублей и LOST заказов, если указать тип грузоместа ("Номер заказа" "код грузоместа" "Дубль/Зсыл/LOST") в поле ввода после грузоместа, генератор автоматически проставит его в строке
+                </p>
+              </div>
+              <div class="hints-container-item">
+                <h2 class="hints-container-item-title">
+                  Заказы без ГМ:
+                </h2>
+                <p class="hints-container-item-description">
+                  Если в поле ввода будет вписан любой возвратный шк или лот, его грузоместо автоматически не будет учитываться генератором, в РАППе две ячейки "Номер заказ" и "Код грузоместа" будут объединены в одну
+                </p>
+              </div>
+              <div class="hints-container-item">
+                <h2 class="hints-container-item-title">
+                  Чистая правда:
+                </h2>
+                <p class="hints-container-item-description">
+                  Ильяшенко - клоун 🤡
+                </p>
+              </div>
+              <div class="hints-container-item">
+                <h2 class="hints-container-item-title">
+                  Название подсказки:
+                </h2>
+                <p class="hints-container-item-description">
+                  Информация для подсказки🟢
+                </p>
+              </div>
+              <div class="hints-container-item">
+                <h2 class="hints-container-item-title">
+                  Название подсказки:
+                </h2>
+                <p class="hints-container-item-description">
+                  Информация для подсказки🔴
+                </p>
+              </div>
+              <div class="hints-container-item">
+                <h2 class="hints-container-item-title">
+                  Название подсказки:
+                </h2>
+                <p class="hints-container-item-description">
+                  Информация для подсказки🟢
+                </p>
+              </div>
+            </div>
+            <div class="hints-container-block">
+              <div class="hints-container-controls">
+                <button id="changeHintCard-backward">
+                  <i class="fa-duotone fa-solid fa-angles-left"></i>
+                </button>
+                <div class="hints-container-controls-position">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+                <button id="changeHintCard-forward">
+                  <i class="fa-duotone fa-solid fa-angles-right"></i>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-
-
       </div>
-      
-
       <div id="orders-container">
       </div>
-
     </form>
     <div id="calendarModalWindow">
       <div class="calendar" id="calendar">

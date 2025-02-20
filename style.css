@@ -12,6 +12,12 @@ html {
   cursor: default !important;
 }
 
+*::selection{
+  background: #b3ff00;
+  color: #000;
+  text-decoration: underline;
+}
+
 textarea::-webkit-scrollbar-track {
   margin-left: 80px;
 }
@@ -264,6 +270,10 @@ select option:hover {
   padding: 10px 0px;
 }
 
+#line-numbers > div{
+  user-select: none;
+}
+
 .empty-line{
   font-family: 'Roboto';
   color: #a70000;
@@ -291,7 +301,7 @@ select option:hover {
 
 textarea.allOrders {
   resize: none;
-  width: calc(100% - 20px);
+  position: relative;
   caret-color: #ffffff;
   height: var(--innerElementsHeight);
   font-size: 1rem;
@@ -307,7 +317,6 @@ textarea.allOrders {
   outline: 0;
   border: 0;
   transition: 200ms;
-  margin-left: 10px;
   border-radius: 10px;
   box-shadow: 0px 0px 0px 1px #000, 0px 0px 10px 0px #000 inset;
 }
@@ -555,12 +564,14 @@ button.no-cargo {
   border-radius: 10px;
   box-shadow: 0px 0px 0px 1px #000;
   transition: 200ms;
+  outline: 2px solid transparent;
 }
 
 .order-row:hover{
   box-shadow: 0px 0px 0px 1px #000, 0px 0px 10px #000, 0px 0px 10px #000000 inset;
   background: #151515;
   transition: 200ms;
+  outline: 2px solid #555555;
 }
 
 #orders-container{
@@ -580,7 +591,7 @@ button.no-cargo {
   padding-top: 18px;
   width: 170px;
   color: #ffffff;
-  border: 1px solid #4e4e4e;
+  border: 2px solid #4e4e4e;
   border-radius: 10px;
   background: #121212;
   font-size: 1rem;
@@ -638,13 +649,15 @@ button.no-cargo {
 .orderData-label{
   transform: translateY(-0.7rem);
   position: absolute;
-  top: 50%;
+  top: calc(50% + 2px);
   left: 10px;
   font-size: 1rem;
   transition: 150ms;
   margin: 0;
   color: #b5b5b5;
   cursor: text;
+  user-select: none;
+  pointer-events: none;
 }
 
 .buttonAutoDisabled{
@@ -665,6 +678,7 @@ button.no-cargo {
   display: flex;
   border-radius: 10px;
   transition: 200ms;
+  gap: 10px;
 }
 
 .textAreaControls{
@@ -1148,6 +1162,8 @@ header h1{
   font-family: 'Roboto';
   margin: 0;
   color: #fff;
+  user-select: none;
+  cursor: default;
 }
 
 /*~ Календарь */
@@ -1761,4 +1777,167 @@ label[for="disableTooltip"]:has(input#disableTooltip:checked) .disableTooltip-bu
   left: 0;
   transition: 200ms ease-in-out;
   box-shadow: 2px 2px 6px 0px #000;
+}
+
+label.orderType > select{
+  padding: 12px 6px;
+  padding-top: 18px;
+  width: 120px;
+  color: #ffffff;
+  border: 2px solid #4e4e4e;
+  border-radius: 10px;
+  background: #121212;
+  font-size: 1rem;
+  display: flex;
+  text-align: left;
+}
+
+label.orderType > h1{
+  position: absolute;
+  left: 10px;
+  transition: 150ms;
+  margin: 0;
+  color: #b5b5b5;
+  cursor: text;
+  user-select: none;
+  pointer-events: none;
+  top: 10%;
+  font-size: 0.7rem;
+  transform: unset;
+  font-weight: 100;
+}
+
+.hints-container{
+  width: 270px;
+  padding: 10px;
+  text-align: left;
+  display: flex;
+  flex-flow: column;
+  justify-content: space-between;
+  position: relative;
+  border-radius: 10px;
+  background: #272727;
+  border: 1px solid #000;
+  overflow: hidden;
+}
+
+.hints-container .hints-container-title{
+  margin: 0;
+  font-size: 1.5rem;
+  color: #fff;
+  text-align: center;
+  font-weight: 800;
+  font-family: 'Roboto';
+}
+
+.hints-container .hints-container-icon{
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 40px;
+  height: 40px;
+  line-height: 1rem;
+  font-size: 1rem;
+  color: #fff;
+  background: #1a1a1a;
+  border-radius: 0px 0px 0px 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-bottom: 1px solid #000;
+  border-left: 1px solid #000;
+  cursor: help;
+
+  --tooltipPosition-x: 50%;
+  --tooltipPosition-y: -20px;
+  --tooltipArrowPosition-type-y: 1;
+  --tooltipArrowRotation: 0deg;
+  --tooltipText: "Подсказки по заполнению полей ввода заказов";
+}
+
+.hints-container-block{
+  display: flex;
+  flex-flow: column;
+  gap: 10px;
+  user-select: unset;
+}
+
+.hints-card-container{
+  width: max-content;
+  flex-flow: row;
+  gap: 10px;
+  transition: 200ms;
+}
+
+.hints-container-item{
+  list-style: none;
+  margin: 0;
+  font-size: 1rem;
+  font-family: 'Roboto';
+  background: #121212;
+  border: 1px solid #000;
+  border-radius: 10px;
+  padding: 10px;
+  width: 250px;
+  transition: 200ms;
+}
+
+h2.hints-container-item-title{
+  margin: 0;
+  font-size: 1rem;
+  color: #d8d8d8;
+  font-family: 'Roboto';
+  margin-bottom: 6px;
+}
+
+p.hints-container-item-description{
+  color: #9d9d9d;
+  margin: 0;
+}
+
+.hints-container-controls{
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.hints-container-controls button{
+  padding: 10px;
+  border-radius: 50%;
+  line-height: 1rem;
+  background: transparent;
+  transition: 200ms;
+}
+.hints-container-controls button:hover{
+  background: #1c1c1c;
+  transition: 200ms;
+}
+
+.hints-container-controls-position{
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.hints-container-controls-position > span {
+  --hccps-size: 8px;
+  width: var(--hccps-size);
+  height: var(--hccps-size);
+  display: flex;
+  position: relative;
+  background: #525252;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0px 0px 0px 1px transparent, 0px 0px 0px 3px transparent;
+  outline: 0px solid transparent;
+  transition: 200ms;
+}
+
+.hints-container-controls-position > span.active
+{
+  background: #cf0;
+  box-shadow: 0px 0px 0px 1px #272727, 0px 0px 0px 3px #ccff0070;
+  outline: 1px solid #272727;
+  transition: 200ms;
 }

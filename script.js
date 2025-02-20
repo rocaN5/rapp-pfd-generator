@@ -30,7 +30,7 @@ currentGeneratorType_selection.forEach(input => {
       title = "Аномалии";
       currentRappGenetarType = 4
     } else if (input.id === "rapp-5") {
-      title = "Засылы / Дубли";
+      title = "Засылы / Дубли / Lost";
       currentRappGenetarType = 5
     } else {
       title = "Что-то новенькое 😐";
@@ -40,6 +40,121 @@ currentGeneratorType_selection.forEach(input => {
 });
 
 //~ CHANGE generator type END
+
+//~ CARD Controls
+
+const allHintCards = document.querySelectorAll(".hints-card-container > div");
+const hintsContainer = document.querySelector(".hints-card-container");
+const controlsContainer = document.querySelector(".hints-container-controls-position");
+const btnForward = document.getElementById("changeHintCard-forward");
+const btnBackward = document.getElementById("changeHintCard-backward");
+
+const cardCount = allHintCards.length;
+const cardWidth = allHintCards[0].offsetWidth;
+const gap = 10;
+const transitionDuration = 200;
+
+let hintCardOnScreenID = 1;
+let isTransitioning = false;
+let autoSwitchInterval = null;
+
+// Клонируем только первый и последний элемент
+const firstClone = allHintCards[0].cloneNode(true);
+const lastClone = allHintCards[cardCount - 1].cloneNode(true);
+firstClone.classList.add("cloned");
+lastClone.classList.add("cloned");
+
+hintsContainer.appendChild(firstClone);
+hintsContainer.insertBefore(lastClone, allHintCards[0]);
+
+const allCards = document.querySelectorAll(".hints-card-container > div");
+const totalCards = allCards.length;
+
+// Устанавливаем стартовую позицию
+hintsContainer.style.transform = `translateX(-${(cardWidth + gap) * hintCardOnScreenID}px)`;
+
+// Создаем контролы
+controlsContainer.innerHTML = "";
+const indicators = [];
+
+for (let i = 0; i < cardCount; i++) {
+  let span = document.createElement("span");
+  span.dataset.index = i;
+  indicators.push(span);
+  controlsContainer.appendChild(span);
+}
+
+function updateIndicators(index) {
+  indicators.forEach((span, i) => {
+    span.classList.toggle("active", i === index);
+  });
+}
+
+updateIndicators(0);
+
+function moveCarousel(direction) {
+  if (isTransitioning) return;
+  isTransitioning = true;
+  hintCardOnScreenID += direction;
+  let cardPosition = hintCardOnScreenID * (cardWidth + gap);
+  hintsContainer.style.transition = `transform ${transitionDuration}ms ease-in-out`;
+  hintsContainer.style.transform = `translateX(-${cardPosition}px)`;
+
+  setTimeout(() => {
+    if (hintCardOnScreenID === totalCards - 1) {
+      hintCardOnScreenID = 1;
+      hintsContainer.style.transition = "none";
+      hintsContainer.style.transform = `translateX(-${(cardWidth + gap) * hintCardOnScreenID}px)`;
+    } else if (hintCardOnScreenID === 0) {
+      hintCardOnScreenID = totalCards - 2;
+      hintsContainer.style.transition = "none";
+      hintsContainer.style.transform = `translateX(-${(cardWidth + gap) * hintCardOnScreenID}px)`;
+    }
+    updateIndicators(hintCardOnScreenID - 1);
+    isTransitioning = false;
+  }, transitionDuration);
+}
+
+btnForward.addEventListener("click", () => moveCarousel(1));
+btnBackward.addEventListener("click", () => moveCarousel(-1));
+
+indicators.forEach((span) => {
+  span.addEventListener("click", (e) => {
+    let index = Number(e.target.dataset.index);
+    hintCardOnScreenID = index + 1;
+    let cardPosition = hintCardOnScreenID * (cardWidth + gap);
+    hintsContainer.style.transition = `transform ${transitionDuration}ms ease-in-out`;
+    hintsContainer.style.transform = `translateX(-${cardPosition}px)`;
+    updateIndicators(index);
+  });
+});
+
+// Автоматическое переключение слайдов
+function startAutoSwitch() {
+  autoSwitchInterval = setInterval(() => {
+    moveCarousel(1);
+  }, 6000); // переключение слайдов каждые 5 секунд
+}
+
+function stopAutoSwitch() {
+  if (autoSwitchInterval) {
+    clearInterval(autoSwitchInterval);
+    autoSwitchInterval = null;
+  }
+}
+
+// Запуск авто-переключения при покидании мышью
+hintsContainer.addEventListener("mouseleave", () => {
+  startAutoSwitch();
+});
+startAutoSwitch();
+// Остановка авто-переключения при наведении мыши
+hintsContainer.addEventListener("mouseenter", () => {
+  stopAutoSwitch();
+});
+
+
+//~ CARD Controls END
 
 //~ HEADER toggle button
 const header = document.querySelector('header');
@@ -330,7 +445,7 @@ let containerCanvas_offsetX = 0;
 let containerCanvas_offsetY = 0;
 let containerCanvas_mouseX = -1000;
 let containerCanvas_mouseY = -1000;
-const containerCanvas_circleSize = 80;  // Размер круга, который будет следовать за курсором
+const containerCanvas_circleSize = 60;  // Размер круга, который будет следовать за курсором
 const containerCanvas_circleYOffset = -60;  // Смещение круга по вертикали
 
 function containerCanvas_resizeCanvas() {
@@ -345,7 +460,7 @@ function containerCanvas_drawGrid() {
     // Сначала рисуем круг за квадратами, смещая его по вертикали на -60 пикселей
     const gradient = containerCanvas_ctx.createRadialGradient(containerCanvas_mouseX, containerCanvas_mouseY + containerCanvas_circleYOffset, 0, containerCanvas_mouseX, containerCanvas_mouseY + containerCanvas_circleYOffset, containerCanvas_circleSize);
     gradient.addColorStop(0, containerCanvas_highlightColor);
-    gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    gradient.addColorStop(1, containerCanvas_bgColor);
     
     containerCanvas_ctx.fillStyle = gradient;
     containerCanvas_ctx.beginPath();
@@ -847,150 +962,339 @@ function formatingAnimation() {
 //~ Анимация генерации документа в DASHBOARD
 
 
-document.querySelector("textarea.allOrders").addEventListener("input", function (event) {
+// document.querySelector("textarea.allOrders").addEventListener("input", function (event) {
   
-  formatingAnimation()
+//   formatingAnimation()
 
-  let setcionNumber = 1;
+//   let setcionNumber = 1;
 
-  const textarea = document.querySelector('.allOrders');
-  const lineNumbersDiv = document.getElementById('line-numbers');
+//   const textarea = document.querySelector('.allOrders');
+//   const lineNumbersDiv = document.getElementById('line-numbers');
 
-  const lineNumber = textarea.value.split('\n');
-  let lineNumbers = '';
-  let number = 1;
+//   const lineNumber = textarea.value.split('\n');
+//   let lineNumbers = '';
+//   let number = 1;
 
-  lineNumber.forEach((line) => {
-    if (line.trim() !== '') {
-      lineNumbers += `${number}\n`;
-      number++;
-    } else {
-      lineNumbers += `<span style="color: #8d8d8d;">×</span>\n`;
-    }
-  });
+//   lineNumber.forEach((line) => {
+//     if (line.trim() !== '') {
+//       lineNumbers += `${number}\n`;
+//       number++;
+//     } else {
+//       lineNumbers += `<span style="color: #8d8d8d;">×</span>\n`;
+//     }
+//   });
 
-  lineNumbersDiv.innerHTML = lineNumbers.replace(/\n/g, '<br>');
+//   lineNumbersDiv.innerHTML = lineNumbers.replace(/\n/g, '<br>');
 
-  // Синхронизация скролла
-  textarea.addEventListener('scroll', () => {
-    lineNumbersDiv.scrollTop = textarea.scrollTop;
-  });
+//   // Синхронизация скролла
+//   textarea.addEventListener('scroll', () => {
+//     lineNumbersDiv.scrollTop = textarea.scrollTop;
+//   });
 
-  const ordersContainer = document.getElementById("orders-container");
-  const lines = event.target.value
-    .split('\n')
-    .map(line => line.trim().replace(/\s+/g, ' '))
-    .filter(line => line.length > 0);
+//   const ordersContainer = document.getElementById("orders-container");
+//   const lines = event.target.value
+//     .split('\n')
+//     .map(line => line.trim().replace(/\s+/g, ' '))
+//     .filter(line => line.length > 0);
 
-  ordersContainer.innerHTML = '';
+//   ordersContainer.innerHTML = '';
 
-  lines.forEach((line, index) => {
-    line = line.replace(/[()]/g, '');
-    const parts = line.split(' ').filter(part => part.length > 0);
+//   lines.forEach((line, index) => {
+//     line = line.replace(/[()]/g, '');
+//     const parts = line.split(' ').filter(part => part.length > 0);
 
-    let orderNumber = '';
-    let cargoCode = '';
-    let oneRow = false;
+//     let orderNumber = '';
+//     let cargoCode = '';
+//     let anomalyDescription = '';
+//     let orderType = '—'
+//     let oneRow = false;
 
-    if (parts.length > 0) {
-      const firstPart = parts[0];
+//     if(currentRappGenetarType === 1){
+//       //~ МАГИСТРАЛИ • МАГИСТАРЛИ • МАГИСТАРЛИ 
+//       if (parts.length > 0) {
+//         const firstPart = parts[0];
 
-      if (parts.length > 1 && parts[1].startsWith('LO-')) {
-        cargoCode = parts[0];
-        orderNumber = parts[1];
-        oneRow = false;
-      } 
-      else if (firstPart.startsWith('LO-')) {
-        orderNumber = firstPart;
-        cargoCode = parts.slice(1).join(' ');
-        oneRow = false;
-      }
-      else if (parts.length > 1 && parts[0].startsWith('F025')) {
-        cargoCode = parts[0];
-        orderNumber = parts.slice(1).join(' ');
-        oneRow = false;
-      }
-      else if (parts.length > 1 && parts[0].startsWith('0')) {
-        cargoCode = parts[0];
-        orderNumber = parts.slice(1).join(' ');
-        oneRow = false;
-      }
-      else if (firstPart.startsWith('YP')) {
-        cargoCode = firstPart;
-        orderNumber = parts.slice(1).join(' ');
-        oneRow = false;
-      }
-      else if (firstPart.startsWith('F1254') || firstPart.startsWith('FA254') || firstPart.startsWith('VOZ') || firstPart.startsWith('PVZ') || firstPart.startsWith('FBS') || firstPart.startsWith('FBY')) {
-        orderNumber = firstPart;
-        cargoCode = '';
-        oneRow = true;
-      }
-      else if (/^\d{9,}-\d+$/.test(firstPart)) {
-        cargoCode = firstPart;
-        orderNumber = firstPart.split('-')[0];
-        oneRow = false;
-      } else {
-        orderNumber = parts[0] || '';
-        cargoCode = parts.slice(1).join(' ') || '';
-        oneRow = false;
-      }
-    }
+//         if (parts.length > 1 && parts[1].startsWith('LO-')) {
+//             cargoCode = parts[0];
+//             orderNumber = parts[1];
+//             oneRow = false;
+//         }
+//         else if (firstPart.startsWith('LO-')) {
+//             orderNumber = firstPart;
+//             cargoCode = parts.slice(1).join(' ');
+//             oneRow = false;
+//         }
+//         else if (parts.length > 1 && parts[0].startsWith('F025')) {
+//             cargoCode = parts[0];
+//             orderNumber = parts.slice(1).join(' ');
+//             oneRow = false;
+//         }
+//         else if (parts.length > 1 && parts[0].startsWith('0')) {
+//             cargoCode = parts[0];
+//             orderNumber = parts.slice(1).join(' ');
+//             oneRow = false;
+//         }
+//         else if (parts.length > 1 && parts[0].startsWith('72')) {
+//             cargoCode = parts[0];
+//             orderNumber = parts.slice(1).join(' ');
+//             oneRow = false;
+//         }
+//         else if (firstPart.startsWith('YP')) {
+//             cargoCode = firstPart;
+//             orderNumber = parts.slice(1).join(' ');
+//             oneRow = false;
+//         }
+//         else if (firstPart.startsWith('F1254') || firstPart.startsWith('FA254') || firstPart.startsWith('VOZ') || firstPart.startsWith('PVZ') || firstPart.startsWith('FBS') || firstPart.startsWith('FBY')) {
+//             orderNumber = firstPart;
+//             cargoCode = '';
+//             oneRow = true;
+//         }
+//         else if (/^\d{9,}-\d+$/.test(firstPart)) {
+//             cargoCode = firstPart;
+//             orderNumber = firstPart.split('-')[0];
+//             oneRow = false;
+//         } else {
+//             orderNumber = parts[0] || '';
+//             cargoCode = parts.slice(1).join(' ') || '';
+//             oneRow = false;
+//         }
+//     }
+//   }
+//   if (currentRappGenetarType === 4) {
+//     //~ АНОМАЛИИ • АНОМАЛИИ • АНОМАЛИИ
+//     if (parts.length > 1 && parts[1].startsWith('FA254')) {
+//         orderNumber = parts[0] || '';
+//         cargoCode = parts.length > 1 ? parts[1] : '';
 
-    const newOrderRow = document.createElement("div");
-    newOrderRow.classList.add("order-row");
+//         if (cargoCode.includes(' ')) {
+//             let cargoParts = cargoCode.split(' ');
+//             cargoCode = cargoParts[0]; // Берем только первую часть
+//             anomalyDescription = cargoParts.slice(1).join(' '); // Остальное уходит в anomalyDescription
+//         }else {
+//             anomalyDescription = parts.length > 2 ? parts.slice(2).join(' ') : '';
+//         }
+//     }else {
+//       orderNumber = parts[0] || '';
+//       cargoCode = parts.slice(1).join(' ') || '';
 
-    newOrderRow.innerHTML = `
-    <div class="orderRowNumber">${setcionNumber++}</div>
+//       if (cargoCode.includes(' ')) {
+//           let cargoParts = cargoCode.split(' ');
+//           cargoCode = cargoParts[0]; // Оставляем первую часть в cargoCode
+//           anomalyDescription = cargoParts.slice(1).join(' '); // Остальное в anomalyDescription
+//       }
+//     }
+//   }else if (currentRappGenetarType === 5) {
+//     const firstPart = parts[0];
 
-    <div class="orderData-container">
-      <input type="text" class="orderData-input" id="orderNumber${index + 1}" value="${orderNumber}" placeholder="Введите номер отправления" required autocomplete="off">
-      <label for="orderNumber${index + 1}" class="orderData-label">Номер отправления:</label>
-    </div>
+//     // Проверка на строку, начинающуюся с "YP"
+//     if (firstPart.startsWith('YP') || firstPart.startsWith('P0')) {
+//         orderNumber = "—";
+//         cargoCode = firstPart; // Текст, начинающийся с YP
+//         // Определяем тип из следующей части строки, если он есть
+//         if (parts.length > 1) {
+//             const lowerText = parts[1].toLowerCase();
+//             if (lowerText.includes("дубль") || lowerText.includes("le,km")) {
+//                 orderType = "Дубль";
+//             } else if (lowerText.includes("lost") || lowerText.includes("дщые")) {
+//                 orderType = "LOST";
+//             } else if (lowerText.includes("засыл") || lowerText.includes("pfcsk")) {
+//                 orderType = "Засыл";
+//             } else {
+//                 orderType = "Неизвестно"; // Если тип не найден
+//             }
+//         }
+//         oneRow = false;
+//     } else if (parts.length > 1 && parts[1].startsWith('LO-')) {
+//         cargoCode = parts[0];
+//         orderNumber = parts[1];
+//         oneRow = false;
+//     } else if (firstPart.startsWith('LO-')) {
+//         orderNumber = firstPart;
+//         cargoCode = parts.slice(1).join(' ').split(' ')[0]; // Только первая часть после пробела
+//         oneRow = false;
+//     } else if (firstPart.startsWith('FA254')) {
+//         orderNumber = firstPart;
+//         cargoCode = 'Аномалия';
+//         orderType = "LOST";
+//         oneRow = true;
+//     } else {
+//         orderNumber = parts[0] || '';
+//         cargoCode = parts.slice(1).join(' ').split(' ')[0] || ''; // Только первая часть после пробела
+//         oneRow = false;
+//     }
 
-    <button type="button" class="switchCargo pegasusTooltip" title="Поменять местами">
-      <i class="fa-solid fa-arrows-repeat"></i>
-    <div class="orderData-container">
-      <input type="text" class="orderData-input cargoGroup" id="cargoCode${index + 1}" value="${cargoCode}" placeholder="Введите код грузоместа" ${oneRow === true ? 'disabled' : ''} autocomplete="off">
-      <label for="cargoCode${index + 1}" class="orderData-label">Код грузоместа:</label>
-      <button type="button" class="no-cargo">
-        <i class="fa-solid fa-eye"></i>
-      </button>
-    </div>
-    <div class="orderData-container">
-      <input type="number" class="orderData-input orderData-inputCount" id="cargoCount${index + 1}" placeholder="Введите количество" value="1" autocomplete="off" min="1">
-      <label for="cargoCount${index + 1}" class="orderData-label">Кол-во:</label>
-    </div>
+//     // Автоопределение типа грузоместа
+//     const lowerText = line.toLowerCase();
+//     if (lowerText.includes("дубль") || lowerText.includes("le,km")) {
+//       orderType = "Дубль";
+//   } else if (lowerText.includes("lost") || lowerText.includes("дщые")) {
+//       orderType = "LOST";
+//   } else if (lowerText.includes("засыл") || lowerText.includes("pfcsk")) {
+//       orderType = "Засыл";
+//   }
+// }
 
-    `;
+  
 
-    ordersContainer.appendChild(newOrderRow);
+//     const newOrderRow = document.createElement("div");
+//     newOrderRow.classList.add("order-row");
 
-    newOrderRow.querySelector(".no-cargo").addEventListener("click", function () {
-      this.classList.remove('buttonAutoDisabled')
-      const row = this.closest(".order-row");
-      const cargoInput = row.querySelector('input[type="text"]:nth-of-type(2)');
-      cargoInput.disabled = !cargoInput.disabled;
-      throttledGeneratePreview()
-    });
+//     newOrderRow.innerHTML = `
+//     <div class="orderRowNumber">${setcionNumber++}</div>
 
-    newOrderRow.querySelectorAll("input").forEach(input => {
-      input.addEventListener("input", throttledGeneratePreview());
-    });
-  });
+//     <div class="orderData-container">
+//       <input type="text"
+//         class="orderData-input"
+//         id="orderNumber${index + 1}"
+//         value="${orderNumber}"
+//         placeholder="${
+//           currentRappGenetarType === 1 || 5
+//           ?
+//           'Введите номер отправления' 
+//           :
+//           currentRappGenetarType === 4 
+//           ?
+//           'Номер аномалии' 
+//           :
+//           'Что-то сломлось'
+//         }"
+//         required
+//         autocomplete="off"
+//       >
+//       <label
+//         for="orderNumber${index + 1}"
+//         class="orderData-label">
+//         ${
+//           currentRappGenetarType === 1 || 5
+//           ?
+//           'Номер отправления' 
+//           :
+//           currentRappGenetarType === 4 
+//           ?
+//           'Тикет' 
+//           :
+//           'Что-то сломлось'
+//         }
+//       </label>
+//     </div>
 
-  document.querySelectorAll(".order-row").forEach(row => {
-    row.querySelectorAll(".switchCargo").forEach(button => {
-      button.addEventListener("click", function () {
-        const orderInput = row.querySelector('input[id^="orderNumber"]');
-        const cargoInput = row.querySelector('input[id^="cargoCode"]');
-        if (!cargoInput.disabled) { // Меняем местами, если поле не заблокировано
-          [orderInput.value, cargoInput.value] = [cargoInput.value, orderInput.value];
-          throttledGeneratePreview()
-        }
-      });
-    });
-  });
-});
+//     <button type="button" class="switchCargo pegasusTooltip" title="Поменять местами">
+//       <i class="fa-solid fa-arrows-repeat"></i>
+//     <div class="orderData-container">
+//       <input
+//         type="text"
+//         class="orderData-input cargoGroup"
+//         id="cargoCode${index + 1}"
+//         value="${cargoCode}"
+//         placeholder="${
+//           currentRappGenetarType === 1 || 5
+//           ?
+//           'Код грузоместа' 
+//           :
+//           currentRappGenetarType === 4 
+//           ?
+//           'Тикет аномалии' 
+//           :
+//           'Что-то сломлось'
+//         }"
+//         ${oneRow === true ? 'disabled' : ''}
+//         autocomplete="off"
+//       >
+//       <label
+//         for="cargoCode${index + 1}"
+//         class="orderData-label">
+//         ${
+//           currentRappGenetarType === 1 || 5 
+//           ?
+//           'Код грузоместа' :
+//           currentRappGenetarType === 4 
+//           ?
+//           'Тикет аномалии' :
+//           'Что-то сломлось'
+//         }
+//         </label>
+//         ${
+//           currentRappGenetarType === 4
+//             ? ''
+//             : (oneRow === true
+//                 ? (currentRappGenetarType === 1
+//                     ? '<button type="button" class="no-cargo buttonAutoDisabled"><i class="fa-solid fa-eye"></i></button>'
+//                     : '<button type="button" class="no-cargo"><i class="fa-solid fa-eye-slash"></i></button>')
+//                 : '<button type="button" class="no-cargo"><i class="fa-solid fa-eye-slash"></i></button>')
+//         }
+        
+//         ${
+//           currentRappGenetarType === 4
+//           ?
+//           `<div class="orderData-container">
+//             <input
+//             type="text"
+//             class="orderData-i7nput"
+//             id="anomalyDescription${index + 1}"
+//             value="${anomalyDescription}"
+//             placeholder="Описание Аномалии"
+//             required autocomplete="off">
+//             <label
+//             for="anomalyDescription${index + 1}"
+//             class="orderData-label">
+//               Описание Аномалии
+//             </label>
+//           </div>`
+//           :
+//           currentRappGenetarType === 5
+//           ?
+//           `
+//           <div class="orderData-container">
+//             <label class="orderType" for="selectOrderType${index + 1}">
+//                 <h1>Тип грузоместа:</h1>
+//                 <select class="selectListener" id="selectOrderType${index + 1}">
+//                     <option value="Засыл" ${orderType === "Засыл" ? 'selected' : ''}>Засыл</option>
+//                     <option value="Дубль" ${orderType === "Дубль" ? 'selected' : ''}>Дубль</option>
+//                     <option value="LOST" ${orderType === "LOST" ? 'selected' : ''}>LOST</option>
+//                     <option value="—" ${orderType === "—" ? 'selected' : ''}>—</option>
+//                 </select>
+//             </label>
+//           </div>`
+//           :
+//           ``
+//         }
+//     </div>
+
+//     <div class="orderData-container">
+//       <input type="number" class="orderData-input orderData-inputCount" id="cargoCount${index + 1}" placeholder="Введите количество" value="1" autocomplete="off" min="1">
+//       <label for="cargoCount${index + 1}" class="orderData-label">Кол-во:</label>
+//     </div>
+
+//     `;
+
+//     ordersContainer.appendChild(newOrderRow);
+
+//     newOrderRow.querySelector(".no-cargo").addEventListener("click", function () {
+//       this.classList.remove('buttonAutoDisabled')
+//       const row = this.closest(".order-row");
+//       const cargoInput = row.querySelector('input[type="text"]:nth-of-type(2)');
+//       cargoInput.disabled = !cargoInput.disabled;
+//       throttledGeneratePreview()
+//     });
+
+//     newOrderRow.querySelectorAll("input").forEach(input => {
+//       input.addEventListener("input", throttledGeneratePreview());
+//     });
+//   });
+
+//   document.querySelectorAll(".order-row").forEach(row => {
+//     row.querySelectorAll(".switchCargo").forEach(button => {
+//       button.addEventListener("click", function () {
+//         const orderInput = row.querySelector('input[id^="orderNumber"]');
+//         const cargoInput = row.querySelector('input[id^="cargoCode"]');
+//         if (!cargoInput.disabled) { // Меняем местами, если поле не заблокировано
+//           [orderInput.value, cargoInput.value] = [cargoInput.value, orderInput.value];
+//           throttledGeneratePreview()
+//         }
+//       });
+//     });
+//   });
+// });
 
 document.querySelector("textarea.allOrders").addEventListener("input", function (event) {
 
@@ -1091,9 +1395,13 @@ document.querySelector("textarea.allOrders").addEventListener("input", function 
 
         let orderNumber = '';
         let cargoCode = '';
+        let anomalyDescription = '';
+        let orderType = '—'
         let oneRow = false;
 
-        if (parts.length > 0) {
+        if(currentRappGenetarType === 1){
+          //~ МАГИСТРАЛИ • МАГИСТАРЛИ • МАГИСТАРЛИ 
+          if (parts.length > 0) {
             const firstPart = parts[0];
 
             if (parts.length > 1 && parts[1].startsWith('LO-')) {
@@ -1141,7 +1449,82 @@ document.querySelector("textarea.allOrders").addEventListener("input", function 
                 oneRow = false;
             }
         }
-
+      }
+      if (currentRappGenetarType === 4) {
+        //~ АНОМАЛИИ • АНОМАЛИИ • АНОМАЛИИ
+        if (parts.length > 1 && parts[1].startsWith('FA254')) {
+            orderNumber = parts[0] || '';
+            cargoCode = parts.length > 1 ? parts[1] : '';
+    
+            if (cargoCode.includes(' ')) {
+                let cargoParts = cargoCode.split(' ');
+                cargoCode = cargoParts[0]; // Берем только первую часть
+                anomalyDescription = cargoParts.slice(1).join(' '); // Остальное уходит в anomalyDescription
+            }else {
+                anomalyDescription = parts.length > 2 ? parts.slice(2).join(' ') : '';
+            }
+        }else {
+          orderNumber = parts[0] || '';
+          cargoCode = parts.slice(1).join(' ') || '';
+    
+          if (cargoCode.includes(' ')) {
+              let cargoParts = cargoCode.split(' ');
+              cargoCode = cargoParts[0]; // Оставляем первую часть в cargoCode
+              anomalyDescription = cargoParts.slice(1).join(' '); // Остальное в anomalyDescription
+          }
+        }
+      }else if (currentRappGenetarType === 5) {
+        const firstPart = parts[0];
+    
+        // Проверка на строку, начинающуюся с "YP"
+        if (firstPart.startsWith('YP') || firstPart.startsWith('P0')) {
+            orderNumber = "—";
+            cargoCode = firstPart; // Текст, начинающийся с YP
+            // Определяем тип из следующей части строки, если он есть
+            if (parts.length > 1) {
+                const lowerText = parts[1].toLowerCase();
+                if (lowerText.includes("дубль") || lowerText.includes("le,km")) {
+                  orderType = "Дубль";
+              } else if (lowerText.includes("lost") || lowerText.includes("дщые")) {
+                  orderType = "LOST";
+              } else if (lowerText.includes("засыл") || lowerText.includes("pfcsk")) {
+                  orderType = "Засыл";
+              } else {
+                  orderType = "Неизвестно"; // Если тип не найден
+              }
+            }
+            oneRow = false;
+        } else if (parts.length > 1 && parts[1].startsWith('LO-')) {
+            cargoCode = parts[0];
+            orderNumber = parts[1];
+            oneRow = false;
+        } else if (firstPart.startsWith('LO-')) {
+            orderNumber = firstPart;
+            cargoCode = parts.slice(1).join(' ').split(' ')[0]; // Только первая часть после пробела
+            oneRow = false;
+        } else if (firstPart.startsWith('FA254')) {
+            orderNumber = firstPart;
+            cargoCode = 'Аномалия';
+            orderType = "LOST";
+            oneRow = true;
+        } else {
+            orderNumber = parts[0] || '';
+            cargoCode = parts.slice(1).join(' ').split(' ')[0] || ''; // Только первая часть после пробела
+            oneRow = false;
+        }
+    
+        // Автоопределение типа грузоместа
+        const lowerText = line.toLowerCase();
+        if (lowerText.includes("дубль") || lowerText.includes("le,km")) {
+          orderType = "Дубль";
+      } else if (lowerText.includes("lost") || lowerText.includes("дщые")) {
+          orderType = "LOST";
+      } else if (lowerText.includes("засыл") || lowerText.includes("pfcsk")) {
+          orderType = "Засыл";
+      }
+    }
+    
+      
         const newOrderRow = document.createElement("div");
         newOrderRow.classList.add("order-row");
 
@@ -1149,19 +1532,119 @@ document.querySelector("textarea.allOrders").addEventListener("input", function 
         <div class="orderRowNumber">${setcionNumber++}</div>
 
         <div class="orderData-container">
-          <input type="text" class="orderData-input" id="orderNumber${index + 1}" value="${orderNumber}" placeholder="Введите номер отправления" autocomplete="off" required>
-          <label for="orderNumber${index + 1}" class="orderData-label">Номер отправления:</label>
+          <input
+          type="text"
+          class="orderData-input"
+          id="orderNumber${index + 1}"
+          value="${orderNumber}"
+          placeholder="${
+            currentRappGenetarType === 1 ?
+            'Введите номер отправления' :
+            currentRappGenetarType === 4 ?
+            'Номер аномалии' :
+            'Что-то сломлось'
+          }"
+          required autocomplete="off">
+
+          <label
+          for="orderNumber${index + 1}"
+          class="orderData-label">
+          ${
+            currentRappGenetarType === 1 ?
+            'Номер отправления' :
+            currentRappGenetarType === 4 ?
+            'Номер аномалии' :
+            'Что-то сломлось'
+          }
+          </label>
         </div>
         <button type="button" class="switchCargo pegasusTooltip" title="Поменять местами">
           <i class="fa-solid fa-arrows-repeat"></i>
         </button>
 
         <div class="orderData-container">
-          <input type="text" class="orderData-input cargoGroup" id="cargoCode${index + 1}" value="${cargoCode}" placeholder="Введите код грузоместа" ${oneRow === true ? 'disabled' : ''} autocomplete="off">
-          <label for="cargoCode${index + 1}" class="orderData-label">Код грузоместа:</label>
+          <input
+            type="text"
+            class="orderData-input cargoGroup"
+            id="cargoCode${index + 1}"
+            value="${cargoCode}"
+            placeholder="${
+              currentRappGenetarType === 1 ?
+              'Код грузоместа' :
+              currentRappGenetarType === 4 ?
+              'Тикет аномалии' :
+              'Что-то сломлось'
+            }"
+            ${oneRow === true ? 'disabled' : ''}
+            autocomplete="off"
+          >
+          <label
+            for="cargoCode${index + 1}"
+            class="orderData-label">
+            ${
+              currentRappGenetarType === 1 
+              ?
+              'Код грузоместа' 
+              :
+              currentRappGenetarType === 4 
+              ?
+              'Тикет аномалии' 
+              :
+              'Что-то сломлось'
+            }
+          </label>
           
-            ${oneRow === true ? '<button type="button" class="no-cargo buttonAutoDisabled"><i class="fa-solid fa-eye"></i></button>' : '<button type="button" class="no-cargo"><i class="fa-solid fa-eye-slash"></i></button>'}
+          ${
+            currentRappGenetarType === 4
+              ? ''
+              : 
+              (oneRow === true
+                  ? 
+                  (currentRappGenetarType === 1
+                      ? 
+                      `<button type="button" class="no-cargo buttonAutoDisabled"><i class="fa-solid fa-eye"></i></button>`
+                      : 
+                      `<button type="button" class="no-cargo"><i class="fa-solid fa-eye-slash"></i></button>`)
+                  : 
+                  `<button type="button" class="no-cargo"><i class="fa-solid fa-eye-slash"></i></button>`)
+          }
         </div>
+
+        ${
+          currentRappGenetarType === 4
+          ?
+          `<div class="orderData-container">
+            <input
+            type="text"
+            class="orderData-input"
+            id="anomalyDescription${index + 1}"
+            value="${anomalyDescription}"
+            placeholder="Описание Аномалии"
+            required autocomplete="off">
+            <label
+            for="anomalyDescription${index + 1}"
+            class="orderData-label">
+              Описание Аномалии
+            </label>
+          </div>`
+          :
+          currentRappGenetarType === 5
+          ?
+          `
+          <div class="orderData-container">
+            <label class="orderType" for="selectOrderType${index + 1}">
+                <h1>Тип грузоместа:</h1>
+                <select class="selectListener" id="selectOrderType${index + 1}">
+                    <option value="Засыл" ${orderType === "Засыл" ? 'selected' : ''}>Засыл</option>
+                    <option value="Дубль" ${orderType === "Дубль" ? 'selected' : ''}>Дубль</option>
+                    <option value="LOST" ${orderType === "LOST" ? 'selected' : ''}>LOST</option>
+                    <option value="—" ${orderType === "—" ? 'selected' : ''}>—</option>
+                </select>
+            </label>
+          </div>`
+          :
+          ``
+        }
 
         <div class="orderData-container">
           <input type="number" class="orderData-input orderData-inputCount" id="cargoCount${index + 1}" placeholder="Введите количество" value="1" autocomplete="off" min="1">
@@ -1240,6 +1723,22 @@ document.querySelectorAll("input, select").forEach(input => {
   input.addEventListener("input", throttledGeneratePreview);
 });
 
+const selectElements = document.querySelectorAll(".selectListener");
+
+if (selectElements.length > 0) {
+  selectElements.forEach(option => {
+    option.addEventListener("change", () => {
+      if (typeof throttledGeneratePreview === "function") {
+        throttledGeneratePreview();
+      } else {
+        console.error("Функция throttledGeneratePreview не найдена!");
+      }
+    });
+  });
+} else {
+  console.warn("Элементы с классом .selectListener не найдены.");
+}
+
 function getDateToday(){
   const today = new Date().toLocaleDateString();
   document.getElementById("dateDisplay").innerText = today;
@@ -1275,10 +1774,12 @@ function generatePDF() {
     "СЦ Дзержинский": "Московская область, Садовая улица, городской округ Дзержинский, дом 6",
     "СЦ Троицкий": "г. Санкт-Петербург, Запорожская ул. , д.12",
     "СЦ Казань": "Республика Татарстан, Почтовая улица, Лаишевский район, дом 1",
+    "СЦ Запад": "г. Москва, Бережковская набережная, 20с9",
     "СЦ Самара": "Самарская область, Индустриальная улица, Волжский район, дом 1Б/1",
     "СЦ Грибки": "Ангарская ул., вл8с12, д. Грибки",
     "СЦ Ставрополь": "г. Ставрополь Старомарьевское шоссе 13/8",
-    "СЦ Дмитровское": "г. Москва, Дмитровское шоссе, 157с12"
+    "СЦ Дмитровское": "г. Москва, Дмитровское шоссе, 157с12",
+    "СЦ Ставрополь": "г. Ставрополь Старомарьевское шоссе 13/8"
   };
 
   // Сбор данных о заказах
@@ -1288,81 +1789,202 @@ function generatePDF() {
   document.querySelectorAll(".order-row").forEach((row, index) => {
     const orderNumber = row.querySelector(`#orderNumber${index + 1}`).value;
     const cargoCode = row.querySelector(`#cargoCode${index + 1}`).value;
+    const anomalyDescriptionInit = row.querySelector(`#anomalyDescription${index + 1}`);
+    const orderTypeInit = row.querySelector(`#selectOrderType${index + 1}`);
+    let anomalyDescription = anomalyDescriptionInit ? anomalyDescriptionInit.value : null;
+    let orderType = orderTypeInit ? orderTypeInit.value : "—";
     const cargoCount = parseInt(row.querySelector(`#cargoCount${index + 1}`).value);
     const isCargoDisabled = row.querySelector(`#cargoCode${index + 1}`).disabled;
     
     totalCargoCount += cargoCount;
   
-    if (isCargoDisabled) {
+    if(currentRappGenetarType === 1){
+      //~ МАГИСТРАЛИ • МАГИСТРАЛИ • МАГИСТРАЛИ
+      if (isCargoDisabled) {
+        orders.push([
+          { content: (index + 1).toString(), styles: { font: "Roboto", cellWidth: 10 } }, // Узкий столбец для № п/п
+          { content: orderNumber, colSpan: 2, styles: { font: "Roboto", fontSize: 14, fontStyle: "bold" } },
+          { content: cargoCount.toString(), styles: { font: "Roboto" } }
+        ]);
+      }else {
+        orders.push([
+          { content: (index + 1).toString(), styles: { font: "Roboto", cellWidth: 10 } }, // Узкий столбец для № п/п
+          { content: orderNumber, styles: { font: "Roboto", fontSize: 14, fontStyle: "bold" } },
+          { content: cargoCode, styles: { font: "Roboto", fontSize: 14, fontStyle: "bold" } },
+          { content: cargoCount.toString(), styles: { font: "Roboto" } }
+        ]);
+      }
+    }else if(currentRappGenetarType === 4){
+      //~ АНОМАЛИИ • АНОМАЛИИ • АНОМАЛИИ
       orders.push([
         { content: (index + 1).toString(), styles: { font: "Roboto", cellWidth: 10 } }, // Узкий столбец для № п/п
-        { content: orderNumber, colSpan: 2, styles: { font: "Roboto", fontSize: 14, fontStyle: "bold" } },
+        { content: orderNumber, styles: { font: "Roboto", fontSize: 12, fontStyle: "bold" } },
+        { content: cargoCode, styles: { font: "Roboto", fontSize: 12, fontStyle: "bold" } },
+        { content: anomalyDescription, styles: { font: "Roboto", fontSize: 12, fontStyle: "bold" } },
         { content: cargoCount.toString(), styles: { font: "Roboto" } }
       ]);
-    }else {
+    }else if(currentRappGenetarType === 5){
+      //~ ДУБЛИ/ЗАСЫЛЫ/LOST • ДУБЛИ/ЗАСЫЛЫ/LOST • ДУБЛИ/ЗАСЫЛЫ/LOST
       orders.push([
         { content: (index + 1).toString(), styles: { font: "Roboto", cellWidth: 10 } }, // Узкий столбец для № п/п
         { content: orderNumber, styles: { font: "Roboto", fontSize: 14, fontStyle: "bold" } },
         { content: cargoCode, styles: { font: "Roboto", fontSize: 14, fontStyle: "bold" } },
+        { content: orderType, styles: { font: "Roboto", fontSize: 14, fontStyle: "bold" } },
         { content: cargoCount.toString(), styles: { font: "Roboto" } }
       ]);
     }
   });
   // Строка "Итого"
-  const totalRow = [
-    { 
-      content: "Итого:", 
-      colSpan: 3,
-      styles: { 
-        font: "Roboto",
-        halign: "left", // Выравнивание по левому краю
-        valign: "middle", // Выравнивание по центру вертикально
-        lineWidth: 0.25, // Граница для всей строки
-        lineColor: [0, 0, 0], // Цвет границы
-        fontSize: 12,
-        fillColor: false
+  let totalRow = []
+  if(currentRappGenetarType === 1){
+    //~ МАГИСТРАЛИ • МАГИСТРАЛИ • МАГИСТРАЛИ
+    totalRow = [
+      { 
+        content: "Итого:", 
+        colSpan: 3,
+        styles: { 
+          font: "Roboto",
+          halign: "left", // Выравнивание по левому краю
+          valign: "middle", // Выравнивание по центру вертикально
+          lineWidth: 0.25, // Граница для всей строки
+          lineColor: [0, 0, 0], // Цвет границы
+          fontSize: 12,
+          fillColor: false
+        }
+      },
+      { 
+        content: totalCargoCount.toString(),
+        styles: { 
+          font: "Roboto",
+          halign: "center", // Выравнивание по центру
+          lineWidth: 0.25, // Граница для всей строки
+          lineColor: [0, 0, 0] // Цвет границы
+        }
       }
-    },
-    { 
-      content: totalCargoCount.toString(),
-      styles: { 
-        font: "Roboto",
-        halign: "center", // Выравнивание по центру
-        lineWidth: 0.25, // Граница для всей строки
-        lineColor: [0, 0, 0] // Цвет границы
+    ];
+  }else if(currentRappGenetarType === 4 || currentRappGenetarType === 5){
+    //~ АНОМАЛИИ • АНОМАЛИИ • АНОМАЛИИ ○ ДУБЛИ/ЗАСЫЛЫ/LOST • ДУБЛИ/ЗАСЫЛЫ/LOST • ДУБЛИ/ЗАСЫЛЫ/LOST
+    totalRow = [
+      { 
+        content: "Итого:", 
+        colSpan: 4,
+        styles: { 
+          font: "Roboto",
+          halign: "left", // Выравнивание по левому краю
+          valign: "middle", // Выравнивание по центру вертикально
+          lineWidth: 0.25, // Граница для всей строки
+          lineColor: [0, 0, 0], // Цвет границы
+          fontSize: 12,
+          fillColor: false
+        }
+      },
+      { 
+        content: totalCargoCount.toString(),
+        styles: { 
+          font: "Roboto",
+          halign: "center", // Выравнивание по центру
+          lineWidth: 0.25, // Граница для всей строки
+          lineColor: [0, 0, 0] // Цвет границы
+        }
       }
-    }
-  ];
+    ];
+  }
 
   // Стили таблицы
-  const tableStyles = {
-    headStyles: {
-      fillColor: [211, 211, 211],
-      textColor: [0, 0, 0],
-      fontSize: 10,
-      font: "Roboto",
-      fontSize: 12,
-      lineWidth: 0.25,
-      lineColor: [0, 0, 0],
-      halign: "center",
-      valign: "middle",
-    },
-    bodyStyles: {
-      halign: "center",
-      valign: "middle",
-      cellPadding: 2,
-      lineWidth: 0.25,
-      lineColor: [0, 0, 0],
-      textColor: [0, 0, 0],
-      font: "Roboto"
-    },
-    columnStyles: {
-      0: { cellWidth: 10 }, // Узкий столбец для № п/п
-      1: { cellWidth: 82 },
-      2: { cellWidth: 82 },
-      3: { cellWidth: 25 }
+  let tableStyles = {};
+  if(currentRappGenetarType === 1){
+    //~ МАГИСТРАЛИ • МАГИСТРАЛИ • МАГИСТРАЛИ
+    tableStyles = {
+      headStyles: {
+        fillColor: [211, 211, 211],
+        textColor: [0, 0, 0],
+        fontSize: 10,
+        font: "Roboto",
+        fontSize: 12,
+        lineWidth: 0.25,
+        lineColor: [0, 0, 0],
+        halign: "center",
+        valign: "middle",
+      },
+      bodyStyles: {
+        halign: "center",
+        valign: "middle",
+        cellPadding: 2,
+        lineWidth: 0.25,
+        lineColor: [0, 0, 0],
+        textColor: [0, 0, 0],
+        font: "Roboto"
+      },
+      columnStyles: {
+        0: { cellWidth: 10 }, // Узкий столбец для № п/п
+        1: { cellWidth: 82 },
+        2: { cellWidth: 82 },
+        3: { cellWidth: 25 }
+      }
     }
-  };
+  }else if(currentRappGenetarType === 4){
+    //~ АНОМАЛИИ • АНОМАЛИИ • АНОМАЛИИ
+    tableStyles = {
+      headStyles: {
+        fillColor: [211, 211, 211],
+        textColor: [0, 0, 0],
+        fontSize: 10,
+        font: "Roboto",
+        fontSize: 12,
+        lineWidth: 0.25,
+        lineColor: [0, 0, 0],
+        halign: "center",
+        valign: "middle",
+      },
+      bodyStyles: {
+        halign: "center",
+        valign: "middle",
+        cellPadding: 2,
+        lineWidth: 0.25,
+        lineColor: [0, 0, 0],
+        textColor: [0, 0, 0],
+        font: "Roboto"
+      },
+      columnStyles: {
+        0: { cellWidth: 10 }, // Узкий столбец для № п/п
+        1: { cellWidth: 55 },
+        2: { cellWidth: 48 },
+        3: { cellWidth: 65 },
+        4: { cellWidth: 25 }
+      }
+    }
+  }else if(currentRappGenetarType === 5){
+    //~ ДУБЛИ/ЗАСЫЛЫ/LOST • ДУБЛИ/ЗАСЫЛЫ/LOST • ДУБЛИ/ЗАСЫЛЫ/LOST
+    tableStyles = {
+      headStyles: {
+        fillColor: [211, 211, 211],
+        textColor: [0, 0, 0],
+        fontSize: 10,
+        font: "Roboto",
+        fontSize: 12,
+        lineWidth: 0.25,
+        lineColor: [0, 0, 0],
+        halign: "center",
+        valign: "middle",
+      },
+      bodyStyles: {
+        halign: "center",
+        valign: "middle",
+        cellPadding: 2,
+        lineWidth: 0.25,
+        lineColor: [0, 0, 0],
+        textColor: [0, 0, 0],
+        font: "Roboto"
+      },
+      columnStyles: {
+        0: { cellWidth: 10 }, // Узкий столбец для № п/п
+        1: { cellWidth: 65 },
+        2: { cellWidth: 60 },
+        3: { cellWidth: 40 },
+        4: { cellWidth: 25 }
+      }
+    }
+  }
 
   // Формирование документа
   doc.setFontSize(14);
@@ -1379,20 +2001,55 @@ function generatePDF() {
   doc.setTextColor("#000");
 
   // Генерация таблицы
-  doc.autoTable({
-    startY: 135,
-    head: [["№ п/п", "Номер отправления в системе заказчика", "Код грузоместа", "Кол-во грузомест"]],
-    body: [...orders, totalRow],
-    margin: { left: 5 },
-    ...tableStyles,
-    didParseCell: function(data) {
-      if (data.row.index === orders.length) {
-        // Применяем границы для строки "Итого"
-        data.cell.styles.lineWidth = 0.25;
-        data.cell.styles.lineColor = [0, 0, 0];
+  if(currentRappGenetarType === 1){
+    //~ МАГИСТРАЛИ • МАГИСТРАЛИ • МАГИСТРАЛИ
+    doc.autoTable({
+      startY: 135,
+      head: [["№ п/п", "Номер отправления в системе заказчика", "Код грузоместа", "Кол-во грузомест"]],
+      body: [...orders, totalRow],
+      margin: { left: 5 },
+      ...tableStyles,
+      didParseCell: function(data) {
+        if (data.row.index === orders.length) {
+          // Применяем границы для строки "Итого"
+          data.cell.styles.lineWidth = 0.25;
+          data.cell.styles.lineColor = [0, 0, 0];
+        }
       }
-    }
-  });
+    });
+  }else if(currentRappGenetarType === 4){
+    //~ АНОМАЛИИ • АНОМАЛИИ • АНОМАЛИИ
+    doc.autoTable({
+      startY: 135,
+      head: [["№ п/п", "Номер аномалии", "Тикет", "Описание", "Кол-во грузомест"]],
+      body: [...orders, totalRow],
+      margin: { left: 5 },
+      ...tableStyles,
+      didParseCell: function(data) {
+        if (data.row.index === orders.length) {
+          // Применяем границы для строки "Итого"
+          data.cell.styles.lineWidth = 0.25;
+          data.cell.styles.lineColor = [0, 0, 0];
+        }
+      }
+    });
+  }else if(currentRappGenetarType === 5){
+    //~ ДУБЛИ/ЗАСЫЛЫ/LOST • ДУБЛИ/ЗАСЫЛЫ/LOST • ДУБЛИ/ЗАСЫЛЫ/LOST
+    doc.autoTable({
+      startY: 135,
+      head: [["№ п/п", "Номер отправления в системе заказчика", "Код грузоместа", "Тип грузоместа", "Кол-во грузомест"]],
+      body: [...orders, totalRow],
+      margin: { left: 5 },
+      ...tableStyles,
+      didParseCell: function(data) {
+        if (data.row.index === orders.length) {
+          // Применяем границы для строки "Итого"
+          data.cell.styles.lineWidth = 0.25;
+          data.cell.styles.lineColor = [0, 0, 0];
+        }
+      }
+    });
+  }
 
   // Подписи
   const finalY = doc.lastAutoTable.finalY + 5;
