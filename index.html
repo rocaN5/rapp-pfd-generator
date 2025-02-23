@@ -184,39 +184,39 @@
         <div class="documentDataBlock">
           <div class="documentDataContainer">
             <div class="documentDataContainer-outCorner"></div>
-            <div class="documentDataItem">
+            <div class="documentDataItem onLoad">
               <label for="actNumber">Акт приёма-передачи №:</label>
               <input type="text" id="actNumber" class="pegasusTooltip" placeholder="Введите номер акта" required value="MAAT-ir-000000001">
             </div>
-            <div class="documentDataItem">
+            <div class="documentDataItem onLoad">
               <label for="actTime">Дата:</label>
               <div class="date-picker-container">
                 <div class="custom-date-display" id="dateDisplay">Выбор даты</div>
               </div>
             </div>
-            <div class="documentDataItem">
+            <div class="documentDataItem onLoad">
               <button type="submit" class="reGenerateDocument pegasusTooltip">
                 <i class="fa-solid fa-pen-ruler fa-shake"></i>
               </button>
             </div>
-            <div class="documentDataItem">
+            <div class="documentDataItem onLoad">
               <a class="pdfPrint-labels printLabels pegasusTooltip">
                 <i class="fa-solid fa-note-sticky fa-bounce"></i>
               </a>
             </div>
-            <div class="documentDataItem">
+            <div class="documentDataItem onLoad">
               <a class="pdfPrint printDocument pegasusTooltip">
                 <i class="fa-solid fa-print fa-beat-fade"></i>
               </a>
             </div>
           </div>
           <div class="documentDataContainer">
-            <div class="documentDataItem fromScSelection">
+            <div class="documentDataItem fromScSelection onLoad">
               <label for="sender">Отправитель:</label>
               <i class="fa-solid fa-lock scNameLock"></i>
               <input type="text" id="sender" placeholder="Введите отправителя" required value="СЦ Воронеж" class="pegasusTooltip" readonly>
             </div>
-            <div class="documentDataItem">
+            <div class="documentDataItem onLoad">
               <label for="recipient">Получатель:</label>
               <select id="recipient" required>
                 <option value="СЦ Домодедово ЕВСЦ">СЦ Домодедово ЕВСЦ</option>
@@ -424,9 +424,8 @@
       </div>
     </div>
     <div class="preview">
-      <canvas id="previewCanvas"></canvas>
       <h1>Предварительный просмотр</h1>
-      <div id="canvasContainer">
+      <div id="canvasContainer" class="onLoad">
         <div class="previewScaleControl">
           <div class="previewScaleControlContainer">
             <button class="previewScale-btn previewScale-minus-btn">

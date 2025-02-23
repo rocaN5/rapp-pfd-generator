@@ -13,7 +13,7 @@ window.onload = () => {
         freshLoading()
       }, 50);
     }, 500);
-  }, 4000);
+  }, 1000);
 };
 
 function freshLoading(){
