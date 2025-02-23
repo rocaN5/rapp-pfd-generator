@@ -94,13 +94,93 @@
     </div>
     <canvas id="headerArrowCanvas"></canvas>
   </header>
+  <div class="loadingWrapper">
+    <div class="loadingBlock">
+      <div class="loadingContainer">
+        <div class="ball">
+          <i class="fa-regular fa-spinner-scale fa-spin-pulse"></i>
+        </div>
+        <div class="spinner">
+          <svg viewBox="0 0 500 500">
+            <path id="curve" fill="transparent" d="M73.2,148.6c4-6.1,65.5-96.8,178.6-95.6c111.3,1.2,170.8,90.3,175.1,97"></path>
+            <text width="600">
+              <textPath xlink:href="#curve">•  Загрузка  •</textPath>
+            </text>
+          </svg>
+        </div>
+        <div class="spinner">
+          <svg viewBox="0 0 500 500">
+            <path id="curve" fill="transparent" d="M73.2,148.6c4-6.1,65.5-96.8,178.6-95.6c111.3,1.2,170.8,90.3,175.1,97"></path>
+            <text width="600">
+              <textPath xlink:href="#curve">•  Загрузка  •</textPath>
+            </text>
+          </svg>
+        </div>
+        <div class="spinner">
+          <svg viewBox="0 0 500 500">
+            <path id="curve" fill="transparent" d="M73.2,148.6c4-6.1,65.5-96.8,178.6-95.6c111.3,1.2,170.8,90.3,175.1,97"></path>
+            <text width="600">
+              <textPath xlink:href="#curve">•  Загрузка  •</textPath>
+            </text>
+          </svg>
+        </div>
+        <div class="spinner">
+          <svg viewBox="0 0 500 500">
+            <path id="curve" fill="transparent" d="M73.2,148.6c4-6.1,65.5-96.8,178.6-95.6c111.3,1.2,170.8,90.3,175.1,97"></path>
+            <text width="600">
+              <textPath xlink:href="#curve">•  Загрузка  •</textPath>
+            </text>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <div class="loadingBlock loadingBlock-blur">
+      <div class="loadingContainer">
+        <div class="ball">
+          <i class="fa-regular fa-spinner-scale fa-spin-pulse"></i>
+        </div>
+        <div class="spinner">
+          <svg viewBox="0 0 500 500">
+            <path id="curve" fill="transparent" d="M73.2,148.6c4-6.1,65.5-96.8,178.6-95.6c111.3,1.2,170.8,90.3,175.1,97"></path>
+            <text width="600">
+              <textPath xlink:href="#curve">•  Загрузка  •</textPath>
+            </text>
+          </svg>
+        </div>
+        <div class="spinner">
+          <svg viewBox="0 0 500 500">
+            <path id="curve" fill="transparent" d="M73.2,148.6c4-6.1,65.5-96.8,178.6-95.6c111.3,1.2,170.8,90.3,175.1,97"></path>
+            <text width="600">
+              <textPath xlink:href="#curve">•  Загрузка  •</textPath>
+            </text>
+          </svg>
+        </div>
+        <div class="spinner">
+          <svg viewBox="0 0 500 500">
+            <path id="curve" fill="transparent" d="M73.2,148.6c4-6.1,65.5-96.8,178.6-95.6c111.3,1.2,170.8,90.3,175.1,97"></path>
+            <text width="600">
+              <textPath xlink:href="#curve">•  Загрузка  •</textPath>
+            </text>
+          </svg>
+        </div>
+        <div class="spinner">
+          <svg viewBox="0 0 500 500">
+            <path id="curve" fill="transparent" d="M73.2,148.6c4-6.1,65.5-96.8,178.6-95.6c111.3,1.2,170.8,90.3,175.1,97"></path>
+            <text width="600">
+              <textPath xlink:href="#curve">•  Загрузка  •</textPath>
+            </text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="modalWindow"></div>
   <div class="container">
     <canvas id="containerCanvas"></canvas>
     <form id="pdf-form">
       <h1>Генерация PDF-файла</h1>
 
-      <div class="documentDataWrapper">
+      <div class="documentDataWrapper onLoad">
         <div class="documentDataBlock">
           <div class="documentDataContainer">
             <div class="documentDataContainer-outCorner"></div>
@@ -115,12 +195,19 @@
               </div>
             </div>
             <div class="documentDataItem">
-              <button type="submit" class="reGenerateDocument pegasusTooltip pegasusTooltip">
+              <button type="submit" class="reGenerateDocument pegasusTooltip">
                 <i class="fa-solid fa-pen-ruler fa-shake"></i>
               </button>
             </div>
             <div class="documentDataItem">
-              <a class="pdfPrint printDocument pegasusTooltip"><i class="fa-solid fa-print fa-beat-fade"></i></a>
+              <a class="pdfPrint-labels printLabels pegasusTooltip">
+                <i class="fa-solid fa-note-sticky fa-bounce"></i>
+              </a>
+            </div>
+            <div class="documentDataItem">
+              <a class="pdfPrint printDocument pegasusTooltip">
+                <i class="fa-solid fa-print fa-beat-fade"></i>
+              </a>
             </div>
           </div>
           <div class="documentDataContainer">
@@ -154,26 +241,26 @@
           </div>
         </div>
       </div>
-      <div class="textAreaDashboard">
+      <div class="textAreaDashboard onLoad">
         <i class="fa-solid fa-hourglass-half"></i>
         <p class="dashboardInfoText">Предварительная загрузка пакетов</p>
         <span id="generationTime"></span>
       </div>
       <div id="container" style="display: flex;">
         <div class="textAreaControls">
-          <button class="textAreaControls-button pegasusTooltip" id="allSelect-btn">
+          <button class="textAreaControls-button onLoadItem pegasusTooltip" id="allSelect-btn">
             <i class="fa-solid fa-check-double"></i>
           </button>
-          <button class="textAreaControls-button pegasusTooltip" id="clearAll-btn">
+          <button class="textAreaControls-button onLoadItem pegasusTooltip" id="clearAll-btn">
             <i class="fa-regular fa-trash"></i>
           </button>
-          <button class="textAreaControls-button pegasusTooltip" id="clearAllEmptyLines-btn">
+          <button class="textAreaControls-button onLoadItem pegasusTooltip" id="clearAllEmptyLines-btn">
             <i class="fa-regular fa-trash-xmark"></i>
           </button>
-          <button class="textAreaControls-button pegasusTooltip" id="textareaUndo-btn">
+          <button class="textAreaControls-button onLoadItem pegasusTooltip" id="textareaUndo-btn">
             <i class="fa-solid fa-rotate-left"></i>
           </button>
-          <button class="textAreaControls-button pegasusTooltip" id="textareaRedo-btn">
+          <button class="textAreaControls-button onLoadItem pegasusTooltip" id="textareaRedo-btn">
             <i class="fa-solid fa-rotate-right"></i>
           </button>
         </div>
@@ -185,9 +272,9 @@
           <textarea class="allOrders" placeholder="″Номер заказа″ + ″Код грузоместа″"></textarea>
           <div class="hints-container">
             <h1 class="hints-container-title">Подсказка</h1>
-            <div class="hints-container-icon pegasusTooltip">
+            <!-- <div class="hints-container-icon pegasusTooltip">
               <i class="fa-solid fa-question"></i>
-            </div>
+            </div> -->
             <div class="hints-container-block hints-card-container">
               <div class="hints-container-item">
                 <h2 class="hints-container-item-title">
@@ -358,7 +445,6 @@
           </div>
         </div>
       </div>
-    </div>
     </div>
   </div>
 

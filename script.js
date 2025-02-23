@@ -1,12 +1,36 @@
-
 window.onload = () => {
-  console.log("Page loaded ✅");
+  showMenu()
+  setTimeout(() => {
+    const loadingWrapper = document.querySelector(".loadingWrapper")
+    const loadingBlock = document.querySelector(".loadingBlock")
+    const loadingBlockBlur = document.querySelector(".loadingBlock-blur")
+    loadingBlock.style.filter = "blur(200px)"
+    loadingBlockBlur.style.filter = "blur(200px)"
+    hideMenu()
+    setTimeout(() => {
+      loadingWrapper.remove()
+      setTimeout(() => {
+        freshLoading()
+      }, 50);
+    }, 500);
+  }, 4000);
 };
+
+function freshLoading(){
+  onLoadItem.forEach(loadingItem =>{
+    loadingItem.classList.remove("onLoadItem")
+  })
+  onLoad.forEach(loadingItem => {
+    loadingItem.classList.remove("onLoad")
+  });
+}
 
 //A- Global variables
 
 let currentRappGenetarType = 1;
 
+const onLoad = document.querySelectorAll('.onLoad')
+const onLoadItem = document.querySelectorAll('.onLoadItem')
 const currentGeneratorType_title = document.getElementById("currentGeneratorType-title");
 const currentGeneratorType_selection = document.querySelectorAll("input.currentGeneratorType-selection");
 
@@ -15,27 +39,40 @@ const currentGeneratorType_selection = document.querySelectorAll("input.currentG
 //~ CHANGE generator type
 
 currentGeneratorType_selection.forEach(input => {
-  input.addEventListener("change", () => {
+  input.addEventListener("change", (event) => {
     let title = "";
+    getDataAndMakeOrderRow(event);
     if (input.id === "rapp-1") {
       title = "Магистрали";
-      currentRappGenetarType = 1
+      currentRappGenetarType = 1;
     } else if (input.id === "rapp-2") {
       title = "Курьеры";
-      currentRappGenetarType = 2
+      currentRappGenetarType = 2;
     } else if (input.id === "rapp-3") {
       title = "Мерчи";
-      currentRappGenetarType = 3
+      currentRappGenetarType = 3;
     } else if (input.id === "rapp-4") {
       title = "Аномалии";
-      currentRappGenetarType = 4
+      currentRappGenetarType = 4;
     } else if (input.id === "rapp-5") {
       title = "Засылы / Дубли / Lost";
-      currentRappGenetarType = 5
+      currentRappGenetarType = 5;
     } else {
       title = "Что-то новенькое 😐";
     }
     currentGeneratorType_title.innerText = title;
+
+    // Получаем textarea
+    const textarea = document.querySelector('.allOrders');
+    
+    // Создаем событие input для textarea и отправляем его
+    textarea.dispatchEvent(new Event("input", { bubbles: true }));
+    
+    // Вызов функции предпросмотра после изменения
+    throttledGeneratePreview();
+    setTimeout(() => {
+      hideMenu()
+    }, 600);
   });
 });
 
@@ -854,32 +891,54 @@ document.querySelector("#canvasContainer").addEventListener("wheel", function(ev
   }
 });
 
-const previewScaleBtn = document.querySelectorAll(".previewScale-btn");
-previewScaleBtn.forEach(button => {
-  button.addEventListener("click", (event) => {
-    const canvases = document.querySelectorAll(".canvasContainer canvas");
-    let currentWidth = parseFloat(getComputedStyle(canvases[0]).width);
-    let newWidth;
+const canvasContainer = document.getElementById("canvasContainer");
 
-    if (button.classList.contains('previewScale-minus-btn')) {
-      newWidth = currentWidth * 0.94; // Уменьшение
-    } else if (button.classList.contains('previewScale-plus-btn')) {
-      newWidth = currentWidth * 1.06; // Увеличение
+if (canvasContainer) {
+  const observer = new MutationObserver(() => {
+    const previewScaleMinusBtn = document.querySelector(".previewScale-minus-btn");
+    const previewScalePlusBtn = document.querySelector(".previewScale-plus-btn");
+
+    if (previewScaleMinusBtn && !previewScaleMinusBtn.dataset.listenerAdded) {
+      previewScaleMinusBtn.dataset.listenerAdded = "true";
+      previewScaleMinusBtn.addEventListener("click", () => {
+        updateCanvasScale(0.94);
+      });
     }
 
+    if (previewScalePlusBtn && !previewScalePlusBtn.dataset.listenerAdded) {
+      previewScalePlusBtn.dataset.listenerAdded = "true";
+      previewScalePlusBtn.addEventListener("click", () => {
+        updateCanvasScale(1.06);
+      });
+    }
+  });
+
+  observer.observe(canvasContainer, { childList: true, subtree: true });
+} else {
+}
+
+function updateCanvasScale(scaleFactor) {
+  const canvases = document.querySelectorAll("#canvasContainer canvas");
+  if (canvases.length === 0) {
+    return;
+  }
+
+  canvases.forEach(canvas => {
+    let currentWidth = parseFloat(getComputedStyle(canvas).width);
+    let newWidth = currentWidth * scaleFactor;
     newWidth = Math.max(250, Math.min(newWidth, 850)); // Ограничения
 
-    canvases.forEach(canvas => {
-      canvas.style.width = `${newWidth}px`;
-    });
-
-    let scalePercent = Math.round((newWidth / 595) * 100);
-    if (scalePercent === 96 || scalePercent === 104) {
-      scalePercent = 100;
-    }
-    document.querySelector(".scalePersent").textContent = `${scalePercent}%`;
+    canvas.style.width = `${newWidth}px`;
   });
-});
+
+  let scalePercent = Math.round((parseFloat(getComputedStyle(canvases[0]).width) / 595) * 100);
+  if (scalePercent === 96 || scalePercent === 104) scalePercent = 100;
+
+  const scalePersentText = document.querySelector(".scalePersent");
+  if (scalePersentText) {
+    scalePersentText.textContent = `${scalePercent}%`;
+  }
+}
 
 document.getElementById("pdf-form").addEventListener("submit", function (event) {
   event.preventDefault();
@@ -961,739 +1020,476 @@ function formatingAnimation() {
 }
 //~ Анимация генерации документа в DASHBOARD
 
+//~ Сбор данных из textarea и заполнение их в order-row 
+function getDataAndMakeOrderRow(){
 
-// document.querySelector("textarea.allOrders").addEventListener("input", function (event) {
-  
-//   formatingAnimation()
+  let setcionNumber = 1;
+  const textarea = document.querySelector('.allOrders');
+  const lineNumbersDiv = document.getElementById('line-numbers');
 
-//   let setcionNumber = 1;
+  const lineNumber = textarea.value.split('\n');
+  let lineNumbers = '';
+  let number = 1;
 
-//   const textarea = document.querySelector('.allOrders');
-//   const lineNumbersDiv = document.getElementById('line-numbers');
-
-//   const lineNumber = textarea.value.split('\n');
-//   let lineNumbers = '';
-//   let number = 1;
-
-//   lineNumber.forEach((line) => {
-//     if (line.trim() !== '') {
-//       lineNumbers += `${number}\n`;
-//       number++;
-//     } else {
-//       lineNumbers += `<span style="color: #8d8d8d;">×</span>\n`;
-//     }
-//   });
-
-//   lineNumbersDiv.innerHTML = lineNumbers.replace(/\n/g, '<br>');
-
-//   // Синхронизация скролла
-//   textarea.addEventListener('scroll', () => {
-//     lineNumbersDiv.scrollTop = textarea.scrollTop;
-//   });
-
-//   const ordersContainer = document.getElementById("orders-container");
-//   const lines = event.target.value
-//     .split('\n')
-//     .map(line => line.trim().replace(/\s+/g, ' '))
-//     .filter(line => line.length > 0);
-
-//   ordersContainer.innerHTML = '';
-
-//   lines.forEach((line, index) => {
-//     line = line.replace(/[()]/g, '');
-//     const parts = line.split(' ').filter(part => part.length > 0);
-
-//     let orderNumber = '';
-//     let cargoCode = '';
-//     let anomalyDescription = '';
-//     let orderType = '—'
-//     let oneRow = false;
-
-//     if(currentRappGenetarType === 1){
-//       //~ МАГИСТРАЛИ • МАГИСТАРЛИ • МАГИСТАРЛИ 
-//       if (parts.length > 0) {
-//         const firstPart = parts[0];
-
-//         if (parts.length > 1 && parts[1].startsWith('LO-')) {
-//             cargoCode = parts[0];
-//             orderNumber = parts[1];
-//             oneRow = false;
-//         }
-//         else if (firstPart.startsWith('LO-')) {
-//             orderNumber = firstPart;
-//             cargoCode = parts.slice(1).join(' ');
-//             oneRow = false;
-//         }
-//         else if (parts.length > 1 && parts[0].startsWith('F025')) {
-//             cargoCode = parts[0];
-//             orderNumber = parts.slice(1).join(' ');
-//             oneRow = false;
-//         }
-//         else if (parts.length > 1 && parts[0].startsWith('0')) {
-//             cargoCode = parts[0];
-//             orderNumber = parts.slice(1).join(' ');
-//             oneRow = false;
-//         }
-//         else if (parts.length > 1 && parts[0].startsWith('72')) {
-//             cargoCode = parts[0];
-//             orderNumber = parts.slice(1).join(' ');
-//             oneRow = false;
-//         }
-//         else if (firstPart.startsWith('YP')) {
-//             cargoCode = firstPart;
-//             orderNumber = parts.slice(1).join(' ');
-//             oneRow = false;
-//         }
-//         else if (firstPart.startsWith('F1254') || firstPart.startsWith('FA254') || firstPart.startsWith('VOZ') || firstPart.startsWith('PVZ') || firstPart.startsWith('FBS') || firstPart.startsWith('FBY')) {
-//             orderNumber = firstPart;
-//             cargoCode = '';
-//             oneRow = true;
-//         }
-//         else if (/^\d{9,}-\d+$/.test(firstPart)) {
-//             cargoCode = firstPart;
-//             orderNumber = firstPart.split('-')[0];
-//             oneRow = false;
-//         } else {
-//             orderNumber = parts[0] || '';
-//             cargoCode = parts.slice(1).join(' ') || '';
-//             oneRow = false;
-//         }
-//     }
-//   }
-//   if (currentRappGenetarType === 4) {
-//     //~ АНОМАЛИИ • АНОМАЛИИ • АНОМАЛИИ
-//     if (parts.length > 1 && parts[1].startsWith('FA254')) {
-//         orderNumber = parts[0] || '';
-//         cargoCode = parts.length > 1 ? parts[1] : '';
-
-//         if (cargoCode.includes(' ')) {
-//             let cargoParts = cargoCode.split(' ');
-//             cargoCode = cargoParts[0]; // Берем только первую часть
-//             anomalyDescription = cargoParts.slice(1).join(' '); // Остальное уходит в anomalyDescription
-//         }else {
-//             anomalyDescription = parts.length > 2 ? parts.slice(2).join(' ') : '';
-//         }
-//     }else {
-//       orderNumber = parts[0] || '';
-//       cargoCode = parts.slice(1).join(' ') || '';
-
-//       if (cargoCode.includes(' ')) {
-//           let cargoParts = cargoCode.split(' ');
-//           cargoCode = cargoParts[0]; // Оставляем первую часть в cargoCode
-//           anomalyDescription = cargoParts.slice(1).join(' '); // Остальное в anomalyDescription
-//       }
-//     }
-//   }else if (currentRappGenetarType === 5) {
-//     const firstPart = parts[0];
-
-//     // Проверка на строку, начинающуюся с "YP"
-//     if (firstPart.startsWith('YP') || firstPart.startsWith('P0')) {
-//         orderNumber = "—";
-//         cargoCode = firstPart; // Текст, начинающийся с YP
-//         // Определяем тип из следующей части строки, если он есть
-//         if (parts.length > 1) {
-//             const lowerText = parts[1].toLowerCase();
-//             if (lowerText.includes("дубль") || lowerText.includes("le,km")) {
-//                 orderType = "Дубль";
-//             } else if (lowerText.includes("lost") || lowerText.includes("дщые")) {
-//                 orderType = "LOST";
-//             } else if (lowerText.includes("засыл") || lowerText.includes("pfcsk")) {
-//                 orderType = "Засыл";
-//             } else {
-//                 orderType = "Неизвестно"; // Если тип не найден
-//             }
-//         }
-//         oneRow = false;
-//     } else if (parts.length > 1 && parts[1].startsWith('LO-')) {
-//         cargoCode = parts[0];
-//         orderNumber = parts[1];
-//         oneRow = false;
-//     } else if (firstPart.startsWith('LO-')) {
-//         orderNumber = firstPart;
-//         cargoCode = parts.slice(1).join(' ').split(' ')[0]; // Только первая часть после пробела
-//         oneRow = false;
-//     } else if (firstPart.startsWith('FA254')) {
-//         orderNumber = firstPart;
-//         cargoCode = 'Аномалия';
-//         orderType = "LOST";
-//         oneRow = true;
-//     } else {
-//         orderNumber = parts[0] || '';
-//         cargoCode = parts.slice(1).join(' ').split(' ')[0] || ''; // Только первая часть после пробела
-//         oneRow = false;
-//     }
-
-//     // Автоопределение типа грузоместа
-//     const lowerText = line.toLowerCase();
-//     if (lowerText.includes("дубль") || lowerText.includes("le,km")) {
-//       orderType = "Дубль";
-//   } else if (lowerText.includes("lost") || lowerText.includes("дщые")) {
-//       orderType = "LOST";
-//   } else if (lowerText.includes("засыл") || lowerText.includes("pfcsk")) {
-//       orderType = "Засыл";
-//   }
-// }
-
-  
-
-//     const newOrderRow = document.createElement("div");
-//     newOrderRow.classList.add("order-row");
-
-//     newOrderRow.innerHTML = `
-//     <div class="orderRowNumber">${setcionNumber++}</div>
-
-//     <div class="orderData-container">
-//       <input type="text"
-//         class="orderData-input"
-//         id="orderNumber${index + 1}"
-//         value="${orderNumber}"
-//         placeholder="${
-//           currentRappGenetarType === 1 || 5
-//           ?
-//           'Введите номер отправления' 
-//           :
-//           currentRappGenetarType === 4 
-//           ?
-//           'Номер аномалии' 
-//           :
-//           'Что-то сломлось'
-//         }"
-//         required
-//         autocomplete="off"
-//       >
-//       <label
-//         for="orderNumber${index + 1}"
-//         class="orderData-label">
-//         ${
-//           currentRappGenetarType === 1 || 5
-//           ?
-//           'Номер отправления' 
-//           :
-//           currentRappGenetarType === 4 
-//           ?
-//           'Тикет' 
-//           :
-//           'Что-то сломлось'
-//         }
-//       </label>
-//     </div>
-
-//     <button type="button" class="switchCargo pegasusTooltip" title="Поменять местами">
-//       <i class="fa-solid fa-arrows-repeat"></i>
-//     <div class="orderData-container">
-//       <input
-//         type="text"
-//         class="orderData-input cargoGroup"
-//         id="cargoCode${index + 1}"
-//         value="${cargoCode}"
-//         placeholder="${
-//           currentRappGenetarType === 1 || 5
-//           ?
-//           'Код грузоместа' 
-//           :
-//           currentRappGenetarType === 4 
-//           ?
-//           'Тикет аномалии' 
-//           :
-//           'Что-то сломлось'
-//         }"
-//         ${oneRow === true ? 'disabled' : ''}
-//         autocomplete="off"
-//       >
-//       <label
-//         for="cargoCode${index + 1}"
-//         class="orderData-label">
-//         ${
-//           currentRappGenetarType === 1 || 5 
-//           ?
-//           'Код грузоместа' :
-//           currentRappGenetarType === 4 
-//           ?
-//           'Тикет аномалии' :
-//           'Что-то сломлось'
-//         }
-//         </label>
-//         ${
-//           currentRappGenetarType === 4
-//             ? ''
-//             : (oneRow === true
-//                 ? (currentRappGenetarType === 1
-//                     ? '<button type="button" class="no-cargo buttonAutoDisabled"><i class="fa-solid fa-eye"></i></button>'
-//                     : '<button type="button" class="no-cargo"><i class="fa-solid fa-eye-slash"></i></button>')
-//                 : '<button type="button" class="no-cargo"><i class="fa-solid fa-eye-slash"></i></button>')
-//         }
-        
-//         ${
-//           currentRappGenetarType === 4
-//           ?
-//           `<div class="orderData-container">
-//             <input
-//             type="text"
-//             class="orderData-i7nput"
-//             id="anomalyDescription${index + 1}"
-//             value="${anomalyDescription}"
-//             placeholder="Описание Аномалии"
-//             required autocomplete="off">
-//             <label
-//             for="anomalyDescription${index + 1}"
-//             class="orderData-label">
-//               Описание Аномалии
-//             </label>
-//           </div>`
-//           :
-//           currentRappGenetarType === 5
-//           ?
-//           `
-//           <div class="orderData-container">
-//             <label class="orderType" for="selectOrderType${index + 1}">
-//                 <h1>Тип грузоместа:</h1>
-//                 <select class="selectListener" id="selectOrderType${index + 1}">
-//                     <option value="Засыл" ${orderType === "Засыл" ? 'selected' : ''}>Засыл</option>
-//                     <option value="Дубль" ${orderType === "Дубль" ? 'selected' : ''}>Дубль</option>
-//                     <option value="LOST" ${orderType === "LOST" ? 'selected' : ''}>LOST</option>
-//                     <option value="—" ${orderType === "—" ? 'selected' : ''}>—</option>
-//                 </select>
-//             </label>
-//           </div>`
-//           :
-//           ``
-//         }
-//     </div>
-
-//     <div class="orderData-container">
-//       <input type="number" class="orderData-input orderData-inputCount" id="cargoCount${index + 1}" placeholder="Введите количество" value="1" autocomplete="off" min="1">
-//       <label for="cargoCount${index + 1}" class="orderData-label">Кол-во:</label>
-//     </div>
-
-//     `;
-
-//     ordersContainer.appendChild(newOrderRow);
-
-//     newOrderRow.querySelector(".no-cargo").addEventListener("click", function () {
-//       this.classList.remove('buttonAutoDisabled')
-//       const row = this.closest(".order-row");
-//       const cargoInput = row.querySelector('input[type="text"]:nth-of-type(2)');
-//       cargoInput.disabled = !cargoInput.disabled;
-//       throttledGeneratePreview()
-//     });
-
-//     newOrderRow.querySelectorAll("input").forEach(input => {
-//       input.addEventListener("input", throttledGeneratePreview());
-//     });
-//   });
-
-//   document.querySelectorAll(".order-row").forEach(row => {
-//     row.querySelectorAll(".switchCargo").forEach(button => {
-//       button.addEventListener("click", function () {
-//         const orderInput = row.querySelector('input[id^="orderNumber"]');
-//         const cargoInput = row.querySelector('input[id^="cargoCode"]');
-//         if (!cargoInput.disabled) { // Меняем местами, если поле не заблокировано
-//           [orderInput.value, cargoInput.value] = [cargoInput.value, orderInput.value];
-//           throttledGeneratePreview()
-//         }
-//       });
-//     });
-//   });
-// });
-
-document.querySelector("textarea.allOrders").addEventListener("input", function (event) {
-
-    let setcionNumber = 1;
-    const textarea = document.querySelector('.allOrders');
-    const lineNumbersDiv = document.getElementById('line-numbers');
-
-    const lineNumber = textarea.value.split('\n');
-    let lineNumbers = '';
-    let number = 1;
-
-    lineNumber.forEach((line, index) => {
-        if (line.trim() !== '') {
-            lineNumbers += `<div>${number}</div>`;
-            number++;
-        } else {
-            lineNumbers += `<div class="empty-line">×</div>`;
-        }
-    });
-
-    lineNumbersDiv.innerHTML = lineNumbers;
-
-    // Синхронизация скролла
-    textarea.addEventListener('scroll', () => {
-        lineNumbersDiv.scrollTop = textarea.scrollTop;
-    });
-
-    // Подсветка активной строки
-    function highlightActiveLine() {
-        const cursorPosition = textarea.selectionStart;
-        const textBeforeCursor = textarea.value.substring(0, cursorPosition);
-        const currentLineIndex = textBeforeCursor.split("\n").length - 1;
-
-        // Убираем старую подсветку
-        document.querySelectorAll(".line-highlight").forEach(el => el.classList.remove("line-highlight"));
-
-        // Подсвечиваем строку в номерах
-        const lineNumbers = lineNumbersDiv.querySelectorAll("div");
-        if (lineNumbers[currentLineIndex]) {
-            lineNumbers[currentLineIndex].classList.add("line-highlight");
-        }
-    }
-    textarea.addEventListener("keyup", highlightActiveLine);
-    textarea.addEventListener("click", highlightActiveLine);
-
-    document.addEventListener("selectionchange", () => {
-      const selection = window.getSelection();
-      if (!selection.rangeCount) return;
-  
-      const textarea = document.querySelector(".allOrders");
-      const lineNumbersDiv = document.getElementById("line-numbers");
-      const lineNumbers = lineNumbersDiv.querySelectorAll("div");
-  
-      const start = textarea.selectionStart;
-      let end = textarea.selectionEnd;
-  
-      const textBeforeStart = textarea.value.substring(0, start);
-      const textBeforeEnd = textarea.value.substring(0, end);
-  
-      let startLine = textBeforeStart.split("\n").length - 1;
-      let endLine = textBeforeEnd.split("\n").length - 1;
-  
-      // Если `selectionEnd` стоит в начале строки, уменьшаем `endLine`
-      if (end > 0 && textarea.value[end - 1] === '\n') {
-          endLine--;
+  lineNumber.forEach((line, index) => {
+      if (line.trim() !== '') {
+          lineNumbers += `<div>${number}</div>`;
+          number++;
+      } else {
+          lineNumbers += `<div class="empty-line">×</div>`;
       }
-  
-      lineNumbers.forEach((line, index) => {
-          if (index >= startLine && index <= endLine) {
-              line.classList.add("line-selected");
-          } else {
-              line.classList.remove("line-selected");
-          }
-      });
   });
 
-  document.addEventListener("click", (event) => {
+  lineNumbersDiv.innerHTML = lineNumbers;
+
+  // Синхронизация скролла
+  textarea.addEventListener('scroll', () => {
+      lineNumbersDiv.scrollTop = textarea.scrollTop;
+  });
+
+  // Подсветка активной строки
+  function highlightActiveLine() {
+      const cursorPosition = textarea.selectionStart;
+      const textBeforeCursor = textarea.value.substring(0, cursorPosition);
+      const currentLineIndex = textBeforeCursor.split("\n").length - 1;
+
+      // Убираем старую подсветку
+      document.querySelectorAll(".line-highlight").forEach(el => el.classList.remove("line-highlight"));
+
+      // Подсвечиваем строку в номерах
+      const lineNumbers = lineNumbersDiv.querySelectorAll("div");
+      if (lineNumbers[currentLineIndex]) {
+          lineNumbers[currentLineIndex].classList.add("line-highlight");
+      }
+  }
+  textarea.addEventListener("keyup", highlightActiveLine);
+  textarea.addEventListener("click", highlightActiveLine);
+
+  document.addEventListener("selectionchange", () => {
+    const selection = window.getSelection();
+    if (!selection.rangeCount) return;
+
     const textarea = document.querySelector(".allOrders");
     const lineNumbersDiv = document.getElementById("line-numbers");
-  
-    if (!textarea.contains(event.target) && !lineNumbersDiv.contains(event.target)) {
-        document.querySelectorAll(".line-selected").forEach(el => el.classList.remove("line-selected"));
+    const lineNumbers = lineNumbersDiv.querySelectorAll("div");
+
+    const start = textarea.selectionStart;
+    let end = textarea.selectionEnd;
+
+    const textBeforeStart = textarea.value.substring(0, start);
+    const textBeforeEnd = textarea.value.substring(0, end);
+
+    let startLine = textBeforeStart.split("\n").length - 1;
+    let endLine = textBeforeEnd.split("\n").length - 1;
+
+    // Если `selectionEnd` стоит в начале строки, уменьшаем `endLine`
+    if (end > 0 && textarea.value[end - 1] === '\n') {
+        endLine--;
     }
-  });
-  
 
-    const ordersContainer = document.getElementById("orders-container");
-    const lines = event.target.value
-        .split('\n')
-        .map(line => line.trim().replace(/\s+/g, ' '))
-        .filter(line => line.length > 0);
-
-    ordersContainer.innerHTML = '';
-
-    lines.forEach((line, index) => {
-        line = line.replace(/[()]/g, '');
-        const parts = line.split(' ').filter(part => part.length > 0);
-
-        let orderNumber = '';
-        let cargoCode = '';
-        let anomalyDescription = '';
-        let orderType = '—'
-        let oneRow = false;
-
-        if(currentRappGenetarType === 1){
-          //~ МАГИСТРАЛИ • МАГИСТАРЛИ • МАГИСТАРЛИ 
-          if (parts.length > 0) {
-            const firstPart = parts[0];
-
-            if (parts.length > 1 && parts[1].startsWith('LO-')) {
-                cargoCode = parts[0];
-                orderNumber = parts[1];
-                oneRow = false;
-            }
-            else if (firstPart.startsWith('LO-')) {
-                orderNumber = firstPart;
-                cargoCode = parts.slice(1).join(' ');
-                oneRow = false;
-            }
-            else if (parts.length > 1 && parts[0].startsWith('F025')) {
-                cargoCode = parts[0];
-                orderNumber = parts.slice(1).join(' ');
-                oneRow = false;
-            }
-            else if (parts.length > 1 && parts[0].startsWith('0')) {
-                cargoCode = parts[0];
-                orderNumber = parts.slice(1).join(' ');
-                oneRow = false;
-            }
-            else if (parts.length > 1 && parts[0].startsWith('72')) {
-                cargoCode = parts[0];
-                orderNumber = parts.slice(1).join(' ');
-                oneRow = false;
-            }
-            else if (firstPart.startsWith('YP')) {
-                cargoCode = firstPart;
-                orderNumber = parts.slice(1).join(' ');
-                oneRow = false;
-            }
-            else if (firstPart.startsWith('F1254') || firstPart.startsWith('FA254') || firstPart.startsWith('VOZ') || firstPart.startsWith('PVZ') || firstPart.startsWith('FBS') || firstPart.startsWith('FBY')) {
-                orderNumber = firstPart;
-                cargoCode = '';
-                oneRow = true;
-            }
-            else if (/^\d{9,}-\d+$/.test(firstPart)) {
-                cargoCode = firstPart;
-                orderNumber = firstPart.split('-')[0];
-                oneRow = false;
-            } else {
-                orderNumber = parts[0] || '';
-                cargoCode = parts.slice(1).join(' ') || '';
-                oneRow = false;
-            }
+    lineNumbers.forEach((line, index) => {
+        if (index >= startLine && index <= endLine) {
+            line.classList.add("line-selected");
+        } else {
+            line.classList.remove("line-selected");
         }
+    });
+});
+
+document.addEventListener("click", (event) => {
+  const textarea = document.querySelector(".allOrders");
+  const lineNumbersDiv = document.getElementById("line-numbers");
+  const scaleButtons = document.querySelectorAll(".previewScale-btn");
+
+  // Если клик был по одной из кнопок масштаба — ничего не делаем
+  if ([...scaleButtons].some(btn => btn.contains(event.target))) {
+    return;
+  }
+
+  if (!textarea.contains(event.target) && !lineNumbersDiv.contains(event.target)) {
+    document.querySelectorAll(".line-selected").forEach(el => el.classList.remove("line-selected"));
+  }
+});
+
+
+
+  const ordersContainer = document.getElementById("orders-container");
+  const lines = event.target.value
+      .split('\n')
+      .map(line => line.trim().replace(/\s+/g, ' '))
+      .filter(line => line.length > 0);
+
+  ordersContainer.innerHTML = '';
+
+  lines.forEach((line, index) => {
+      line = line.replace(/[()]/g, '');
+      const parts = line.split(' ').filter(part => part.length > 0);
+
+      let orderNumber = '';
+      let cargoCode = '';
+      let anomalyDescription = '';
+      let orderType = '—'
+      let oneRow = false;
+
+      if(currentRappGenetarType === 1){
+        //~ МАГИСТРАЛИ • МАГИСТАРЛИ • МАГИСТАРЛИ 
+        if (parts.length > 0) {
+          const firstPart = parts[0];
+
+          if (parts.length > 1 && parts[1].startsWith('LO-')) {
+              cargoCode = parts[0];
+              orderNumber = parts[1];
+              oneRow = false;
+          }
+          else if (firstPart.startsWith('LO-')) {
+              orderNumber = firstPart;
+              cargoCode = parts.slice(1).join(' ');
+              oneRow = false;
+          }
+          else if (parts.length > 1 && parts[0].startsWith('F025')) {
+              cargoCode = parts[0];
+              orderNumber = parts.slice(1).join(' ');
+              oneRow = false;
+          }
+          else if (parts.length > 1 && parts[0].startsWith('0')) {
+              cargoCode = parts[0];
+              orderNumber = parts.slice(1).join(' ');
+              oneRow = false;
+          }
+          else if (parts.length > 1 && parts[0].startsWith('72')) {
+              cargoCode = parts[0];
+              orderNumber = parts.slice(1).join(' ');
+              oneRow = false;
+          }
+          else if (firstPart.startsWith('YP')) {
+              cargoCode = firstPart;
+              orderNumber = parts.slice(1).join(' ');
+              oneRow = false;
+          }
+          else if (firstPart.startsWith('F1254') || firstPart.startsWith('VOZ') || firstPart.startsWith('PVZ') || firstPart.startsWith('FBS') || firstPart.startsWith('FBY')) {
+              orderNumber = firstPart;
+              cargoCode = '';
+              oneRow = true;
+          } else if( firstPart.startsWith('FA254')){
+            orderNumber = firstPart;
+            cargoCode = 'Аномалия';
+            oneRow = false;
+          }else if( firstPart.startsWith('F3000000000')){
+            orderNumber = firstPart;
+            cargoCode = 'Полибокс';
+            oneRow = false;
+          }else if (/^\d{9,}-\d+$/.test(firstPart)) {
+              cargoCode = firstPart;
+              orderNumber = firstPart.split('-')[0];
+              oneRow = false;
+          } else {
+              orderNumber = parts[0] || '';
+              cargoCode = parts.slice(1).join(' ') || '';
+              oneRow = false;
+          }
       }
-      if (currentRappGenetarType === 4) {
-        //~ АНОМАЛИИ • АНОМАЛИИ • АНОМАЛИИ
-        if (parts.length > 1 && parts[1].startsWith('FA254')) {
-            orderNumber = parts[0] || '';
-            cargoCode = parts.length > 1 ? parts[1] : '';
-    
-            if (cargoCode.includes(' ')) {
-                let cargoParts = cargoCode.split(' ');
-                cargoCode = cargoParts[0]; // Берем только первую часть
-                anomalyDescription = cargoParts.slice(1).join(' '); // Остальное уходит в anomalyDescription
-            }else {
-                anomalyDescription = parts.length > 2 ? parts.slice(2).join(' ') : '';
-            }
-        }else {
+    }
+    if (currentRappGenetarType === 4) {
+      //~ АНОМАЛИИ • АНОМАЛИИ • АНОМАЛИИ
+      if (parts.length > 1 && parts[1].startsWith('FA254')) {
+          orderNumber = parts[0] || '';
+          cargoCode = parts.length > 1 ? parts[1] : '';
+  
+          if (cargoCode.includes(' ')) {
+              let cargoParts = cargoCode.split(' ');
+              cargoCode = cargoParts[0]; // Берем только первую часть
+              anomalyDescription = cargoParts.slice(1).join(' '); // Остальное уходит в anomalyDescription
+          } else {
+              anomalyDescription = parts.length > 2 ? parts.slice(2).join(' ') : '';
+          }
+      } else {
           orderNumber = parts[0] || '';
           cargoCode = parts.slice(1).join(' ') || '';
-    
+  
           if (cargoCode.includes(' ')) {
               let cargoParts = cargoCode.split(' ');
               cargoCode = cargoParts[0]; // Оставляем первую часть в cargoCode
               anomalyDescription = cargoParts.slice(1).join(' '); // Остальное в anomalyDescription
           }
-        }
-      }else if (currentRappGenetarType === 5) {
-        const firstPart = parts[0];
-    
-        // Проверка на строку, начинающуюся с "YP"
-        if (firstPart.startsWith('YP') || firstPart.startsWith('P0')) {
-            orderNumber = "—";
-            cargoCode = firstPart; // Текст, начинающийся с YP
-            // Определяем тип из следующей части строки, если он есть
-            if (parts.length > 1) {
-                const lowerText = parts[1].toLowerCase();
-                if (lowerText.includes("дубль") || lowerText.includes("le,km")) {
-                  orderType = "Дубль";
-              } else if (lowerText.includes("lost") || lowerText.includes("дщые")) {
-                  orderType = "LOST";
-              } else if (lowerText.includes("засыл") || lowerText.includes("pfcsk")) {
-                  orderType = "Засыл";
-              } else {
-                  orderType = "Неизвестно"; // Если тип не найден
-              }
-            }
-            oneRow = false;
-        } else if (parts.length > 1 && parts[1].startsWith('LO-')) {
-            cargoCode = parts[0];
-            orderNumber = parts[1];
-            oneRow = false;
-        } else if (firstPart.startsWith('LO-')) {
-            orderNumber = firstPart;
-            cargoCode = parts.slice(1).join(' ').split(' ')[0]; // Только первая часть после пробела
-            oneRow = false;
-        } else if (firstPart.startsWith('FA254')) {
-            orderNumber = firstPart;
-            cargoCode = 'Аномалия';
-            orderType = "LOST";
-            oneRow = true;
-        } else {
-            orderNumber = parts[0] || '';
-            cargoCode = parts.slice(1).join(' ').split(' ')[0] || ''; // Только первая часть после пробела
-            oneRow = false;
-        }
-    
-        // Автоопределение типа грузоместа
-        const lowerText = line.toLowerCase();
-        if (lowerText.includes("дубль") || lowerText.includes("le,km")) {
-          orderType = "Дубль";
-      } else if (lowerText.includes("lost") || lowerText.includes("дщые")) {
-          orderType = "LOST";
-      } else if (lowerText.includes("засыл") || lowerText.includes("pfcsk")) {
-          orderType = "Засыл";
       }
-    }
+  
+      // Удаляем все виды кавычек из anomalyDescription
+      anomalyDescription = anomalyDescription.replace(/["'`]/g, '');
+  }else if (currentRappGenetarType === 5) {
+      const firstPart = parts[0];
+  
+      // Проверка на строку, начинающуюся с "YP"
+      if (firstPart.startsWith('YP') || firstPart.startsWith('P0')) {
+          orderNumber = "—";
+          cargoCode = firstPart; // Текст, начинающийся с YP
+          // Определяем тип из следующей части строки, если он есть
+          if (parts.length > 1) {
+              const lowerText = parts[1].toLowerCase();
+              if (lowerText.includes("дубль") || lowerText.includes("le,km")) {
+                orderType = "Дубль";
+            } else if (lowerText.includes("lost") || lowerText.includes("дщые")) {
+                orderType = "LOST";
+            } else if (lowerText.includes("засыл") || lowerText.includes("pfcsk")) {
+                orderType = "Засыл";
+            } else {
+                orderType = "Неизвестно"; // Если тип не найден
+            }
+          }
+          oneRow = false;
+      } else if (parts.length > 1 && parts[1].startsWith('LO-')) {
+          cargoCode = parts[0];
+          orderNumber = parts[1];
+          oneRow = false;
+      } else if (firstPart.startsWith('LO-')) {
+          orderNumber = firstPart;
+          cargoCode = parts.slice(1).join(' ').split(' ')[0]; // Только первая часть после пробела
+          oneRow = false;
+      } else if (firstPart.startsWith('FA254')) {
+          orderNumber = firstPart;
+          cargoCode = 'Аномалия';
+          orderType = "LOST";
+          oneRow = false;
+      } else {
+          orderNumber = parts[0] || '';
+          cargoCode = parts.slice(1).join(' ').split(' ')[0] || ''; // Только первая часть после пробела
+          oneRow = false;
+      }
+  
+      // Автоопределение типа грузоместа
+      const lowerText = line.toLowerCase();
+      if (lowerText.includes("дубль") || lowerText.includes("le,km") || lowerText.includes("дубль") || lowerText.includes("dubll") || lowerText.includes("dubl") || lowerText.includes("duble")) {
+        orderType = "Дубль";
+    } else if (lowerText.includes("lost") || lowerText.includes("лост") || lowerText.includes("лос") || lowerText.includes("дщые") || lowerText.includes("лсот") || lowerText.includes("лост") || lowerText.includes("лоcт") || lowerText.includes("loost")) {
+        orderType = "LOST";
+    } else if (lowerText.includes("засыл") || lowerText.includes("pfcsk") || lowerText.includes("зсыл") || lowerText.includes("засил") || lowerText.includes("засыль") || lowerText.includes("зссыл") || lowerText.includes("зсы") || lowerText.includes("зслы") || lowerText.includes("звсыл")) {
+        orderType = "Засыл";
+    }      
+  }
+  
     
-      
-        const newOrderRow = document.createElement("div");
-        newOrderRow.classList.add("order-row");
+      const newOrderRow = document.createElement("div");
+      newOrderRow.classList.add("order-row");
 
-        newOrderRow.innerHTML = `
-        <div class="orderRowNumber">${setcionNumber++}</div>
+      newOrderRow.innerHTML = `
+      <div class="orderRowNumber">${setcionNumber++}</div>
 
-        <div class="orderData-container">
+      <div class="orderData-container">
+        <input
+        type="text"
+        class="orderData-input"
+        id="orderNumber${index + 1}"
+        value="${orderNumber}"
+        placeholder="${
+          currentRappGenetarType === 1 || 5
+          ?
+          'Введите номер отправления'
+          :
+          currentRappGenetarType === 4 
+          ?
+          'Номер аномалии'
+          :
+          'Что-то сломлось'
+        }"
+        required autocomplete="off">
+
+        <label
+        for="orderNumber${index + 1}"
+        class="orderData-label">
+        ${
+          currentRappGenetarType === 1 || 5
+          ?
+          'Номер отправления'
+          :
+          currentRappGenetarType === 4 
+          ?
+          'Номер аномалии'
+          :
+          'Что-то сломлось'
+        }
+        </label>
+      </div>
+      <button type="button" class="switchCargo pegasusTooltip" title="Поменять местами">
+        <i class="fa-solid fa-arrows-repeat"></i>
+      </button>
+
+      <div class="orderData-container">
+        <input
+          type="text"
+          class="orderData-input cargoGroup"
+          id="cargoCode${index + 1}"
+          value="${cargoCode}"
+          placeholder="${
+            currentRappGenetarType === 1 || 5
+            ?
+            'Код грузоместа' :
+            currentRappGenetarType === 4 
+            ?
+            'Тикет аномалии' 
+            :
+            'Что-то сломлось'
+          }"
+          ${oneRow === true ? 'disabled' : ''}
+          autocomplete="off"
+        >
+        <label
+          for="cargoCode${index + 1}"
+          class="orderData-label">
+          ${
+            currentRappGenetarType === 1 || 5
+            ?
+            'Код грузоместа' 
+            :
+            currentRappGenetarType === 4 
+            ?
+            'Тикет аномалии' 
+            :
+            'Что-то сломлось'
+          }
+        </label>
+        
+        ${
+          currentRappGenetarType === 4
+            ? ''
+            : 
+            (oneRow === true
+                ? 
+                (currentRappGenetarType === 1
+                    ? 
+                    `<button type="button" class="no-cargo buttonAutoDisabled"><i class="fa-solid fa-eye"></i></button>`
+                    : 
+                    `<button type="button" class="no-cargo"><i class="fa-solid fa-eye-slash"></i></button>`)
+                : 
+                `<button type="button" class="no-cargo"><i class="fa-solid fa-eye-slash"></i></button>`)
+        }
+      </div>
+
+   
+
+      ${
+        currentRappGenetarType === 4
+        ?
+        `<div class="orderData-container anomalyDescription-container">
           <input
           type="text"
           class="orderData-input"
-          id="orderNumber${index + 1}"
-          value="${orderNumber}"
-          placeholder="${
-            currentRappGenetarType === 1 ?
-            'Введите номер отправления' :
-            currentRappGenetarType === 4 ?
-            'Номер аномалии' :
-            'Что-то сломлось'
-          }"
+          id="anomalyDescription${index + 1}"
+          value="${anomalyDescription}"
+          placeholder="Описание Аномалии"
           required autocomplete="off">
-
           <label
-          for="orderNumber${index + 1}"
+          for="anomalyDescription${index + 1}"
           class="orderData-label">
-          ${
-            currentRappGenetarType === 1 ?
-            'Номер отправления' :
-            currentRappGenetarType === 4 ?
-            'Номер аномалии' :
-            'Что-то сломлось'
-          }
+            Описание Аномалии
           </label>
-        </div>
-        <button type="button" class="switchCargo pegasusTooltip" title="Поменять местами">
-          <i class="fa-solid fa-arrows-repeat"></i>
-        </button>
+        </div>`
+        :
+        currentRappGenetarType === 5
+        ?
+        `
+        <div class="orderData-container">
+          <label class="orderType" for="selectOrderType${index + 1}">
+              <h1>Тип грузоместа:</h1>
+              <select class="selectListener" id="selectOrderType${index + 1}">
+                  <option value="Засыл" ${orderType === "Засыл" ? 'selected' : ''}>Засыл</option>
+                  <option value="Дубль" ${orderType === "Дубль" ? 'selected' : ''}>Дубль</option>
+                  <option value="LOST" ${orderType === "LOST" ? 'selected' : ''}>LOST</option>
+                  <option value="—" ${orderType === "—" ? 'selected' : ''}>—</option>
+              </select>
+          </label>
+        </div>`
+        :
+        ``
+      }
 
+      <div class="orderData-container">
+        <input type="number" class="orderData-input orderData-inputCount" id="cargoCount${index + 1}" placeholder="Введите количество" value="1" autocomplete="off" min="1">
+        <label for="cargoCount${index + 1}" class="orderData-label">Кол-во:</label>
+      </div>
+
+        ${currentRappGenetarType === 1 && Math.random() < 0.01
+        ?
+        `
         <div class="orderData-container">
           <input
             type="text"
-            class="orderData-input cargoGroup"
-            id="cargoCode${index + 1}"
-            value="${cargoCode}"
-            placeholder="${
-              currentRappGenetarType === 1 ?
-              'Код грузоместа' :
-              currentRappGenetarType === 4 ?
-              'Тикет аномалии' :
-              'Что-то сломлось'
-            }"
-            ${oneRow === true ? 'disabled' : ''}
-            autocomplete="off"
-          >
-          <label
-            for="cargoCode${index + 1}"
-            class="orderData-label">
-            ${
-              currentRappGenetarType === 1 
-              ?
-              'Код грузоместа' 
-              :
-              currentRappGenetarType === 4 
-              ?
-              'Тикет аномалии' 
-              :
-              'Что-то сломлось'
-            }
-          </label>
-          
-          ${
-            currentRappGenetarType === 4
-              ? ''
-              : 
-              (oneRow === true
-                  ? 
-                  (currentRappGenetarType === 1
-                      ? 
-                      `<button type="button" class="no-cargo buttonAutoDisabled"><i class="fa-solid fa-eye"></i></button>`
-                      : 
-                      `<button type="button" class="no-cargo"><i class="fa-solid fa-eye-slash"></i></button>`)
-                  : 
-                  `<button type="button" class="no-cargo"><i class="fa-solid fa-eye-slash"></i></button>`)
-          }
-        </div>
-
-        ${
-          currentRappGenetarType === 4
-          ?
-          `<div class="orderData-container">
-            <input
-            type="text"
             class="orderData-input"
-            id="anomalyDescription${index + 1}"
-            value="${anomalyDescription}"
-            placeholder="Описание Аномалии"
-            required autocomplete="off">
-            <label
-            for="anomalyDescription${index + 1}"
+            id="orderNumber${index + 1}"
+            value="Ильяшенко - клоун 🤡"
+            placeholder="Ильяшенко - клоун 🤡"
+            required
+            readonly
+            autocomplete="off">
+      
+          <label
+            for="orderNumber${index + 1}"
             class="orderData-label">
-              Описание Аномалии
-            </label>
-          </div>`
-          :
-          currentRappGenetarType === 5
-          ?
-          `
-          <div class="orderData-container">
-            <label class="orderType" for="selectOrderType${index + 1}">
-                <h1>Тип грузоместа:</h1>
-                <select class="selectListener" id="selectOrderType${index + 1}">
-                    <option value="Засыл" ${orderType === "Засыл" ? 'selected' : ''}>Засыл</option>
-                    <option value="Дубль" ${orderType === "Дубль" ? 'selected' : ''}>Дубль</option>
-                    <option value="LOST" ${orderType === "LOST" ? 'selected' : ''}>LOST</option>
-                    <option value="—" ${orderType === "—" ? 'selected' : ''}>—</option>
-                </select>
-            </label>
-          </div>`
-          :
-          ``
-        }
-
-        <div class="orderData-container">
-          <input type="number" class="orderData-input orderData-inputCount" id="cargoCount${index + 1}" placeholder="Введите количество" value="1" autocomplete="off" min="1">
-          <label for="cargoCount${index + 1}" class="orderData-label">Кол-во:</label>
+            Чистая правда:
+          </label>
         </div>
-        `;
+        `
+        :
+        `` 
+      }   
+      `;
 
-        ordersContainer.appendChild(newOrderRow);
+      ordersContainer.appendChild(newOrderRow);
 
-        newOrderRow.querySelectorAll(".orderData-container .no-cargo").forEach(button => {
+      newOrderRow.querySelectorAll(".orderData-container .no-cargo").forEach(button => {
+        button.addEventListener("click", function () {
+          this.classList.remove('buttonAutoDisabled')
+          const container = this.closest(".orderData-container"); // Находим ближайший контейнер
+          const cargoInput = container.querySelector(".orderData-input"); // Находим input в этом контейнере
+          const icon = this.querySelector("i"); // Находим иконку внутри кнопки
+    
+          cargoInput.disabled = !cargoInput.disabled; // Переключаем disabled у input
+    
+          // Переключаем классы иконки
+          icon.classList.toggle("fa-eye-slash", !cargoInput.disabled);
+          icon.classList.toggle("fa-eye", cargoInput.disabled);
+          throttledGeneratePreview()
+        });
+      });
+
+      newOrderRow.querySelectorAll("input").forEach(input => {
+          input.addEventListener("input", throttledGeneratePreview);
+      });
+  });
+
+  document.querySelectorAll(".order-row").forEach(row => {
+      row.querySelectorAll(".switchCargo").forEach(button => {
           button.addEventListener("click", function () {
-            this.classList.remove('buttonAutoDisabled')
-            const container = this.closest(".orderData-container"); // Находим ближайший контейнер
-            const cargoInput = container.querySelector(".orderData-input"); // Находим input в этом контейнере
-            const icon = this.querySelector("i"); // Находим иконку внутри кнопки
-      
-            cargoInput.disabled = !cargoInput.disabled; // Переключаем disabled у input
-      
-            // Переключаем классы иконки
-            icon.classList.toggle("fa-eye-slash", !cargoInput.disabled);
-            icon.classList.toggle("fa-eye", cargoInput.disabled);
-            throttledGeneratePreview()
+              const orderInput = row.querySelector('input[id^="orderNumber"]');
+              const cargoInput = row.querySelector('input[id^="cargoCode"]');
+              if (!cargoInput.disabled) { // Меняем местами, если поле не заблокировано
+                  [orderInput.value, cargoInput.value] = [cargoInput.value, orderInput.value];
+                  throttledGeneratePreview()
+              }
           });
-        });
-
-        newOrderRow.querySelectorAll("input").forEach(input => {
-            input.addEventListener("input", throttledGeneratePreview);
-        });
-    });
-
-    document.querySelectorAll(".order-row").forEach(row => {
-        row.querySelectorAll(".switchCargo").forEach(button => {
-            button.addEventListener("click", function () {
-                const orderInput = row.querySelector('input[id^="orderNumber"]');
-                const cargoInput = row.querySelector('input[id^="cargoCode"]');
-                if (!cargoInput.disabled) { // Меняем местами, если поле не заблокировано
-                    [orderInput.value, cargoInput.value] = [cargoInput.value, orderInput.value];
-                    throttledGeneratePreview()
-                }
-            });
-        });
-    });
+      });
+  });
 
 throttledGeneratePreview()
 
+}
+//~ Сбор данных из textarea и заполнение их в order-row END
+
+//~ Слушатель событий в TEXTAREA
+document.querySelector("textarea.allOrders").addEventListener("input", function (event) {
+  getDataAndMakeOrderRow(event);
 });
+//~ Слушатель событий в TEXTAREA END
+
+//~ Пересоздать файл
+
+const reGenerateDocument = document.querySelector(".reGenerateDocument")
+reGenerateDocument.addEventListener('click', ()=>{
+  throttledGeneratePreview()
+})
+
+//~ Пересоздать файл END
+
 
 let timeout;
-
 function throttledGeneratePreview() {
     clearTimeout(timeout);
     formatingAnimation()
@@ -1723,21 +1519,43 @@ document.querySelectorAll("input, select").forEach(input => {
   input.addEventListener("input", throttledGeneratePreview);
 });
 
-const selectElements = document.querySelectorAll(".selectListener");
+document.addEventListener("DOMContentLoaded", () => {
+  const observer = new MutationObserver(() => {
+    attachSelectListeners();
+  });
 
-if (selectElements.length > 0) {
-  selectElements.forEach(option => {
-    option.addEventListener("change", () => {
-      if (typeof throttledGeneratePreview === "function") {
-        throttledGeneratePreview();
-      } else {
-        console.error("Функция throttledGeneratePreview не найдена!");
+  const ordersContainer = document.querySelector("#orders-container");
+  if (ordersContainer) {
+    observer.observe(ordersContainer, { childList: true, subtree: true });
+  } else {
+    console.warn("Контейнер #orders-container не найден.");
+  }
+
+  function attachSelectListeners() {
+    const selectElements = document.querySelectorAll(".selectListener");
+
+    if (selectElements.length === 0) {
+      console.warn("Элементы с классом .selectListener не найдены.");
+      return;
+    }
+
+    selectElements.forEach(option => {
+      if (!option.dataset.listenerAttached) { // Чтобы не вешать обработчики повторно
+        option.dataset.listenerAttached = "true";
+        option.addEventListener("change", () => {
+          if (typeof throttledGeneratePreview === "function") {
+            throttledGeneratePreview();
+          } else {
+            console.error("Функция throttledGeneratePreview не найдена!");
+          }
+        });
       }
     });
-  });
-} else {
-  console.warn("Элементы с классом .selectListener не найдены.");
-}
+  }
+
+  attachSelectListeners(); // Вызываем сразу, если элементы уже есть
+});
+
 
 function getDateToday(){
   const today = new Date().toLocaleDateString();
@@ -1820,7 +1638,7 @@ function generatePDF() {
         { content: (index + 1).toString(), styles: { font: "Roboto", cellWidth: 10 } }, // Узкий столбец для № п/п
         { content: orderNumber, styles: { font: "Roboto", fontSize: 12, fontStyle: "bold" } },
         { content: cargoCode, styles: { font: "Roboto", fontSize: 12, fontStyle: "bold" } },
-        { content: anomalyDescription, styles: { font: "Roboto", fontSize: 12, fontStyle: "bold" } },
+        { content: anomalyDescription, styles: { font: "Roboto", fontSize: 9, fontStyle: "bold" } },
         { content: cargoCount.toString(), styles: { font: "Roboto" } }
       ]);
     }else if(currentRappGenetarType === 5){
@@ -1948,7 +1766,7 @@ function generatePDF() {
       columnStyles: {
         0: { cellWidth: 10 }, // Узкий столбец для № п/п
         1: { cellWidth: 55 },
-        2: { cellWidth: 48 },
+        2: { cellWidth: 46 },
         3: { cellWidth: 65 },
         4: { cellWidth: 25 }
       }
@@ -2255,8 +2073,6 @@ async function renderPDF(pdfData) {
     }
   }, 1000);
 }
-
-
 
 //!END 
 
