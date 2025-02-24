@@ -2,28 +2,6 @@ html {
   color-scheme: dark !important;
 }
 
-/* ~ */
-
-.onLoad{
-  opacity: 0;
-  transition: 200ms ease-in-out;
-  filter: blur(4px);
-  transform-origin: center;
-  scale: .85;
-  transform: translateY(-10px);
-}
-
-.onLoadItem{
-  opacity: 0;
-  transition: 200ms ease-in-out;
-  filter: blur(4px);
-  transform-origin: center;
-  scale: .85;
-  transform: translateX(-10px) rotate(-45deg);
-}
-
-/* ~ */
-
 *::-webkit-scrollbar-track {
   background: #b1b1b177 !important;
   margin-top: 20px;
@@ -269,6 +247,26 @@ form#pdf-form {
   z-index: 1;
 }
 
+.generatorTite{
+  margin-bottom: 15px;
+  font-size: 24px;
+  color: #d8d8d8;
+  letter-spacing: 0rem;
+  transform: translateX(0px);
+  opacity: 1;
+  transition: 800ms;
+  transition-delay: 200ms;
+  transition-timing-function: linear(0 0%, 0 2.27%, 0.02 4.53%, 0.04 6.8%, 0.06 9.07%, 0.1 11.33%, 0.14 13.6%, 0.25 18.15%, 0.39 22.7%, 0.56 27.25%, 0.77 31.8%, 1 36.35%, 0.89 40.9%, 0.85 43.18%, 0.81 45.45%, 0.79 47.72%, 0.77 50%, 0.75 52.27%, 0.75 54.55%, 0.75 56.82%, 0.77 59.1%, 0.79 61.38%, 0.81 63.65%, 0.85 65.93%, 0.89 68.2%, 1 72.7%, 0.97 74.98%, 0.95 77.25%, 0.94 79.53%, 0.94 81.8%, 0.94 84.08%, 0.95 86.35%, 0.97 88.63%, 1 90.9%, 0.99 93.18%, 0.98 95.45%, 0.99 97.73%, 1 100%);
+}
+.onLoadText{
+  opacity: 0;
+  transition: 800ms;
+  transition-timing-function: linear(0 0%, 0 2.27%, 0.02 4.53%, 0.04 6.8%, 0.06 9.07%, 0.1 11.33%, 0.14 13.6%, 0.25 18.15%, 0.39 22.7%, 0.56 27.25%, 0.77 31.8%, 1 36.35%, 0.89 40.9%, 0.85 43.18%, 0.81 45.45%, 0.79 47.72%, 0.77 50%, 0.75 52.27%, 0.75 54.55%, 0.75 56.82%, 0.77 59.1%, 0.79 61.38%, 0.81 63.65%, 0.85 65.93%, 0.89 68.2%, 1 72.7%, 0.97 74.98%, 0.95 77.25%, 0.94 79.53%, 0.94 81.8%, 0.94 84.08%, 0.95 86.35%, 0.97 88.63%, 1 90.9%, 0.99 93.18%, 0.98 95.45%, 0.99 97.73%, 1 100%);
+  transition-delay: 200ms;
+  transform: translateX(-10px);
+  letter-spacing: -.85rem;
+}
+
 #containerCanvas{
   position: fixed;
   background: #232323;
@@ -418,6 +416,8 @@ select option:hover {
   border-radius: 10px;
   flex-flow: column;
 
+  transition: 500ms ease-in-out;
+
   scale: 1;
   animation: loadingAnimation 500ms ease-in-out;
 }
@@ -432,7 +432,8 @@ select option:hover {
   line-height: 1.2rem;
   background: #272727;
   color: #8b8b8b;
-  transition: 200ms;
+  transition-delay: 500ms;
+  transition: scale 500ms ease-in-out, opacity 500ms ease-in-out, transform 500ms ease-in-out;
   border-radius: 10px;
   box-shadow: 0px 0px 0px 1px #000;
   padding: 10px 0px;
@@ -484,7 +485,9 @@ textarea.allOrders {
   font-family: "Roboto";
   outline: 0;
   border: 0;
-  transition: 200ms;
+
+  transition-delay: 600ms;
+  transition: scale 500ms ease-in-out, opacity 500ms ease-in-out, height 500ms ease-in-out, transform 500ms ease-in-out;
   border-radius: 10px;
   box-shadow: 0px 0px 0px 1px #000, 0px 0px 10px 0px #000 inset;
 }
@@ -862,7 +865,9 @@ button.no-cargo {
   border-radius: 10px;
   margin-bottom: 10px;
   box-shadow: 0px 0px 0px 1px #000;
-  transition: 200ms;  
+
+  transition: scale 500ms ease-in-out, opacity 500ms ease-in-out, transform 500ms ease-in-out;
+  transition-delay: 0ms;
 }
 
 .textAreaControls > button:hover{
@@ -1103,6 +1108,23 @@ header.onLoading{
 .callMenu .cellMenu-container{
   display: flex;
   gap: 10px;
+}
+
+.cellMenu-container:nth-child(1) button:nth-child(1){
+  transition: scale 500ms ease-in-out, opacity 500ms ease-in-out, transform 500ms ease-in-out;
+  transition-delay: 0;
+}
+.cellMenu-container:nth-child(1) button:nth-child(2){
+  transition: scale 500ms ease-in-out, opacity 500ms ease-in-out, transform 500ms ease-in-out;
+  transition-delay: 100ms;
+}
+.cellMenu-container:nth-child(1) h1{
+  transition: scale 500ms ease-in-out, opacity 500ms ease-in-out, transform 500ms ease-in-out;
+  transition-delay: 200ms;
+}
+.cellMenu-container:nth-child(2) label{
+  transition: scale 500ms ease-in-out, opacity 500ms ease-in-out, transform 500ms ease-in-out;
+  transition-delay: 350ms;
 }
 
 .menuItem{
@@ -2066,6 +2088,9 @@ label.orderType > h1{
   background: #272727;
   border: 1px solid #000;
   overflow: hidden;
+  
+  transition-delay: 700ms;
+  transition: scale 500ms ease-in-out, opacity 500ms ease-in-out, transform 500ms ease-in-out;
 }
 
 .hints-container .hints-container-title{
@@ -2192,3 +2217,35 @@ p.hints-container-item-description{
   outline: 1px solid #272727;
   transition: 200ms;
 }
+
+
+/* ~ */
+
+.onLoad{
+  opacity: 0;
+  transition: 200ms ease-in-out;
+  filter: blur(4px);
+  transform-origin: center;
+  scale: .85;
+  transform: translateY(-10px);
+}
+
+.onLoadItem{
+  opacity: 0;
+  transition: 200ms ease-in-out;
+  filter: blur(4px);
+  transform-origin: center;
+  scale: .85;
+  transform: translateX(-10px) rotate(-45deg);
+}
+
+.onLoadMenu{
+  opacity: 0;
+  transition: 200ms ease-in-out;
+  filter: blur(4px);
+  transform-origin: center;
+  scale: .85;
+  transform: translateX(-10px);
+}
+
+/* ~ */

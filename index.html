@@ -74,16 +74,16 @@
     </nav>
     <div class="callMenu">
       <div class="cellMenu-container">
-        <button class="leaveThisPlace pegasusTooltip">
+        <button class="leaveThisPlace pegasusTooltip onLoadMenu">
           <i class="fa-regular fa-arrow-left-from-bracket"></i>
         </button>
-        <button class="menuToggle pegasusTooltip">
+        <button class="menuToggle pegasusTooltip onLoadMenu">
           <i class="fa-solid fa-bars"></i>
         </button>
-        <h1 id="currentGeneratorType-title">Магистрали</h1>
+        <h1 id="currentGeneratorType-title" class="onLoadMenu">Магистрали</h1>
       </div>
       <div class="cellMenu-container">
-        <label for="disableTooltip" class="pegasusTooltip">
+        <label for="disableTooltip" class="pegasusTooltip onLoadMenu">
           <input type="checkbox" id="disableTooltip" checked>
           <div class="disableTooltip-buttton-container">
             <div class="disableTooltip-buttton-ball"></div>
@@ -178,7 +178,7 @@
   <div class="container">
     <canvas id="containerCanvas"></canvas>
     <form id="pdf-form">
-      <h1>Генерация PDF-файла</h1>
+      <h1 class="generatorTite onLoadText">Генерация PDF-файла</h1>
 
       <div class="documentDataWrapper onLoad">
         <div class="documentDataBlock">
@@ -246,8 +246,8 @@
         <p class="dashboardInfoText">Предварительная загрузка пакетов</p>
         <span id="generationTime"></span>
       </div>
-      <div id="container" style="display: flex;">
-        <div class="textAreaControls">
+      <div id="container" class="onLoad" style="display: flex;">
+        <div class="textAreaControls onLoad">
           <button class="textAreaControls-button onLoadItem pegasusTooltip" id="allSelect-btn">
             <i class="fa-solid fa-check-double"></i>
           </button>
@@ -266,11 +266,11 @@
         </div>
 
         <div class="textAreaContainer">
-          <div id="line-numbers">
+          <div id="line-numbers" class="onLoad">
             <div>1</div>
           </div>
-          <textarea class="allOrders" placeholder="″Номер заказа″ + ″Код грузоместа″"></textarea>
-          <div class="hints-container">
+          <textarea class="allOrders onLoad" placeholder="″Номер заказа″ + ″Код грузоместа″"></textarea>
+          <div class="hints-container onLoad">
             <h1 class="hints-container-title">Подсказка</h1>
             <!-- <div class="hints-container-icon pegasusTooltip">
               <i class="fa-solid fa-question"></i>
@@ -424,7 +424,7 @@
       </div>
     </div>
     <div class="preview">
-      <h1>Предварительный просмотр</h1>
+      <h1 class="generatorTite onLoadText">Предварительный просмотр</h1>
       <div id="canvasContainer" class="onLoad">
         <div class="previewScaleControl">
           <div class="previewScaleControlContainer">

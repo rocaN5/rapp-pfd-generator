@@ -1,3 +1,18 @@
+//A- Global variables
+
+let currentRappGenetarType = 1;
+
+const onLoad = document.querySelectorAll('.onLoad')
+const onLoadItem = document.querySelectorAll('.onLoadItem')
+const onLoadMenu = document.querySelectorAll(".onLoadMenu")
+const onLoadText = document.querySelectorAll(".onLoadText")
+
+const currentGeneratorType_title = document.getElementById("currentGeneratorType-title");
+const currentGeneratorType_selection = document.querySelectorAll("input.currentGeneratorType-selection");
+
+//A- Global variables END
+
+//~ LOAD
 window.onload = () => {
   showMenu()
   setTimeout(() => {
@@ -13,7 +28,7 @@ window.onload = () => {
         freshLoading()
       }, 50);
     }, 500);
-  }, 1000);
+  }, 5000);
 };
 
 function freshLoading(){
@@ -23,18 +38,14 @@ function freshLoading(){
   onLoad.forEach(loadingItem => {
     loadingItem.classList.remove("onLoad")
   });
+  onLoadMenu.forEach(loadingItem => {
+    loadingItem.classList.remove("onLoadMenu")
+  });
+  onLoadText.forEach(loadingItem => {
+    loadingItem.classList.remove("onLoadText")
+  });
 }
-
-//A- Global variables
-
-let currentRappGenetarType = 1;
-
-const onLoad = document.querySelectorAll('.onLoad')
-const onLoadItem = document.querySelectorAll('.onLoadItem')
-const currentGeneratorType_title = document.getElementById("currentGeneratorType-title");
-const currentGeneratorType_selection = document.querySelectorAll("input.currentGeneratorType-selection");
-
-//A- Global variables END
+//~ LOAD END 
 
 //~ CHANGE generator type
 
@@ -220,7 +231,7 @@ function hideMenu(){
   }
   modalWindow.style.display = "none"
   menuToggle.style.backgroundColor = "transparent"
-  let menuToggleHeight = menuToggle.getBoundingClientRect().height + 20;
+  let menuToggleHeight = 60
   header.style.transform = `translateY(calc(-100% + ${menuToggleHeight}px))`;
   menuToggle.innerHTML = `<i class=\"fa-solid fa-bars\"></i>`
   header.classList.remove("active");
