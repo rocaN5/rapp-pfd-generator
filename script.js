@@ -1151,37 +1151,31 @@ document.addEventListener("click", (event) => {
               cargoCode = parts[0];
               orderNumber = parts[1];
               oneRow = false;
-          }
-          else if (firstPart.startsWith('LO-')) {
+          }else if (firstPart.startsWith('LO-')) {
               orderNumber = firstPart;
               cargoCode = parts.slice(1).join(' ');
               oneRow = false;
-          }
-          else if (parts.length > 1 && parts[0].startsWith('F025')) {
+          }else if (parts.length > 1 && parts[0].startsWith('F025')) {
               cargoCode = parts[0];
               orderNumber = parts.slice(1).join(' ');
               oneRow = false;
-          }
-          else if (parts.length > 1 && parts[0].startsWith('0')) {
+          }else if (parts.length > 1 && parts[0].startsWith('0')) {
               cargoCode = parts[0];
               orderNumber = parts.slice(1).join(' ');
               oneRow = false;
-          }
-          else if (parts.length > 1 && parts[0].startsWith('72')) {
+          }else if (parts.length > 1 && parts[0].startsWith('72')) {
               cargoCode = parts[0];
               orderNumber = parts.slice(1).join(' ');
               oneRow = false;
-          }
-          else if (firstPart.startsWith('YP')) {
+          }else if (firstPart.startsWith('YP')) {
               cargoCode = firstPart;
               orderNumber = parts.slice(1).join(' ');
               oneRow = false;
-          }
-          else if (firstPart.startsWith('F1254') || firstPart.startsWith('VOZ') || firstPart.startsWith('PVZ') || firstPart.startsWith('FBS') || firstPart.startsWith('FBY')) {
+          }else if (firstPart.startsWith('F1254') || firstPart.startsWith('VOZ') || firstPart.startsWith('PVZ') || firstPart.startsWith('FBS') || firstPart.startsWith('FBY')) {
               orderNumber = firstPart;
               cargoCode = '';
               oneRow = true;
-          } else if( firstPart.startsWith('FA254')){
+          }else if( firstPart.startsWith('FA254')){
             orderNumber = firstPart;
             cargoCode = 'Аномалия';
             oneRow = false;
@@ -1193,7 +1187,7 @@ document.addEventListener("click", (event) => {
               cargoCode = firstPart;
               orderNumber = firstPart.split('-')[0];
               oneRow = false;
-          } else {
+          }else {
               orderNumber = parts[0] || '';
               cargoCode = parts.slice(1).join(' ') || '';
               oneRow = false;
@@ -1229,11 +1223,10 @@ document.addEventListener("click", (event) => {
   }else if (currentRappGenetarType === 5) {
       const firstPart = parts[0];
   
-      // Проверка на строку, начинающуюся с "YP"
       if (firstPart.startsWith('YP') || firstPart.startsWith('P0')) {
           orderNumber = "—";
           cargoCode = firstPart; // Текст, начинающийся с YP
-          // Определяем тип из следующей части строки, если он есть
+
           if (parts.length > 1) {
               const lowerText = parts[1].toLowerCase();
               if (lowerText.includes("дубль") || lowerText.includes("le,km")) {
@@ -1260,7 +1253,11 @@ document.addEventListener("click", (event) => {
           cargoCode = 'Аномалия';
           orderType = "LOST";
           oneRow = false;
-      } else {
+      }else if (/^\d{9,}-\d+$/.test(firstPart)) {
+        cargoCode = firstPart;
+        orderNumber = firstPart.split('-')[0];
+        oneRow = false;
+      }else {
           orderNumber = parts[0] || '';
           cargoCode = parts.slice(1).join(' ').split(' ')[0] || ''; // Только первая часть после пробела
           oneRow = false;
@@ -1598,6 +1595,7 @@ function generatePDF() {
     "СЦ Яндекс Маркет Софьино КГТ": "Московская область, Раменский городской округ, территория Логистический технопарк Софьино, с4",
     "СЦ Тарный (Тарный Дропофф)": "г. Москва, Промышленная, дом 12A",
     "СЦ Ростов": "Ростовская область, Новочеркасское шоссе, Аксайский район, дом 111, корпус 2",
+    "СЦ Краснодар": "Краснодар, Краснодарский край, Подсолнечная улица, д. 44",
     "Ростов КГТ": "улица Логопарк, 5, Ростовская область, Аксайский район",
     "СЦ Строгино": "г. Москва, ул. 2-я Лыковская, д. 63, стр. 6.",
     "СЦ Дзержинский": "Московская область, Садовая улица, городской округ Дзержинский, дом 6",
@@ -1608,7 +1606,7 @@ function generatePDF() {
     "СЦ Грибки": "Ангарская ул., вл8с12, д. Грибки",
     "СЦ Ставрополь": "г. Ставрополь Старомарьевское шоссе 13/8",
     "СЦ Дмитровское": "г. Москва, Дмитровское шоссе, 157с12",
-    "СЦ Ставрополь": "г. Ставрополь Старомарьевское шоссе 13/8"
+    "СЦ СПБ Бугры": "Ленинградская область, Всеволожский район, Бугровское городское поселение, КАД, 23-й километр, внутреннее кольцо, 3"
   };
 
   // Сбор данных о заказах
@@ -1808,8 +1806,8 @@ function generatePDF() {
       columnStyles: {
         0: { cellWidth: 10 }, // Узкий столбец для № п/п
         1: { cellWidth: 65 },
-        2: { cellWidth: 60 },
-        3: { cellWidth: 40 },
+        2: { cellWidth: 65 },
+        3: { cellWidth: 35 },
         4: { cellWidth: 25 }
       }
     }

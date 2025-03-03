@@ -1,5 +1,29 @@
+canvas, caption, center,
+cite, code, dd, del, dfn,
+div, dl, dt, em, embed,
+fieldset, font, form, h1,
+h2, h3, h4, h5, h6, hr,
+i, iframe, img, ins, kbd,
+label, legend, li, menu,
+object, ol, p, pre, q, s,
+samp, small, span, strike,
+strong, sub, sup, table,
+tbody, td, tfoot, th, thead,
+tr, tt, u, ul, var{
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
 html {
   color-scheme: dark !important;
+}
+
+*::selection{
+  background: #b3ff00;
+  color: #000;
+  text-decoration: underline;
 }
 
 *::-webkit-scrollbar-track {
@@ -10,12 +34,6 @@ html {
   margin-right: 20px;
   border-radius: 6px !important;
   cursor: default !important;
-}
-
-*::selection{
-  background: #b3ff00;
-  color: #000;
-  text-decoration: underline;
 }
 
 *::-webkit-scrollbar-corner {
@@ -38,7 +56,7 @@ html {
 }
 
 textarea::selection {
-  background: #64baed4d;
+  background: #00dcff4d;
   color: #fff;
 }
 
@@ -248,15 +266,15 @@ form#pdf-form {
 }
 
 .generatorTite{
+  margin-top: 20px;
   margin-bottom: 15px;
   font-size: 24px;
-  color: #d8d8d8;
+  color: #ffffff;
   letter-spacing: 0rem;
   transform: translateX(0px);
   opacity: 1;
-  transition: 800ms;
-  transition-delay: 200ms;
-  transition-timing-function: linear(0 0%, 0 2.27%, 0.02 4.53%, 0.04 6.8%, 0.06 9.07%, 0.1 11.33%, 0.14 13.6%, 0.25 18.15%, 0.39 22.7%, 0.56 27.25%, 0.77 31.8%, 1 36.35%, 0.89 40.9%, 0.85 43.18%, 0.81 45.45%, 0.79 47.72%, 0.77 50%, 0.75 52.27%, 0.75 54.55%, 0.75 56.82%, 0.77 59.1%, 0.79 61.38%, 0.81 63.65%, 0.85 65.93%, 0.89 68.2%, 1 72.7%, 0.97 74.98%, 0.95 77.25%, 0.94 79.53%, 0.94 81.8%, 0.94 84.08%, 0.95 86.35%, 0.97 88.63%, 1 90.9%, 0.99 93.18%, 0.98 95.45%, 0.99 97.73%, 1 100%);
+  transition: 800ms linear(0 0%, 0 2.27%, 0.02 4.53%, 0.04 6.8%, 0.06 9.07%, 0.1 11.33%, 0.14 13.6%, 0.25 18.15%, 0.39 22.7%, 0.56 27.25%, 0.77 31.8%, 1 36.35%, 0.89 40.9%, 0.85 43.18%, 0.81 45.45%, 0.79 47.72%, 0.77 50%, 0.75 52.27%, 0.75 54.55%, 0.75 56.82%, 0.77 59.1%, 0.79 61.38%, 0.81 63.65%, 0.85 65.93%, 0.89 68.2%, 1 72.7%, 0.97 74.98%, 0.95 77.25%, 0.94 79.53%, 0.94 81.8%, 0.94 84.08%, 0.95 86.35%, 0.97 88.63%, 1 90.9%, 0.99 93.18%, 0.98 95.45%, 0.99 97.73%, 1 100%) 200ms;
+  text-shadow: 0px 0px 10px #000, 0px 0px 10px #000, 0px 0px 10px #000;
 }
 .onLoadText{
   opacity: 0;
@@ -441,6 +459,7 @@ select option:hover {
 
 #line-numbers > div{
   user-select: none;
+  border-left: 3px solid transparent;
 }
 
 .empty-line{
@@ -455,17 +474,17 @@ select option:hover {
 }
 
 .line-selected {
-  background-color: #64baed4d;
-  border-left: 3px solid #64a6ed;
+  background-color: #00dcff4d;
+  border-left: 3px solid #00dcff !important;
   color: #fff;
 }
 
 .empty-line.line-highlight,
 .empty-line.line-selected{
-  color: #f10e0e;
-  background: #2c0000;
-  text-shadow: 0px 0px 10px red, 0px 0px 10px red, 0px 0px 10px red ,0px 0px 10px red;
-  border-left: 3px solid red;
+  color: #f10e0e !important;
+  background: #2c0000 !important;
+  text-shadow: 0px 0px 10px red, 0px 0px 10px red, 0px 0px 10px red ,0px 0px 10px red !important;
+  border-left: 3px solid red !important;
 }
 
 textarea.allOrders {
@@ -759,6 +778,10 @@ button.no-cargo {
 
   scale: 1;
   animation: loadingAnimation 500ms ease-in-out;
+}
+
+div#orders-container:not(:has(.order-row)) {
+  display: none;
 }
 
 .orderData-input{
