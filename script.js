@@ -28,7 +28,7 @@ window.onload = () => {
         freshLoading()
       }, 50);
     }, 500);
-  }, 5000);
+  }, 50);
 };
 
 function freshLoading(){
@@ -260,23 +260,132 @@ function showMenu(){
 
 const checkbox = document.getElementById("disableTooltip");
 
-    function toggleTooltipClass() {
-        const elements = document.querySelectorAll(".pegasusTooltip, .tooltipRemoved");
-        elements.forEach(el => {
-            if (checkbox.checked) {
-                el.classList.add("pegasusTooltip");
-                el.classList.remove("tooltipRemoved");
-            } else {
-                el.classList.remove("pegasusTooltip");
-                el.classList.add("tooltipRemoved"); // Сохраняем возможность вернуть класс
-            }
-        });
+function toggleTooltipClass() {
+  const elements = document.querySelectorAll(".pegasusTooltip, .tooltipRemoved");
+  elements.forEach(el => {
+    if (checkbox.checked) {
+      el.classList.add("pegasusTooltip");
+      el.classList.remove("tooltipRemoved");
+    }else{
+      el.classList.remove("pegasusTooltip");
+      el.classList.add("tooltipRemoved"); // Сохраняем возможность вернуть класс
     }
+  });
+}
 
-    checkbox.addEventListener("change", toggleTooltipClass);
-    toggleTooltipClass(); // Вызываем при загрузке, чтобы применить начальное состояние
+checkbox.addEventListener("change", toggleTooltipClass);
+toggleTooltipClass(); // Вызываем при загрузке, чтобы применить начальное состояние
 
 //~ Tootltip toggle END
+
+//~ Direction dropdown menu
+
+const direction__options = [
+  "СЦ Домодедово ЕВСЦ",
+  "СЦ Яндекс Маркет Софьино ФФЦ",
+  "СЦ Яндекс Маркет Софьино Суперсклад",
+  "СЦ Яндекс Маркет Софьино КГТ",
+  "СЦ Тарный (Тарный Дропофф)",
+  "СЦ Липецк",
+  "СЦ Курск",
+  "СЦ Белгород",
+  "СЦ Ростов",
+  "СЦ Краснодар",
+  "Ростов КГТ",
+  "СЦ Строгино",
+  "СЦ Дзержинский",
+  "СЦ Троицкий",
+  "СЦ Казань",
+  "СЦ Запад",
+  "СЦ Самара",
+  "СЦ Грибки",
+  "СЦ Ставрополь",
+  "СЦ Дмитровское",
+  "СЦ СПБ Бугры",
+  "СЦ Ленинские горки",
+  "СЦ Муром",
+  "СЦ Челябинск",
+  "СЦ Чебоксары",
+  "СЦ Ижевск",
+  "СЦ Тюмень",
+  "СЦ Екатеринбург",
+  "СЦ Набережные Челны",
+  "СЦ Оренбург",
+  "СЦ Новосибирск",
+  "СЦ Барнаул",
+  "СЦ Вологда",
+  "СЦ Смоленск"
+];
+
+const direction__input = document.getElementById("recipient");
+const direction__dropdownList = document.getElementById("dropdownList");
+let previousValue = "";
+
+// Карта для перевода букв из английской раскладки в русскую
+const ruEnMap = {
+  "q": "й", "w": "ц", "e": "у", "r": "к", "t": "е", "y": "н", "u": "г", "i": "ш", "o": "щ", "p": "з",
+  "a": "ф", "s": "ы", "d": "в", "f": "а", "g": "п", "h": "р", "j": "о", "k": "л", "l": "д", 
+  "z": "я", "x": "ч", "c": "с", "v": "м", "b": "и", "n": "т", "m": "ь", "Q": "Й", "W": "Ц", "E": "У",
+  "R": "К", "T": "Е", "Y": "Н", "U": "Г", "I": "Ш", "O": "Щ", "P": "З", "A": "Ф", "S": "Ы", "D": "В",
+  "F": "А", "G": "П", "H": "Р", "J": "О", "K": "Л", "L": "Д", "Z": "Я", "X": "Ч", "C": "С", "V": "М",
+  "B": "И", "N": "Т", "M": "Ь"
+};
+
+// Функция для преобразования английских символов в русские
+function transliterate(text) {
+  return text.split('').map(char => ruEnMap[char] || char).join('');
+}
+
+function updateDropdownList() {
+  const search = transliterate(direction__input.value.toLowerCase()); // Преобразуем введенный текст в правильные русские символы
+  direction__dropdownList.innerHTML = "";
+  const filteredOptions = direction__options.filter(option => option.toLowerCase().includes(search));
+  
+  if (filteredOptions.length === 0) {
+      const noMatch = document.createElement("div");
+      noMatch.classList.add("dropdown-item", "no-matches");
+      noMatch.textContent = "Нет совпадений";
+      direction__dropdownList.appendChild(noMatch);
+  } else {
+      filteredOptions.forEach(option => {
+          const item = document.createElement("div");
+          item.classList.add("dropdown-item");
+          item.textContent = option;
+          item.addEventListener("click", () => {
+              direction__input.value = option;
+              direction__dropdownList.classList.remove("show");
+          });
+          direction__dropdownList.appendChild(item);
+      });
+  }
+  direction__dropdownList.classList.add("show");
+}
+
+direction__input.addEventListener("input", updateDropdownList);
+direction__input.addEventListener("focus", () => {
+  previousValue = direction__input.value;
+  direction__input.value = "";
+  updateDropdownList();
+});
+
+direction__input.addEventListener("blur", () => {
+  setTimeout(() => {
+      if (!direction__dropdownList.contains(document.activeElement)) {
+          direction__dropdownList.classList.remove("show");
+          if (!direction__options.includes(direction__input.value)) {
+              direction__input.value = previousValue;
+          }
+      }
+  }, 200);
+});
+
+document.addEventListener("click", (e) => {
+  if (!e.target.closest(".dropdown")) {
+      direction__dropdownList.classList.remove("show");
+  }
+});
+
+//~ Direction dropdown menu END
 
 //~ CANVAS header
 const canvas = document.getElementById('headerArrowCanvas');
@@ -1584,8 +1693,20 @@ function generatePDF() {
   // Получение данных формы
   const sender = document.getElementById("sender").value;
   const recipient = document.getElementById("recipient").value;
-  const actNumber = document.getElementById("actNumber").value;
+  // const actNumber = document.getElementById("actNumber");
+  // let actNumber_data = null;
+  // actNumber.value =
   const date = document.getElementById("dateDisplay").innerText;
+
+  const actNumber = document.getElementById("actNumber");
+  const typeMap = { 1: "m", 2: "c", 3: "s", 4: "a", 5: "z" };
+  const randomString = Array.from({ length: 8 }, () => 
+    Math.random() < 0.5 
+      ? String.fromCharCode(48 + Math.floor(Math.random() * 10))
+      : String.fromCharCode(65 + Math.floor(Math.random() * 26) + (Math.random() < 0.5 ? 32 : 0))).join("");
+  let actNumber_data = `iRDG-${typeMap[currentRappGenetarType] || "e"}/MAAT:${randomString}`;
+  actNumber.value = actNumber_data;
+
 
   // Адреса получателей
   const recipientAddresses = {
@@ -1594,6 +1715,9 @@ function generatePDF() {
     "СЦ Яндекс Маркет Софьино Суперсклад": "Московская область, территория Логистический технопарк Софьино, Раменский городской округ, дом 2/1",
     "СЦ Яндекс Маркет Софьино КГТ": "Московская область, Раменский городской округ, территория Логистический технопарк Софьино, с4",
     "СЦ Тарный (Тарный Дропофф)": "г. Москва, Промышленная, дом 12A",
+    "СЦ Липецк" : "Липецкая область, городской округ Липецк, Липецк, Базарная улица, д. уч3А",
+    "СЦ Курск" : "Курская область, городской округ Курск, Курск, проспект Ленинского Комсомола, д. 49",
+    "СЦ Белгород" : "Белгородская область, муниципальное образование Белгород, Белгород, улица Мичурина, д. 104",
     "СЦ Ростов": "Ростовская область, Новочеркасское шоссе, Аксайский район, дом 111, корпус 2",
     "СЦ Краснодар": "Краснодар, Краснодарский край, Подсолнечная улица, д. 44",
     "Ростов КГТ": "улица Логопарк, 5, Ростовская область, Аксайский район",
@@ -1602,11 +1726,24 @@ function generatePDF() {
     "СЦ Троицкий": "г. Санкт-Петербург, Запорожская ул. , д.12",
     "СЦ Казань": "Республика Татарстан, Почтовая улица, Лаишевский район, дом 1",
     "СЦ Запад": "г. Москва, Бережковская набережная, 20с9",
-    "СЦ Самара": "Самарская область, Индустриальная улица, Волжский район, дом 1Б/1",
+    "СЦ Самара": "Смарская область, сельское поселение Верхняя Подстепновка, село Преображенка, Индустриальная улица, Волжский район, дом 1Б/1",
     "СЦ Грибки": "Ангарская ул., вл8с12, д. Грибки",
     "СЦ Ставрополь": "г. Ставрополь Старомарьевское шоссе 13/8",
     "СЦ Дмитровское": "г. Москва, Дмитровское шоссе, 157с12",
-    "СЦ СПБ Бугры": "Ленинградская область, Всеволожский район, Бугровское городское поселение, КАД, 23-й километр, внутреннее кольцо, 3"
+    "СЦ СПБ Бугры": "Ленинградская область, Всеволожский район, Бугровское городское поселение, КАД, 23-й километр, внутреннее кольцо, 3",
+    "СЦ Ленинские горки": "Инновационный проезд, д. 7А",
+    "СЦ Муром" : "Владимирская область, округ Муром, Муром, Владимирское шоссе, д9",
+    "СЦ Челябинск" : "Челябинская область, городской округ Челябинск, Челябинск, улица Монтажников, д16",
+    "СЦ Чебоксары" : "Чувашская республика, городской округ Чебоксары, Чебоксары, Гаражный проезд, д 3/1",
+    "СЦ Ижевск" : "Удмуртская Республика, городской округ Ижевск, Ижевск, улица Пойма, д. 105",
+    "СЦ Тюмень" : "Тюменская область, городской округ Тюмень, Тюмень, Коммунистическая улица, д 47, стр. 12",
+    "СЦ Екатеринбург" : "Свердловская область, муниципальное образование Екатеринбург, Екатеринбург, Серовский тракт, 11-й километр, д. 5, стр. 1",
+    "СЦ Набережные Челны" : "Республика Татарстан, городской округ Набережные Челны, Набережные Челны, Машиностроительная улица, д. 39",
+    "СЦ Оренбург" : "Оренбургская область, городской округ Оренбург, Оренбург, Беляевская улица, д. 4",
+    "СЦ Новосибирск" : "Новосибирская область, Тодмачёвский сельсовет, Производственно-складская зона, Производственно-складская зона, д. 7",
+    "СЦ Барнаул" : "Алтайский край, муниципальное образование Барнаул, Барнаул, улица Чернышевского, д 293Б",
+    "СЦ Вологда" : "Вологодская область, городской округ Вологда, Вологда, Ананьинский переулок, д. 14",
+    "СЦ Смоленск" : "Смоленская область, муниципальное образование Смоленск, Смоленск, Краснинское шоссе, д. 27"
   };
 
   // Сбор данных о заказах
