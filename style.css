@@ -57,7 +57,7 @@ html {
 
 textarea::selection {
   background: #00dcff4d;
-  color: #fff;
+  color: transparent;
 }
 
 body {
@@ -467,11 +467,11 @@ select option:hover {
   color: #a70000;
 }
 
-.line-highlight {
+/* .line-highlight {
   background: rgb(22 22 22);
   color: #ffffff;
   text-shadow: 0px 0px 2px #000, 0px 0px 2px #000;
-}
+} */
 
 .line-selected {
   background-color: #00dcff4d;
@@ -500,7 +500,7 @@ textarea.allOrders {
   padding: 10px;
   line-height: 1.2rem;
   background: #3c3c3c;
-  color: #ffffff;
+  color: transparent;
   font-family: "Roboto";
   outline: 0;
   border: 0;

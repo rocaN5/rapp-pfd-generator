@@ -1,6 +1,6 @@
 //A- Global variables
 
-let currentRappGenetarType = 1;
+let currentRappGeneratorType = 1;
 
 const onLoad = document.querySelectorAll('.onLoad')
 const onLoadItem = document.querySelectorAll('.onLoadItem')
@@ -47,6 +47,71 @@ function freshLoading(){
 }
 //~ LOAD END 
 
+//~ CANVAS textarea overlay
+
+const textAreaOverLay__textarea = document.querySelector('textarea.allOrders');
+const textAreaOverLay__canvas = document.createElement('canvas');
+const textAreaOverLay__ctx = textAreaOverLay__canvas.getContext('2d');
+
+textAreaOverLay__canvas.style.position = 'absolute';
+textAreaOverLay__canvas.style.pointerEvents = 'none';
+textAreaOverLay__canvas.style.top = textAreaOverLay__textarea.offsetTop + 'px';
+textAreaOverLay__canvas.style.left = textAreaOverLay__textarea.offsetLeft + 'px';
+
+function textAreaOverLay__updateCanvas() {
+    textAreaOverLay__canvas.width = textAreaOverLay__textarea.clientWidth;
+    textAreaOverLay__canvas.height = textAreaOverLay__textarea.clientHeight;
+    textAreaOverLay__ctx.clearRect(0, 0, textAreaOverLay__canvas.width, textAreaOverLay__canvas.height);
+    
+    const text = textAreaOverLay__textarea.value;
+    const lines = text.split('\n');
+    const fontSize = parseInt(window.getComputedStyle(textAreaOverLay__textarea).fontSize);
+    const lineHeight = fontSize * 1.2;
+    const scrollTop = textAreaOverLay__textarea.scrollTop;
+    const startY = 14 - scrollTop;
+    textAreaOverLay__ctx.font = `${fontSize}px ${window.getComputedStyle(textAreaOverLay__textarea).fontFamily}`;
+    textAreaOverLay__ctx.textBaseline = 'top';
+    
+    let y = startY;
+    for (const line of lines) {
+        if (y + lineHeight > 0 && y < textAreaOverLay__canvas.height) { // Отображать только видимые строки
+            const words = line.split(' ');
+            let x = 10; // Padding
+            let firstWordColor = '#00ff68';
+            let secondWordColor = '#ccff00';
+            let otherWordsColor = '#ffffff';
+            
+            if (/^(F0254|0|72|YP)/.test(line)) {
+                firstWordColor = '#ccff00';
+                secondWordColor = '#fff';
+                otherWordsColor = '#fff';
+            } else if (/^(F1254|FA254|F3000000000)/.test(line)) {
+                firstWordColor = '#00dcff';
+                secondWordColor = '#fff';
+                otherWordsColor = '#fff';
+            }
+            
+            words.forEach((word, index) => {
+                if (index === 0) textAreaOverLay__ctx.fillStyle = firstWordColor;
+                else if (index === 1) textAreaOverLay__ctx.fillStyle = secondWordColor;
+                else textAreaOverLay__ctx.fillStyle = otherWordsColor;
+                
+                textAreaOverLay__ctx.shadowColor = textAreaOverLay__ctx.fillStyle;
+                textAreaOverLay__ctx.shadowBlur = 10;
+                textAreaOverLay__ctx.fillText(word, x, y);
+                x += textAreaOverLay__ctx.measureText(word + ' ').width;
+            });
+        }
+        y += lineHeight;
+    }
+}
+textAreaOverLay__textarea.parentNode.insertBefore(textAreaOverLay__canvas, textAreaOverLay__textarea.nextSibling);
+textAreaOverLay__textarea.addEventListener('input', textAreaOverLay__updateCanvas);
+textAreaOverLay__textarea.addEventListener('scroll', textAreaOverLay__updateCanvas);
+textAreaOverLay__updateCanvas();
+
+//~ CANVAS textarea overlay END
+
 //~ CHANGE generator type
 
 currentGeneratorType_selection.forEach(input => {
@@ -55,19 +120,19 @@ currentGeneratorType_selection.forEach(input => {
     getDataAndMakeOrderRow(event);
     if (input.id === "rapp-1") {
       title = "Магистрали";
-      currentRappGenetarType = 1;
+      currentRappGeneratorType = 1;
     } else if (input.id === "rapp-2") {
       title = "Курьеры";
-      currentRappGenetarType = 2;
+      currentRappGeneratorType = 2;
     } else if (input.id === "rapp-3") {
       title = "Мерчи";
-      currentRappGenetarType = 3;
+      currentRappGeneratorType = 3;
     } else if (input.id === "rapp-4") {
       title = "Аномалии";
-      currentRappGenetarType = 4;
+      currentRappGeneratorType = 4;
     } else if (input.id === "rapp-5") {
       title = "Засылы / Дубли / Lost";
-      currentRappGenetarType = 5;
+      currentRappGeneratorType = 5;
     } else {
       title = "Что-то новенькое 😐";
     }
@@ -1251,7 +1316,7 @@ document.addEventListener("click", (event) => {
       let orderType = '—'
       let oneRow = false;
 
-      if(currentRappGenetarType === 1){
+      if(currentRappGeneratorType === 1){
         //~ МАГИСТРАЛИ • МАГИСТАРЛИ • МАГИСТАРЛИ 
         if (parts.length > 0) {
           const firstPart = parts[0];
@@ -1264,15 +1329,15 @@ document.addEventListener("click", (event) => {
               orderNumber = firstPart;
               cargoCode = parts.slice(1).join(' ');
               oneRow = false;
-          }else if (parts.length > 1 && parts[0].startsWith('F025')) {
+          }else if (firstPart.startsWith('F0254')) {
+              cargoCode = firstPart;
+              orderNumber = parts.slice(1).join(' ');
+              oneRow = false;
+          }else if (firstPart.startsWith('0')) {
               cargoCode = parts[0];
               orderNumber = parts.slice(1).join(' ');
               oneRow = false;
-          }else if (parts.length > 1 && parts[0].startsWith('0')) {
-              cargoCode = parts[0];
-              orderNumber = parts.slice(1).join(' ');
-              oneRow = false;
-          }else if (parts.length > 1 && parts[0].startsWith('72')) {
+          }else if (firstPart.startsWith('72')) {
               cargoCode = parts[0];
               orderNumber = parts.slice(1).join(' ');
               oneRow = false;
@@ -1303,7 +1368,7 @@ document.addEventListener("click", (event) => {
           }
       }
     }
-    if (currentRappGenetarType === 4) {
+    if (currentRappGeneratorType === 4) {
       //~ АНОМАЛИИ • АНОМАЛИИ • АНОМАЛИИ
       if (parts.length > 1 && parts[1].startsWith('FA254')) {
           orderNumber = parts[0] || '';
@@ -1329,7 +1394,7 @@ document.addEventListener("click", (event) => {
   
       // Удаляем все виды кавычек из anomalyDescription
       anomalyDescription = anomalyDescription.replace(/["'`]/g, '');
-  }else if (currentRappGenetarType === 5) {
+  }else if (currentRappGeneratorType === 5) {
       const firstPart = parts[0];
   
       if (firstPart.startsWith('YP') || firstPart.startsWith('P0')) {
@@ -1397,11 +1462,11 @@ document.addEventListener("click", (event) => {
         id="orderNumber${index + 1}"
         value="${orderNumber}"
         placeholder="${
-          currentRappGenetarType === 1 || 5
+          currentRappGeneratorType === 1 || 5
           ?
           'Введите номер отправления'
           :
-          currentRappGenetarType === 4 
+          currentRappGeneratorType === 4 
           ?
           'Номер аномалии'
           :
@@ -1413,11 +1478,11 @@ document.addEventListener("click", (event) => {
         for="orderNumber${index + 1}"
         class="orderData-label">
         ${
-          currentRappGenetarType === 1 || 5
+          currentRappGeneratorType === 1 || 5
           ?
           'Номер отправления'
           :
-          currentRappGenetarType === 4 
+          currentRappGeneratorType === 4 
           ?
           'Номер аномалии'
           :
@@ -1436,10 +1501,10 @@ document.addEventListener("click", (event) => {
           id="cargoCode${index + 1}"
           value="${cargoCode}"
           placeholder="${
-            currentRappGenetarType === 1 || 5
+            currentRappGeneratorType === 1 || 5
             ?
             'Код грузоместа' :
-            currentRappGenetarType === 4 
+            currentRappGeneratorType === 4 
             ?
             'Тикет аномалии' 
             :
@@ -1452,11 +1517,11 @@ document.addEventListener("click", (event) => {
           for="cargoCode${index + 1}"
           class="orderData-label">
           ${
-            currentRappGenetarType === 1 || 5
+            currentRappGeneratorType === 1 || 5
             ?
             'Код грузоместа' 
             :
-            currentRappGenetarType === 4 
+            currentRappGeneratorType === 4 
             ?
             'Тикет аномалии' 
             :
@@ -1465,12 +1530,12 @@ document.addEventListener("click", (event) => {
         </label>
         
         ${
-          currentRappGenetarType === 4
+          currentRappGeneratorType === 4
             ? ''
             : 
             (oneRow === true
                 ? 
-                (currentRappGenetarType === 1
+                (currentRappGeneratorType === 1
                     ? 
                     `<button type="button" class="no-cargo buttonAutoDisabled"><i class="fa-solid fa-eye"></i></button>`
                     : 
@@ -1483,7 +1548,7 @@ document.addEventListener("click", (event) => {
    
 
       ${
-        currentRappGenetarType === 4
+        currentRappGeneratorType === 4
         ?
         `<div class="orderData-container anomalyDescription-container">
           <input
@@ -1500,7 +1565,7 @@ document.addEventListener("click", (event) => {
           </label>
         </div>`
         :
-        currentRappGenetarType === 5
+        currentRappGeneratorType === 5
         ?
         `
         <div class="orderData-container">
@@ -1523,7 +1588,7 @@ document.addEventListener("click", (event) => {
         <label for="cargoCount${index + 1}" class="orderData-label">Кол-во:</label>
       </div>
 
-        ${currentRappGenetarType === 1 && Math.random() < 0.01
+        ${currentRappGeneratorType === 1 && Math.random() < 0.01
         ?
         `
         <div class="orderData-container">
@@ -1704,9 +1769,8 @@ function generatePDF() {
     Math.random() < 0.5 
       ? String.fromCharCode(48 + Math.floor(Math.random() * 10))
       : String.fromCharCode(65 + Math.floor(Math.random() * 26) + (Math.random() < 0.5 ? 32 : 0))).join("");
-  let actNumber_data = `iRDG-${typeMap[currentRappGenetarType] || "e"}/MAAT:${randomString}`;
+  let actNumber_data = `iRDG-${typeMap[currentRappGeneratorType] || "e"}:${randomString}`;
   actNumber.value = actNumber_data;
-
 
   // Адреса получателей
   const recipientAddresses = {
@@ -1762,7 +1826,7 @@ function generatePDF() {
     
     totalCargoCount += cargoCount;
   
-    if(currentRappGenetarType === 1){
+    if(currentRappGeneratorType === 1){
       //~ МАГИСТРАЛИ • МАГИСТРАЛИ • МАГИСТРАЛИ
       if (isCargoDisabled) {
         orders.push([
@@ -1778,7 +1842,7 @@ function generatePDF() {
           { content: cargoCount.toString(), styles: { font: "Roboto" } }
         ]);
       }
-    }else if(currentRappGenetarType === 4){
+    }else if(currentRappGeneratorType === 4){
       //~ АНОМАЛИИ • АНОМАЛИИ • АНОМАЛИИ
       orders.push([
         { content: (index + 1).toString(), styles: { font: "Roboto", cellWidth: 10 } }, // Узкий столбец для № п/п
@@ -1787,7 +1851,7 @@ function generatePDF() {
         { content: anomalyDescription, styles: { font: "Roboto", fontSize: 9, fontStyle: "bold" } },
         { content: cargoCount.toString(), styles: { font: "Roboto" } }
       ]);
-    }else if(currentRappGenetarType === 5){
+    }else if(currentRappGeneratorType === 5){
       //~ ДУБЛИ/ЗАСЫЛЫ/LOST • ДУБЛИ/ЗАСЫЛЫ/LOST • ДУБЛИ/ЗАСЫЛЫ/LOST
       orders.push([
         { content: (index + 1).toString(), styles: { font: "Roboto", cellWidth: 10 } }, // Узкий столбец для № п/п
@@ -1800,7 +1864,7 @@ function generatePDF() {
   });
   // Строка "Итого"
   let totalRow = []
-  if(currentRappGenetarType === 1){
+  if(currentRappGeneratorType === 1){
     //~ МАГИСТРАЛИ • МАГИСТРАЛИ • МАГИСТРАЛИ
     totalRow = [
       { 
@@ -1826,7 +1890,7 @@ function generatePDF() {
         }
       }
     ];
-  }else if(currentRappGenetarType === 4 || currentRappGenetarType === 5){
+  }else if(currentRappGeneratorType === 4 || currentRappGeneratorType === 5){
     //~ АНОМАЛИИ • АНОМАЛИИ • АНОМАЛИИ ○ ДУБЛИ/ЗАСЫЛЫ/LOST • ДУБЛИ/ЗАСЫЛЫ/LOST • ДУБЛИ/ЗАСЫЛЫ/LOST
     totalRow = [
       { 
@@ -1856,7 +1920,7 @@ function generatePDF() {
 
   // Стили таблицы
   let tableStyles = {};
-  if(currentRappGenetarType === 1){
+  if(currentRappGeneratorType === 1){
     //~ МАГИСТРАЛИ • МАГИСТРАЛИ • МАГИСТРАЛИ
     tableStyles = {
       headStyles: {
@@ -1886,7 +1950,7 @@ function generatePDF() {
         3: { cellWidth: 25 }
       }
     }
-  }else if(currentRappGenetarType === 4){
+  }else if(currentRappGeneratorType === 4){
     //~ АНОМАЛИИ • АНОМАЛИИ • АНОМАЛИИ
     tableStyles = {
       headStyles: {
@@ -1917,7 +1981,7 @@ function generatePDF() {
         4: { cellWidth: 25 }
       }
     }
-  }else if(currentRappGenetarType === 5){
+  }else if(currentRappGeneratorType === 5){
     //~ ДУБЛИ/ЗАСЫЛЫ/LOST • ДУБЛИ/ЗАСЫЛЫ/LOST • ДУБЛИ/ЗАСЫЛЫ/LOST
     tableStyles = {
       headStyles: {
@@ -1952,7 +2016,7 @@ function generatePDF() {
 
   // Формирование документа
   doc.setFontSize(14);
-  doc.text(`Акт приема-передачи №${actNumber} от ${date}`, 105, 40, { align: 'center' });
+  doc.text(`Акт приема-передачи №${actNumber.value} от ${date}`, 105, 40, { align: 'center' });
 
   doc.setFontSize(12);
   doc.text(`Отправитель: ${sender}`, 5, 65);
@@ -1965,7 +2029,7 @@ function generatePDF() {
   doc.setTextColor("#000");
 
   // Генерация таблицы
-  if(currentRappGenetarType === 1){
+  if(currentRappGeneratorType === 1){
     //~ МАГИСТРАЛИ • МАГИСТРАЛИ • МАГИСТРАЛИ
     doc.autoTable({
       startY: 135,
@@ -1981,7 +2045,7 @@ function generatePDF() {
         }
       }
     });
-  }else if(currentRappGenetarType === 4){
+  }else if(currentRappGeneratorType === 4){
     //~ АНОМАЛИИ • АНОМАЛИИ • АНОМАЛИИ
     doc.autoTable({
       startY: 135,
@@ -1997,7 +2061,7 @@ function generatePDF() {
         }
       }
     });
-  }else if(currentRappGenetarType === 5){
+  }else if(currentRappGeneratorType === 5){
     //~ ДУБЛИ/ЗАСЫЛЫ/LOST • ДУБЛИ/ЗАСЫЛЫ/LOST • ДУБЛИ/ЗАСЫЛЫ/LOST
     doc.autoTable({
       startY: 135,
