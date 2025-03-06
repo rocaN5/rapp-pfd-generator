@@ -1732,6 +1732,7 @@ header h1{
   padding: 10px;
   border-radius: 10px;
   box-shadow: 0px 0px 0px 1px #000;
+  position: relative;
 
   transition: 750ms ease-in-out;
 }
@@ -1860,6 +1861,9 @@ header h1{
   position: relative;
 }
 
+.documentDataItem > input[readonly]:focus{
+  outline: 2px solid red;
+}
 .fromScSelection > input:focus{
   outline: 2px solid red;
 }
