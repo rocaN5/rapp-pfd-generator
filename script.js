@@ -1409,6 +1409,8 @@ document.addEventListener("click", (event) => {
                 orderType = "LOST";
             } else if (lowerText.includes("засыл") || lowerText.includes("pfcsk")) {
                 orderType = "Засыл";
+            } else if (lowerText.includes("невыкуп") || lowerText.includes("ytdsreg")) {
+                orderType = "Невыкуп";
             } else {
                 orderType = "Неизвестно"; // Если тип не найден
             }
@@ -1445,7 +1447,9 @@ document.addEventListener("click", (event) => {
         orderType = "LOST";
     } else if (lowerText.includes("засыл") || lowerText.includes("pfcsk") || lowerText.includes("зсыл") || lowerText.includes("засил") || lowerText.includes("засыль") || lowerText.includes("зссыл") || lowerText.includes("зсы") || lowerText.includes("зслы") || lowerText.includes("звсыл")) {
         orderType = "Засыл";
-    }      
+    } else if (lowerText.includes("невыкуп") || lowerText.includes("ytdsreg") || lowerText.includes("невкуп") || lowerText.includes("ytdsrb")) {
+      orderType = "Невыпкуп";
+  }      
   }
   
     
@@ -1575,6 +1579,7 @@ document.addEventListener("click", (event) => {
                   <option value="Засыл" ${orderType === "Засыл" ? 'selected' : ''}>Засыл</option>
                   <option value="Дубль" ${orderType === "Дубль" ? 'selected' : ''}>Дубль</option>
                   <option value="LOST" ${orderType === "LOST" ? 'selected' : ''}>LOST</option>
+                  <option value="Невыкуп" ${orderType === "Невыкуп" ? 'selected' : ''}>Невыкуп</option>
                   <option value="—" ${orderType === "—" ? 'selected' : ''}>—</option>
               </select>
           </label>
