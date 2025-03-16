@@ -28,7 +28,7 @@ window.onload = () => {
         freshLoading()
       }, 50);
     }, 500);
-  }, 50);
+  }, 3000);
 };
 
 function freshLoading(){
@@ -59,51 +59,64 @@ textAreaOverLay__canvas.style.top = textAreaOverLay__textarea.offsetTop + 'px';
 textAreaOverLay__canvas.style.left = textAreaOverLay__textarea.offsetLeft + 'px';
 
 function textAreaOverLay__updateCanvas() {
-    textAreaOverLay__canvas.width = textAreaOverLay__textarea.clientWidth;
-    textAreaOverLay__canvas.height = textAreaOverLay__textarea.clientHeight;
-    textAreaOverLay__ctx.clearRect(0, 0, textAreaOverLay__canvas.width, textAreaOverLay__canvas.height);
-    
-    const text = textAreaOverLay__textarea.value;
-    const lines = text.split('\n');
-    const fontSize = parseInt(window.getComputedStyle(textAreaOverLay__textarea).fontSize);
-    const lineHeight = fontSize * 1.2;
-    const scrollTop = textAreaOverLay__textarea.scrollTop;
-    const startY = 14 - scrollTop;
-    textAreaOverLay__ctx.font = `${fontSize}px ${window.getComputedStyle(textAreaOverLay__textarea).fontFamily}`;
-    textAreaOverLay__ctx.textBaseline = 'top';
-    
-    let y = startY;
-    for (const line of lines) {
-        if (y + lineHeight > 0 && y < textAreaOverLay__canvas.height) { // Отображать только видимые строки
-            const words = line.split(' ');
-            let x = 10; // Padding
-            let firstWordColor = '#00ff68';
-            let secondWordColor = '#ccff00';
-            let otherWordsColor = '#ffffff';
-            
-            if (/^(F0254|0|72|YP)/.test(line)) {
-                firstWordColor = '#ccff00';
-                secondWordColor = '#fff';
-                otherWordsColor = '#fff';
-            } else if (/^(F1254|FA254|F3000000000)/.test(line)) {
-                firstWordColor = '#00dcff';
-                secondWordColor = '#fff';
-                otherWordsColor = '#fff';
-            }
-            
-            words.forEach((word, index) => {
-                if (index === 0) textAreaOverLay__ctx.fillStyle = firstWordColor;
-                else if (index === 1) textAreaOverLay__ctx.fillStyle = secondWordColor;
-                else textAreaOverLay__ctx.fillStyle = otherWordsColor;
-                
-                textAreaOverLay__ctx.shadowColor = textAreaOverLay__ctx.fillStyle;
-                textAreaOverLay__ctx.shadowBlur = 10;
-                textAreaOverLay__ctx.fillText(word, x, y);
-                x += textAreaOverLay__ctx.measureText(word + ' ').width;
-            });
-        }
-        y += lineHeight;
-    }
+  textAreaOverLay__canvas.width = textAreaOverLay__textarea.clientWidth;
+  textAreaOverLay__canvas.height = textAreaOverLay__textarea.clientHeight;
+  textAreaOverLay__ctx.clearRect(0, 0, textAreaOverLay__canvas.width, textAreaOverLay__canvas.height);
+  
+  let text = textAreaOverLay__textarea.value.replace(/[()"'`]/g, ''); // Убираем кавычки и скобки
+  const lines = text.split('\n');
+  const fontSize = parseInt(window.getComputedStyle(textAreaOverLay__textarea).fontSize);
+  const lineHeight = fontSize * 1.2;
+  const scrollTop = textAreaOverLay__textarea.scrollTop;
+  const scrollLeft = textAreaOverLay__textarea.scrollLeft; // Добавляем горизонтальный скролл
+  const startY = 14 - scrollTop;
+  textAreaOverLay__ctx.font = `${fontSize}px ${window.getComputedStyle(textAreaOverLay__textarea).fontFamily}`;
+  textAreaOverLay__ctx.textBaseline = 'top';
+
+  let y = startY;
+  for (const line of lines) {
+      if (y + lineHeight > 0 && y < textAreaOverLay__canvas.height) { // Отображать только видимые строки
+          const words = line.split(' ');
+          let x = 10 - scrollLeft; // Учитываем горизонтальный скролл
+          let firstWordColor = '#00ff68';
+          let secondWordColor = '#ccff00';
+          let otherWordsColor = '#ffffff';
+
+          if (/^(F0254|0|72|YP)/.test(line)) {
+              firstWordColor = '#ccff00';
+              secondWordColor = '#fff';
+              otherWordsColor = '#fff';
+          } else if (/^(F1254)/.test(line)) {
+              firstWordColor = '#00dcff';
+              secondWordColor = '#fff';
+              otherWordsColor = '#fff';
+          } else if (/^(F2254)/.test(line)) {
+              firstWordColor = '#00ff22';
+              secondWordColor = '#fff';
+              otherWordsColor = '#fff';
+          } else if (/^(F3000000000)/.test(line)) {
+              firstWordColor = '#fc0';
+              secondWordColor = '#fff';
+              otherWordsColor = '#fff';
+          } else if (/^(FA254)/.test(line)) {
+              firstWordColor = '#ff005c';
+              secondWordColor = '#ff00ae';
+              otherWordsColor = '#fff';
+          }
+
+          words.forEach((word, index) => {
+              if (index === 0) textAreaOverLay__ctx.fillStyle = firstWordColor;
+              else if (index === 1) textAreaOverLay__ctx.fillStyle = secondWordColor;
+              else textAreaOverLay__ctx.fillStyle = otherWordsColor;
+
+              textAreaOverLay__ctx.shadowColor = textAreaOverLay__ctx.fillStyle;
+              textAreaOverLay__ctx.shadowBlur = 10;
+              textAreaOverLay__ctx.fillText(word, x, y);
+              x += textAreaOverLay__ctx.measureText(word + ' ').width;
+          });
+      }
+      y += lineHeight;
+  }
 }
 textAreaOverLay__textarea.parentNode.insertBefore(textAreaOverLay__canvas, textAreaOverLay__textarea.nextSibling);
 textAreaOverLay__textarea.addEventListener('input', textAreaOverLay__updateCanvas);
@@ -111,6 +124,19 @@ textAreaOverLay__textarea.addEventListener('scroll', textAreaOverLay__updateCanv
 textAreaOverLay__updateCanvas();
 
 //~ CANVAS textarea overlay END
+
+//~ FIX excel paste
+
+textAreaOverLay__textarea.addEventListener("paste", (event) => {
+  event.preventDefault();
+  let text = (event.clipboardData || window.clipboardData).getData("text");
+  text = text.replace(/https:\/\/st\.yandex-team\.ru\//g, "");
+  text = text.replace(/\t+/g, " ");
+  text = text.replace(/\n(?=[^\t])/g, " ").replace(/ +/g, " ").replace(/^ +/gm, "").trim();
+  document.execCommand("insertText", false, text);
+});
+
+//~ FIX excel paste END
 
 //~ CHANGE generator type
 
@@ -419,6 +445,7 @@ function updateDropdownList() {
           item.addEventListener("click", () => {
               direction__input.value = option;
               direction__dropdownList.classList.remove("show");
+              throttledGeneratePreview();
           });
           direction__dropdownList.appendChild(item);
       });
@@ -1301,13 +1328,13 @@ document.addEventListener("click", (event) => {
   const ordersContainer = document.getElementById("orders-container");
   const lines = event.target.value
       .split('\n')
-      .map(line => line.trim().replace(/\s+/g, ' '))
+      .map(line => line.trim().replace(/\s+/g, ' ').replace(/[()"'`]/g, ''))
       .filter(line => line.length > 0);
 
   ordersContainer.innerHTML = '';
 
   lines.forEach((line, index) => {
-      line = line.replace(/[()]/g, '');
+      line = line.replace(/[()"'`]/g, '');
       const parts = line.split(' ').filter(part => part.length > 0);
 
       let orderNumber = '';
@@ -1345,10 +1372,18 @@ document.addEventListener("click", (event) => {
               cargoCode = firstPart;
               orderNumber = parts.slice(1).join(' ');
               oneRow = false;
-          }else if (firstPart.startsWith('F1254') || firstPart.startsWith('VOZ') || firstPart.startsWith('PVZ') || firstPart.startsWith('FBS') || firstPart.startsWith('FBY')) {
+          }else if (firstPart.startsWith('VOZ') || firstPart.startsWith('PVZ') || firstPart.startsWith('FBS') || firstPart.startsWith('FBY')) {
               orderNumber = firstPart;
-              cargoCode = '';
-              oneRow = true;
+              cargoCode = firstPart;
+              oneRow = false;
+          }else if (firstPart.startsWith('F1254')) {
+            orderNumber = firstPart;
+            cargoCode = 'ЛОТ';
+            oneRow = false;
+          }else if (firstPart.startsWith('F2254')) {
+            orderNumber = firstPart;
+            cargoCode = 'ТОТ (оборотная тара)';
+            oneRow = false;
           }else if( firstPart.startsWith('FA254')){
             orderNumber = firstPart;
             cargoCode = 'Аномалия';
@@ -1358,9 +1393,16 @@ document.addEventListener("click", (event) => {
             cargoCode = 'Полибокс';
             oneRow = false;
           }else if (/^\d{9,}-\d+$/.test(firstPart)) {
-              cargoCode = firstPart;
-              orderNumber = firstPart.split('-')[0];
-              oneRow = false;
+            cargoCode = firstPart;
+            orderNumber = firstPart.split('-')[0];
+            oneRow = false;
+                  
+            const allOrdersTextarea = document.querySelector(".allOrders");
+            let lines = allOrdersTextarea.value.split("\n").map(line => {
+                return line.replace(/^(\d{9,})-(\d+)$/, "$1 $1-$2");
+            });
+        
+            allOrdersTextarea.value = lines.join("\n");
           }else {
               orderNumber = parts[0] || '';
               cargoCode = parts.slice(1).join(' ') || '';
@@ -1443,13 +1485,13 @@ document.addEventListener("click", (event) => {
       const lowerText = line.toLowerCase();
       if (lowerText.includes("дубль") || lowerText.includes("le,km") || lowerText.includes("дубль") || lowerText.includes("dubll") || lowerText.includes("dubl") || lowerText.includes("duble")) {
         orderType = "Дубль";
-    } else if (lowerText.includes("lost") || lowerText.includes("лост") || lowerText.includes("лос") || lowerText.includes("дщые") || lowerText.includes("лсот") || lowerText.includes("лост") || lowerText.includes("лоcт") || lowerText.includes("loost")) {
+    } else if (lowerText.includes("lost") || lowerText.includes("лост") || lowerText.includes("лос") || lowerText.includes("дщые") || lowerText.includes("лсот") || lowerText.includes("лост") || lowerText.includes("лоcт") || lowerText.includes("loost") || lowerText.includes("kjcn")) {
         orderType = "LOST";
     } else if (lowerText.includes("засыл") || lowerText.includes("pfcsk") || lowerText.includes("зсыл") || lowerText.includes("засил") || lowerText.includes("засыль") || lowerText.includes("зссыл") || lowerText.includes("зсы") || lowerText.includes("зслы") || lowerText.includes("звсыл")) {
         orderType = "Засыл";
-    } else if (lowerText.includes("невыкуп") || lowerText.includes("ytdsreg") || lowerText.includes("невкуп") || lowerText.includes("ytdsrb")) {
-      orderType = "Невыпкуп";
-  }      
+    } else if (lowerText.includes("невыкуп") || lowerText.includes("ytdsreg") || lowerText.includes("невкуп") || lowerText.includes("ytdsrb") || lowerText.includes("невы") || lowerText.includes("ytds")) {
+      orderType = "Невыкуп";
+    }      
   }
   
     
@@ -1466,13 +1508,17 @@ document.addEventListener("click", (event) => {
         id="orderNumber${index + 1}"
         value="${orderNumber}"
         placeholder="${
-          currentRappGeneratorType === 1 || 5
+          currentRappGeneratorType === 1
           ?
           'Введите номер отправления'
           :
           currentRappGeneratorType === 4 
           ?
           'Номер аномалии'
+          :
+          currentRappGeneratorType === 5 
+          ?
+          'Введите номер отправления'
           :
           'Что-то сломлось'
         }"
@@ -1482,13 +1528,17 @@ document.addEventListener("click", (event) => {
         for="orderNumber${index + 1}"
         class="orderData-label">
         ${
-          currentRappGeneratorType === 1 || 5
+          currentRappGeneratorType === 1
           ?
           'Номер отправления'
           :
           currentRappGeneratorType === 4 
           ?
           'Номер аномалии'
+          :
+          currentRappGeneratorType === 5 
+          ?
+          'Номер отправления'
           :
           'Что-то сломлось'
         }
@@ -1505,12 +1555,16 @@ document.addEventListener("click", (event) => {
           id="cargoCode${index + 1}"
           value="${cargoCode}"
           placeholder="${
-            currentRappGeneratorType === 1 || 5
+            currentRappGeneratorType === 1
             ?
             'Код грузоместа' :
             currentRappGeneratorType === 4 
             ?
             'Тикет аномалии' 
+            :
+            currentRappGeneratorType === 5 
+            ?
+            'Код грузоместа'
             :
             'Что-то сломлось'
           }"
@@ -1521,13 +1575,17 @@ document.addEventListener("click", (event) => {
           for="cargoCode${index + 1}"
           class="orderData-label">
           ${
-            currentRappGeneratorType === 1 || 5
+            currentRappGeneratorType === 1
             ?
-            'Код грузоместа' 
+            'Код грузоместа'
             :
             currentRappGeneratorType === 4 
             ?
             'Тикет аномалии' 
+            :
+            currentRappGeneratorType === 5 
+            ?
+            'Код грузоместа'
             :
             'Что-то сломлось'
           }
@@ -1543,9 +1601,11 @@ document.addEventListener("click", (event) => {
                     ? 
                     `<button type="button" class="no-cargo buttonAutoDisabled"><i class="fa-solid fa-eye"></i></button>`
                     : 
-                    `<button type="button" class="no-cargo"><i class="fa-solid fa-eye-slash"></i></button>`)
+                    `<button type="button" class="no-cargo"><i class="fa-solid fa-eye-slash"></i></button>`
+                )
                 : 
-                `<button type="button" class="no-cargo"><i class="fa-solid fa-eye-slash"></i></button>`)
+                `<button type="button" class="no-cargo"><i class="fa-solid fa-eye-slash"></i></button>`
+            )
         }
       </div>
 
@@ -1655,6 +1715,7 @@ document.addEventListener("click", (event) => {
       });
   });
 
+textAreaOverLay__updateCanvas()
 throttledGeneratePreview()
 
 }
@@ -1662,9 +1723,60 @@ throttledGeneratePreview()
 
 //~ Слушатель событий в TEXTAREA
 document.querySelector("textarea.allOrders").addEventListener("input", function (event) {
+  this.value = this.value.replace(/[()"'`]/g, ''); 
   getDataAndMakeOrderRow(event);
 });
 //~ Слушатель событий в TEXTAREA END
+
+//~ Изменения из order-row в textarea
+
+document.getElementById("orders-container").addEventListener("input", (event) => {
+  const row = event.target.closest(".order-row");
+  if (!row) return;
+
+  const rowNumberElement = row.querySelector(".orderRowNumber");
+  if (!rowNumberElement) return;
+
+  const rowNumber = parseInt(rowNumberElement.textContent, 10) - 1;
+  syncOrderRowToTextarea(rowNumber, row);
+});
+
+function syncOrderRowToTextarea(rowNumber, row) {
+  const allOrdersTextarea = document.querySelector(".allOrders");
+  let lines = allOrdersTextarea.value.split("\n");
+
+  if (rowNumber < 0 || rowNumber >= lines.length) return;
+
+  const orderNumber = row.querySelector("input[id^='orderNumber']").value.trim();
+  const cargoCode = row.querySelector("input[id^='cargoCode']")?.value.trim() || "";
+  const anomalyDescription = row.querySelector("input[id^='anomalyDescription']")?.value.trim() || "";
+  const orderType = row.querySelector("select")?.value || "";
+
+  let updatedLine = orderNumber;
+  if (cargoCode) updatedLine += ` ${cargoCode}`;
+  if (anomalyDescription) updatedLine += ` ${anomalyDescription}`;
+  if (orderType && orderType !== "—") updatedLine += ` ${orderType}`;
+
+  if (lines[rowNumber] === updatedLine) return;
+
+  lines[rowNumber] = updatedLine;
+
+  const activeElement = document.activeElement;
+  const cursorPosition = activeElement.selectionStart;
+
+  allOrdersTextarea.value = lines.join("\n");
+
+  setTimeout(() => {
+      if (document.activeElement !== activeElement) {
+          activeElement.focus();
+          activeElement.setSelectionRange(cursorPosition, cursorPosition);
+      }
+  }, 0);
+
+  textAreaOverLay__updateCanvas();
+}
+
+//~ Изменения из order-row в textarea END
 
 //~ Пересоздать файл
 
@@ -1722,7 +1834,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const selectElements = document.querySelectorAll(".selectListener");
 
     if (selectElements.length === 0) {
-      console.warn("Элементы с классом .selectListener не найдены.");
       return;
     }
 
@@ -1837,14 +1948,14 @@ function generatePDF() {
         orders.push([
           { content: (index + 1).toString(), styles: { font: "Roboto", cellWidth: 10 } }, // Узкий столбец для № п/п
           { content: orderNumber, colSpan: 2, styles: { font: "Roboto", fontSize: 14, fontStyle: "bold" } },
-          { content: cargoCount.toString(), styles: { font: "Roboto" } }
+          { content: cargoCount.toString(), styles: { font: "Roboto", fontSize: 12} }
         ]);
       }else {
         orders.push([
           { content: (index + 1).toString(), styles: { font: "Roboto", cellWidth: 10 } }, // Узкий столбец для № п/п
           { content: orderNumber, styles: { font: "Roboto", fontSize: 14, fontStyle: "bold" } },
           { content: cargoCode, styles: { font: "Roboto", fontSize: 14, fontStyle: "bold" } },
-          { content: cargoCount.toString(), styles: { font: "Roboto" } }
+          { content: cargoCount.toString(), styles: { font: "Roboto", fontSize: 12} }
         ]);
       }
     }else if(currentRappGeneratorType === 4){
@@ -1854,7 +1965,7 @@ function generatePDF() {
         { content: orderNumber, styles: { font: "Roboto", fontSize: 12, fontStyle: "bold" } },
         { content: cargoCode, styles: { font: "Roboto", fontSize: 12, fontStyle: "bold" } },
         { content: anomalyDescription, styles: { font: "Roboto", fontSize: 9, fontStyle: "bold" } },
-        { content: cargoCount.toString(), styles: { font: "Roboto" } }
+        { content: cargoCount.toString(), styles: { font: "Roboto", fontSize: 12} }
       ]);
     }else if(currentRappGeneratorType === 5){
       //~ ДУБЛИ/ЗАСЫЛЫ/LOST • ДУБЛИ/ЗАСЫЛЫ/LOST • ДУБЛИ/ЗАСЫЛЫ/LOST
@@ -1863,7 +1974,7 @@ function generatePDF() {
         { content: orderNumber, styles: { font: "Roboto", fontSize: 14, fontStyle: "bold" } },
         { content: cargoCode, styles: { font: "Roboto", fontSize: 14, fontStyle: "bold" } },
         { content: orderType, styles: { font: "Roboto", fontSize: 14, fontStyle: "bold" } },
-        { content: cargoCount.toString(), styles: { font: "Roboto" } }
+        { content: cargoCount.toString(), styles: { font: "Roboto", fontSize: 12} }
       ]);
     }
   });
@@ -1891,7 +2002,8 @@ function generatePDF() {
           font: "Roboto",
           halign: "center", // Выравнивание по центру
           lineWidth: 0.25, // Граница для всей строки
-          lineColor: [0, 0, 0] // Цвет границы
+          lineColor: [0, 0, 0], // Цвет границы
+          fontSize: 12
         }
       }
     ];
@@ -1917,7 +2029,8 @@ function generatePDF() {
           font: "Roboto",
           halign: "center", // Выравнивание по центру
           lineWidth: 0.25, // Граница для всей строки
-          lineColor: [0, 0, 0] // Цвет границы
+          lineColor: [0, 0, 0], // Цвет границы
+          fontSize: 12
         }
       }
     ];
@@ -1931,7 +2044,6 @@ function generatePDF() {
       headStyles: {
         fillColor: [211, 211, 211],
         textColor: [0, 0, 0],
-        fontSize: 10,
         font: "Roboto",
         fontSize: 12,
         lineWidth: 0.25,
@@ -1961,7 +2073,6 @@ function generatePDF() {
       headStyles: {
         fillColor: [211, 211, 211],
         textColor: [0, 0, 0],
-        fontSize: 10,
         font: "Roboto",
         fontSize: 12,
         lineWidth: 0.25,
@@ -1992,7 +2103,6 @@ function generatePDF() {
       headStyles: {
         fillColor: [211, 211, 211],
         textColor: [0, 0, 0],
-        fontSize: 10,
         font: "Roboto",
         fontSize: 12,
         lineWidth: 0.25,
@@ -2054,7 +2164,7 @@ function generatePDF() {
     //~ АНОМАЛИИ • АНОМАЛИИ • АНОМАЛИИ
     doc.autoTable({
       startY: 135,
-      head: [["№ п/п", "Номер аномалии", "Тикет", "Описание", "Кол-во грузомест"]],
+      head: [["№ п/п", "Номер аномалии", "Тикет аномалии", "Описание", "Кол-во грузомест"]],
       body: [...orders, totalRow],
       margin: { left: 5 },
       ...tableStyles,

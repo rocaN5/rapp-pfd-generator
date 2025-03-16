@@ -62,7 +62,7 @@ textarea::selection {
 
 body {
   font-family: Arial, sans-serif;
-  background-color: #f5f5f5;
+  background-color: #000000;
   margin: 0;
   padding: 0;
   display: flex;
@@ -911,19 +911,20 @@ button.textAreaControls-button{
 
   transition: scale 500ms ease-in-out, opacity 500ms ease-in-out, transform 500ms ease-in-out;
   transition-timing-function: linear(0 0%, 0 2.27%, 0.02 4.53%, 0.04 6.8%, 0.06 9.07%, 0.1 11.33%, 0.14 13.6%, 0.25 18.15%, 0.39 22.7%, 0.56 27.25%, 0.77 31.8%, 1 36.35%, 0.89 40.9%, 0.85 43.18%, 0.81 45.45%, 0.79 47.72%, 0.77 50%, 0.75 52.27%, 0.75 54.55%, 0.75 56.82%, 0.77 59.1%, 0.79 61.38%, 0.81 63.65%, 0.85 65.93%, 0.89 68.2%, 1 72.7%, 0.97 74.98%, 0.95 77.25%, 0.94 79.53%, 0.94 81.8%, 0.94 84.08%, 0.95 86.35%, 0.97 88.63%, 1 90.9%, 0.99 93.18%, 0.98 95.45%, 0.99 97.73%, 1 100%);
+  transition-delay: 300ms;
 }
 
 button.textAreaControls-button:nth-child(2){
-  transition-delay: 200ms;
-}
-button.textAreaControls-button:nth-child(3){
-  transition-delay: 300ms;
-}
-button.textAreaControls-button:nth-child(4){
   transition-delay: 400ms;
 }
-button.textAreaControls-button:nth-child(5){
+button.textAreaControls-button:nth-child(3){
   transition-delay: 500ms;
+}
+button.textAreaControls-button:nth-child(4){
+  transition-delay: 600ms;
+}
+button.textAreaControls-button:nth-child(5){
+  transition-delay: 700ms;
 }
 
 .textAreaDashboard{
@@ -1341,6 +1342,7 @@ label.menuItem:focus-visible .menuItemInfo-title{
   position: absolute;
   z-index: -1;
   top: 0px;
+  left: 0px;
 }
 
 header button.menuToggle{
@@ -1351,15 +1353,15 @@ header button.menuToggle{
   --tooltipText: "Меню выбора варианта РАПП";
 }
 
-header button.leaveThisPlace{
+header button.callToSupport{
   --tooltipPosition-x: 220%;
   --tooltipPosition-y: 90px;
   --tooltipArrowPosition-type-y: 2;
   --tooltipArrowRotation: 180deg;
-  --tooltipText: "Покинуть генератор РАПП";
+  --tooltipText: "Обратиться к разработчику";
 }
 
-header button.leaveThisPlace,
+header button.callToSupport,
 header button.menuToggle{
   width: 40px;
   height: 40px;
@@ -1375,16 +1377,16 @@ header button.menuToggle{
 }
 
 header button.menuToggle:focus-visible,
-header button.leaveThisPlace:focus-visible,
+header button.callToSupport:focus-visible,
 header button.menuToggle:hover,
-header button.leaveThisPlace:hover{
+header button.callToSupport:hover{
   background: #222222 !important;
   transition: 200ms;
   box-shadow: 0px 0px 10px #000, 0px 0px 10px #000, 0px 0px 10px #000;
 }
 
 header.active button.menuToggle:hover,
-header.active button.leaveThisPlace:hover{
+header.active button.callToSupport:hover{
   background: #cc0000 !important;
   transition: 200ms;
 }
@@ -1863,9 +1865,11 @@ header h1{
 
 .documentDataItem > input[readonly]:focus{
   outline: 2px solid red;
+  cursor: not-allowed;
 }
 .fromScSelection > input:focus{
   outline: 2px solid red;
+  cursor: not-allowed;
 }
 
 .scNameLock{
@@ -1875,6 +1879,7 @@ header h1{
   z-index: 99;
   color: #b5b5b5;
   font-size: .8rem;
+  pointer-events: none;
   cursor: not-allowed;
 }
 
@@ -1975,6 +1980,7 @@ header h1{
 }
 
 #actNumber{
+  cursor: not-allowed;
   position: relative;
   --tooltipPosition-x: 150%;
   --tooltipPosition-y: -20px;
@@ -2203,22 +2209,57 @@ span.hints-description-span-1,
 span.hints-description-span-3{
   color: #cf0;
   text-shadow: 0px 0px 10px #cf0;
+  font-size: .7145em;
 }
 
 span.hints-description-span-2{
   color: #00ff68;
   text-shadow: 0px 0px 10px #00ff68;
+  font-size: .7145em;
 }
 
 span.hints-description-span-4{
   color: #fff;
   text-shadow: 0px 0px 10px #fff;
+  font-size: .7145em;
 }
 
 span.hints-description-span-5{
+  color: #00dcff;
+  text-shadow: 0px 0px 10px #00dcff, 0px 0px 10px #00dcff;
+  font-size: .7145em;
+}
+
+span.hints-description-span-6{
+  color: #00ff22;
+  text-shadow: 0px 0px 10px #00ff22, 0px 0px 10px #00ff22;
+  font-size: .7145em;
+}
+
+span.hints-description-span-7{
+  color: #fc0;
+  text-shadow: 0px 0px 10px #fc0, 0px 0px 10px #fc0;
+  font-size: .7145em;
+}
+
+span.hints-description-span-8{
+  color: #ff005c;
+  text-shadow: 0px 0px 10px #ff005c, 0px 0px 10px #ff005c;
+  font-size: .7145em;
+}
+
+span.hints-description-span-9{
+  color: #ff00ae;
+  text-shadow: 0px 0px 10px #ff00ae, 0px 0px 10px #ff00ae;
+  font-size: .7145em;
+}
+
+span.hints-description-span-10{
   color: red;
   text-shadow: 0px 0px 10px red, 0px 0px 10px red, 0px 0px 10px red;
+  font-size: .7145em;
 }
+
 
 .hints-container-controls{
   display: flex;

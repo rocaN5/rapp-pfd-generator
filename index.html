@@ -74,8 +74,8 @@
     </nav>
     <div class="callMenu">
       <div class="cellMenu-container">
-        <button class="leaveThisPlace pegasusTooltip onLoadMenu">
-          <i class="fa-regular fa-arrow-left-from-bracket"></i>
+        <button class="callToSupport pegasusTooltip onLoadMenu">
+          <i class="fa-solid fa-headset"></i>
         </button>
         <button class="menuToggle pegasusTooltip onLoadMenu">
           <i class="fa-solid fa-bars"></i>
@@ -179,7 +179,6 @@
     <canvas id="containerCanvas"></canvas>
     <form id="pdf-form">
       <h1 class="generatorTite onLoadText">Генерация PDF-файла</h1>
-
       <div class="documentDataWrapper onLoad">
         <div class="documentDataBlock">
           <div class="documentDataContainer">
@@ -220,7 +219,7 @@
             <div class="documentDataItem onLoad">
               <label for="recipients">Получатель:</label>
               <div class="dropdown">
-                <input type="text" id="recipient" placeholder="Выберите получателя..." autocomplete="off">
+                <input type="text" id="recipient" placeholder="Выберите получателя..." autocomplete="off" value="СЦ Домодедово ЕВСЦ">
                 <div class="dropdown-list" id="dropdownList"></div>
             </div>
             </div>
@@ -250,7 +249,6 @@
             <i class="fa-solid fa-rotate-right"></i>
           </button>
         </div>
-
         <div class="textAreaContainer">
           <div id="line-numbers" class="onLoad">
             <div>1</div>
@@ -275,7 +273,7 @@
                   Автозаполнение типа ГМ:
                 </h2>
                 <p class="hints-container-item-description">
-                  При генерации документа на отгрузку Засылов, Дублей и LOST заказов, если указать тип грузоместа (<span class="hints-description-span-2">"Номер заказа"</span> <span class="hints-description-span-3">"код грузоместа"</span> <span class="hints-description-span-4">"Дубль/Зсыл/LOST"</span>) в поле ввода после грузоместа, генератор автоматически проставит его в строке
+                  При генерации документа на отгрузку Засылов, Дублей и LOST заказов, если указать тип грузоместа (<span class="hints-description-span-2">"Номер заказа"</span> <span class="hints-description-span-3">"код грузоместа"</span> <span class="hints-description-span-4">"Дубль/Засыл/LOST"</span>) после грузоместа, генератор автоматически проставит его в строке
                 </p>
               </div>
               <div class="hints-container-item">
@@ -291,23 +289,33 @@
                   Пропуск пустых строк:
                 </h2>
                 <p class="hints-container-item-description">
-                  Каждая строка в которой указана информация о заказе обозначается порядковым номером строки, если строка пустая или содержат пробелы без каких либо других символов, нумерация не учитывается и отмечается символом <span class="hints-description-span-5">"×"</span>
+                  Каждая строка в которой указана информация о заказе обозначается порядковым номером строки, если строка пустая или содержат пробелы без каких либо других символов, нумерация не учитывается и отмечается символом <span class="hints-description-span-10">"×"</span>
                 </p>
               </div>
               <div class="hints-container-item">
                 <h2 class="hints-container-item-title">
-                  Название подсказки:
+                  Автораспознование иных типов отправлений:
                 </h2>
                 <p class="hints-container-item-description">
-                  Информация для подсказки🔴
+                  Генератор распознаёт Лоты, ТОТы, Полибоксы и Аномалии
+                  <br>
+                  <br> <span class="hints-description-span-5">"F1254..."</span> <span class="hints-description-span-4">"ЛОТ"</span>
+                  <br> <span class="hints-description-span-6">"F2254..."</span> <span class="hints-description-span-4">"ТОТ (оборотная тара)"</span>
+                  <br> <span class="hints-description-span-7">"F3000..."</span> <span class="hints-description-span-4">"Полибокс"</span>
+                  <br> <span class="hints-description-span-8">"FA254..."</span> <span class="hints-description-span-9">"Тикет"</span> <span class="hints-description-span-4">"Описание"</span>
                 </p>
               </div>
               <div class="hints-container-item">
                 <h2 class="hints-container-item-title">
-                  Название подсказки:
+                  Удаление ссылки тикета:
                 </h2>
                 <p class="hints-container-item-description">
-                  Информация для подсказки🟢
+                  Генератор автоматически обрезает ссылку на аномалию, если такая присутствыет
+                  <br>
+                  <br> Ввод:
+                  <br> <span class="hints-description-span-9">"https://st.yandex-team.ru/ANOMALIISC-000001"</span>
+                  <br> Вывод:
+                  <br> <span class="hints-description-span-9">"ANOMALIISC-000001"</span>
                 </p>
               </div>
               <div class="hints-container-item">
@@ -389,18 +397,17 @@
             <div class="calendar-nav-buttonContainer">
               <button class="calendar-nav-sellction">12</button>
             </div>
-
           </div>
         </div>
         <div class="calendar-wrapper">
-              <div class="calendar-month">
-                  <span id="currentMonth1" class="currentMonthTitle"></span>
-                  <div class="calendar-days" id="calendarDays1"></div>
-              </div>
-              <div class="calendar-month">
-                  <span id="currentMonth2" class="currentMonthTitle"></span>
-                  <div class="calendar-days" id="calendarDays2"></div>
-              </div>
+          <div class="calendar-month">
+            <span id="currentMonth1" class="currentMonthTitle"></span>
+            <div class="calendar-days" id="calendarDays1"></div>
+          </div>
+          <div class="calendar-month">
+            <span id="currentMonth2" class="currentMonthTitle"></span>
+            <div class="calendar-days" id="calendarDays2"></div>
+          </div>
         </div>
       </div>
     </div>
