@@ -635,7 +635,6 @@ textarea.allOrders {
     border-color: var(--loadingFormateingColor) #ccc #ccc;
     border-image: initial;
     border-radius: 50%;
-    margin-top: 20px;
     animation: 1s linear 0s infinite normal none running spin;
 
     &.loaderContainerCircleRender{
@@ -646,13 +645,19 @@ textarea.allOrders {
   .loaderContainerIcon{
     position: absolute;
     color: var(--loadingFormateingColor);
-    top: calc(50% + 20px);
     &.loaderContainerIconRender{
       color: var(--loadingRenderColor);
     }
   }
 }
 
+.loaderContainer-block{
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
 
 @keyframes spin{
   from{
@@ -1037,6 +1042,7 @@ p.dashboardInfoText.generating{
   position: sticky;
   width: 100%;
   height: 40px;
+  min-height: 40px;
   padding: 10px 0px;
   background: #252525;
   display: flex;
@@ -2275,9 +2281,20 @@ span.hints-description-span-10{
   background: transparent;
   transition: 200ms;
 }
+
 .hints-container-controls button:hover{
   background: #1c1c1c;
   transition: 200ms;
+}
+
+.hints-container-controls button#changeHintCard-backward:active > i {
+    transform: translateX(-3px) scale(.85);
+    transition: 100ms;
+}
+
+.hints-container-controls button#changeHintCard-forward:active > i {
+    transform: translateX(3px) scale(.85);
+    transition: 100ms;
 }
 
 .hints-container-controls-position{
@@ -2379,6 +2396,7 @@ span.hints-description-span-10{
   transform: translateY(-10px);
   box-shadow: 0px 0px 20px 0px #000, 0px 0px 20px 0px #000;
   z-index: 1000;
+  overflow-x: hidden;
 }
 .dropdown-list.show {
   display: flex;
@@ -2396,6 +2414,12 @@ span.hints-description-span-10{
   background: transparent;
   border-radius: 6px;
   box-shadow: 0px 0px 10px 0px #00ddff00 inset, 0px 0px 10px 0px #00ddff00 inset, 0px 0px 10px 0px #00ddff00 inset;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  min-height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 }
 .dropdown-item:hover {
   background: #292929;

@@ -142,6 +142,7 @@ textAreaOverLay__textarea.addEventListener("paste", (event) => {
 
 currentGeneratorType_selection.forEach(input => {
   input.addEventListener("change", (event) => {
+    direction__input.value = "Не выбран"
     let title = "";
     getDataAndMakeOrderRow(event);
     if (input.id === "rapp-1") {
@@ -174,7 +175,7 @@ currentGeneratorType_selection.forEach(input => {
     throttledGeneratePreview();
     setTimeout(() => {
       hideMenu()
-    }, 600);
+    }, 300);
   });
 });
 
@@ -372,109 +373,147 @@ toggleTooltipClass(); // Вызываем при загрузке, чтобы п
 //~ Direction dropdown menu
 
 const direction__options = [
-  "СЦ Домодедово ЕВСЦ",
-  "СЦ Яндекс Маркет Софьино ФФЦ",
-  "СЦ Яндекс Маркет Софьино Суперсклад",
-  "СЦ Яндекс Маркет Софьино КГТ",
-  "СЦ Тарный (Тарный Дропофф)",
-  "СЦ Липецк",
-  "СЦ Курск",
-  "СЦ Белгород",
-  "СЦ Ростов",
-  "СЦ Краснодар",
-  "Ростов КГТ",
-  "СЦ Строгино",
-  "СЦ Дзержинский",
-  "СЦ Троицкий",
-  "СЦ Казань",
-  "СЦ Запад",
-  "СЦ Самара",
-  "СЦ Грибки",
-  "СЦ Ставрополь",
-  "СЦ Дмитровское",
-  "СЦ СПБ Бугры",
-  "СЦ Ленинские горки",
-  "СЦ Муром",
-  "СЦ Челябинск",
-  "СЦ Чебоксары",
-  "СЦ Ижевск",
-  "СЦ Тюмень",
-  "СЦ Екатеринбург",
-  "СЦ Набережные Челны",
-  "СЦ Оренбург",
-  "СЦ Новосибирск",
-  "СЦ Барнаул",
-  "СЦ Вологда",
-  "СЦ Смоленск"
+    "СЦ Домодедово ЕВСЦ", "СЦ Яндекс Маркет Софьино ФФЦ", "СЦ Яндекс Маркет Софьино Суперсклад",
+    "СЦ Яндекс Маркет Софьино КГТ", "СЦ Тарный (Тарный Дропофф)", "СЦ Ростов", "СЦ Краснодар",
+    "Ростов КГТ", "СЦ Строгино", "СЦ Дзержинский", "СЦ Троицкий", "СЦ Казань", "СЦ Запад",
+    "СЦ Самара", "СЦ Грибки", "СЦ Ставрополь", "СЦ Дмитровское", "СЦ СПБ Бугры"
+];
+
+const courier__options = [
+    "СРК",
+    "Авраменко Иван", "Агеев Иван", "Ахычев Магомед",
+    "Байдюк Виктор", "Барсуков Евгений", "Белоусов Владимир",
+    "Бердников Николай", "Брюзгинов Сергей", "Бухтояров Руслан",
+    "Вахрамеев Дмитрий", "Витоль Евгений", "Гаценко Денис",
+    "Гейер Владимир", "Головин Дмитрий", "Голубятников Юрий",
+    "Горбачев Дмитрий", "Гордуладзе Вахтанг", "Григорьев Кирилл",
+    "Демик Антон", "Денисович Александр", "Дунаев Алексей",
+    "Елфимов Александр", "Елфимов Евгений", "Елфимов Сергей",
+    "Занин Руслан", "Захаров Роман", "Землянухин Алексей",
+    "Коровин Николай", "Косенко Дмитрий", "Красильников Евгений",
+    "Кратюк Игорь", "Круцких Алексей", "Кудинов Максим",
+    "Кудрин Юрий", "Кузнецов Иван", "Кукушкин Сергей",
+    "Кумарев Дмитрий", "Курцев Андрей", "Ливенцев Антон",
+    "Лобанков Антон", "Логачев Алексей", "Ломов Александр",
+    "Мазалов Данил", "Маквини Меджах", "Мануковский Павел",
+    "Матвеев Сергей", "Матыцин Вячеслав", "Меньших Александр",
+    "Митюряев Владимир", "Наибов Станислав", "Неретин Иван",
+    "Неумывакин Андрея", "Нугманов Альберт", "Овсиенко Владимир",
+    "Паршин Павел", "Пожидаев Дмитрий", "Придачин Константин",
+    "Рогов Максим", "Рыжков Никита", "Рябов Сергей",
+    "Савенко Дмитрий", "Савин Денис", "Свиридов Алексей",
+    "Сериков Алексей", "Студеникин Дмитрий", "Суфиев Вафо",
+    "Сысоев Алексей", "Тарских Владимир", "Терских Кирилл",
+    "Торубаров Новый Михаил", "Третьяков Юрий", "Тюрин Данил",
+    "Фазаилов Мухаммад", "Фардуков Санжар", "Филатов Владислав",
+    "Ходяков Роман", "Шеин Вячеслав", "Шкодкин Данила",
+    "Шпилькин Никита", "Щербаков Вадим"
+]
+
+const sellers__options = [
+    "Иванов Дмитрий александрович",
+    "ЮНИТЭК",
+    "Эколайн 36",
+    "ЭЛЕКТРОТЕХСНАБ",
+    "Щербаков Максим Александрович",
+    "Шурлаев Андрей Алексеевич",
+    "Шнипов Василий Максимович",
+    "Шкуренко Андрей Сергеевич",
+    "Шепелева Нина Ивановна",
+    "Шевцова Светлана Валерьевна",
+    "Шевцов Виталий Вячеславович",
+    "ШариКОТ",
+    "Чулков Сергей Владимирович",
+    "Чижик",
+    "Черных Елена Николаевна",
+    "Чернов Константин Владимирович",
+    "Цема Виктория Александровна",
+    "Фонов Максим Анатольевич",
+    "Фарид Мамедов Шамиль оглы",
+    "Фабрика СТС",
+    "Уютный Dом",
+    "Турищева Мария Витальевна",
+    "Топ Шина 24 Воронеж",
+    "Токарев Валерий Александрович",
+    "Тимохина Виктория Викторовна",
+    "ТРИТ СТОК",
+    "ТРИТ",
+    "ТЕРРИТОРИЯ",
+    "Суздалев упаковка",
+    "Стукалов Дмитрий Игоревич",
+    "Стукалов Дмитрий Игоревич",
+    "Студенников Сергей Александрович",
+    "Сп",
+    "Сорт. центр",
+    "Скляров Игорь Владимирович",
+    "Склад партнера ООО \"КЕХ еКоммерц\"",
+    "Склад партнера ИП Скляров Игорь Владимирович",
+    "Склад партнера ИП Кривченкова Анна Анатольевна",
+    "Склад партнера ИП Камзина Юлия Дмитриевна",
+    "Склад партнера ИП Дегтярёва Елена Николаевна",
+    "Склад Воронеж",
+    "Семыкина Марина Владимировна",
+    "СваиТут",
+    "Сантех Про",
+    "Сади трейд"
 ];
 
 const direction__input = document.getElementById("recipient");
 const direction__dropdownList = document.getElementById("dropdownList");
 let previousValue = "";
 
-// Карта для перевода букв из английской раскладки в русскую
-const ruEnMap = {
-  "q": "й", "w": "ц", "e": "у", "r": "к", "t": "е", "y": "н", "u": "г", "i": "ш", "o": "щ", "p": "з",
-  "a": "ф", "s": "ы", "d": "в", "f": "а", "g": "п", "h": "р", "j": "о", "k": "л", "l": "д", 
-  "z": "я", "x": "ч", "c": "с", "v": "м", "b": "и", "n": "т", "m": "ь", "Q": "Й", "W": "Ц", "E": "У",
-  "R": "К", "T": "Е", "Y": "Н", "U": "Г", "I": "Ш", "O": "Щ", "P": "З", "A": "Ф", "S": "Ы", "D": "В",
-  "F": "А", "G": "П", "H": "Р", "J": "О", "K": "Л", "L": "Д", "Z": "Я", "X": "Ч", "C": "С", "V": "М",
-  "B": "И", "N": "Т", "M": "Ь"
-};
-
-// Функция для преобразования английских символов в русские
-function transliterate(text) {
-  return text.split('').map(char => ruEnMap[char] || char).join('');
-}
-
 function updateDropdownList() {
-  const search = transliterate(direction__input.value.toLowerCase()); // Преобразуем введенный текст в правильные русские символы
-  direction__dropdownList.innerHTML = "";
-  const filteredOptions = direction__options.filter(option => option.toLowerCase().includes(search));
-  
-  if (filteredOptions.length === 0) {
-      const noMatch = document.createElement("div");
-      noMatch.classList.add("dropdown-item", "no-matches");
-      noMatch.textContent = "Нет совпадений";
-      direction__dropdownList.appendChild(noMatch);
-  } else {
-      filteredOptions.forEach(option => {
-          const item = document.createElement("div");
-          item.classList.add("dropdown-item");
-          item.textContent = option;
-          item.addEventListener("click", () => {
-              direction__input.value = option;
-              direction__dropdownList.classList.remove("show");
-              throttledGeneratePreview();
-          });
-          direction__dropdownList.appendChild(item);
-      });
-  }
-  direction__dropdownList.classList.add("show");
+    let options = currentRappGeneratorType === 3 ? sellers__options : currentRappGeneratorType === 2 ? courier__options : direction__options;
+    let search = direction__input.value.toLowerCase();
+    
+    direction__dropdownList.innerHTML = "";
+    const filteredOptions = options.filter(option => option.toLowerCase().includes(search));
+    
+    if (filteredOptions.length === 0 && currentRappGeneratorType !== 3 && currentRappGeneratorType !== 2) {
+        const noMatch = document.createElement("div");
+        noMatch.classList.add("dropdown-item", "no-matches");
+        noMatch.textContent = "Нет совпадений";
+        direction__dropdownList.appendChild(noMatch);
+    } else {
+        filteredOptions.forEach(option => {
+            const item = document.createElement("div");
+            item.classList.add("dropdown-item");
+            item.textContent = option;
+            item.addEventListener("click", () => {
+                direction__input.value = option;
+                previousValue = option;
+                direction__dropdownList.classList.remove("show");
+                throttledGeneratePreview();
+            });
+            direction__dropdownList.appendChild(item);
+        });
+    }
+    direction__dropdownList.classList.add("show");
 }
 
 direction__input.addEventListener("input", updateDropdownList);
+
 direction__input.addEventListener("focus", () => {
-  previousValue = direction__input.value;
-  direction__input.value = "";
-  updateDropdownList();
+    previousValue = direction__input.value;
+    direction__input.value = "";
+    updateDropdownList();
 });
 
 direction__input.addEventListener("blur", () => {
-  setTimeout(() => {
-      if (!direction__dropdownList.contains(document.activeElement)) {
-          direction__dropdownList.classList.remove("show");
-          if (!direction__options.includes(direction__input.value)) {
-              direction__input.value = previousValue;
-          }
-      }
-  }, 200);
+    setTimeout(() => {
+        if (!direction__dropdownList.contains(document.activeElement)) {
+            direction__dropdownList.classList.remove("show");
+            if (direction__input.value === "") {
+                direction__input.value = previousValue;
+            }
+        }
+    }, 200);
 });
 
 document.addEventListener("click", (e) => {
-  if (!e.target.closest(".dropdown")) {
-      direction__dropdownList.classList.remove("show");
-  }
+    if (!e.target.closest(".dropdown")) {
+        direction__dropdownList.classList.remove("show");
+    }
 });
 
 //~ Direction dropdown menu END
@@ -1202,13 +1241,18 @@ function formatingAnimation() {
     loaderContainerText.appendChild(loaderContainerTextSpan);
     loaderContainer.appendChild(loaderContainerText);
     
+    const loaderContainerBlock = document.createElement("div");
+    loaderContainerBlock.classList.add("loaderContainer-block")
+    
     const loadingCircle = document.createElement("div");
     loadingCircle.classList.add("loaderContainerCircle")
+
     const loaderContainerIcon = document.createElement("i")
     loaderContainerIcon.classList.add("loaderContainerIcon", "fa-solid", "fa-file", "fa-beat-fade")
     
-    loaderContainer.appendChild(loaderContainerIcon);
-    loaderContainer.appendChild(loadingCircle);
+    loaderContainer.appendChild(loaderContainerBlock);
+    loaderContainerBlock.appendChild(loaderContainerIcon);
+    loaderContainerBlock.appendChild(loadingCircle);
     canvasContainer.appendChild(loaderContainer);
     
   } else if (dashboardIcon) {
@@ -1343,7 +1387,7 @@ document.addEventListener("click", (event) => {
       let orderType = '—'
       let oneRow = false;
 
-      if(currentRappGeneratorType === 1){
+      if(currentRappGeneratorType === 1 || currentRappGeneratorType === 2 || currentRappGeneratorType === 3){
         //~ МАГИСТРАЛИ • МАГИСТАРЛИ • МАГИСТАРЛИ 
         if (parts.length > 0) {
           const firstPart = parts[0];
@@ -1512,6 +1556,14 @@ document.addEventListener("click", (event) => {
           ?
           'Введите номер отправления'
           :
+          currentRappGeneratorType === 2
+          ?
+          'Введите номер отправления'
+          :
+          currentRappGeneratorType === 3
+          ?
+          'Введите номер отправления'
+          :
           currentRappGeneratorType === 4 
           ?
           'Номер аномалии'
@@ -1529,6 +1581,14 @@ document.addEventListener("click", (event) => {
         class="orderData-label">
         ${
           currentRappGeneratorType === 1
+          ?
+          'Номер отправления'
+          :
+          currentRappGeneratorType === 2
+          ?
+          'Номер отправления'
+          :
+          currentRappGeneratorType === 3
           ?
           'Номер отправления'
           :
@@ -1557,7 +1617,16 @@ document.addEventListener("click", (event) => {
           placeholder="${
             currentRappGeneratorType === 1
             ?
-            'Код грузоместа' :
+            'Код грузоместа' 
+            :
+            currentRappGeneratorType === 2
+            ?
+            'Код грузоместа' 
+            :
+            currentRappGeneratorType === 3
+            ?
+            'Код грузоместа' 
+            :
             currentRappGeneratorType === 4 
             ?
             'Тикет аномалии' 
@@ -1576,6 +1645,14 @@ document.addEventListener("click", (event) => {
           class="orderData-label">
           ${
             currentRappGeneratorType === 1
+            ?
+            'Код грузоместа'
+            :
+            currentRappGeneratorType === 2
+            ?
+            'Код грузоместа'
+            :
+            currentRappGeneratorType === 3
             ?
             'Код грузоместа'
             :
@@ -1942,7 +2019,7 @@ function generatePDF() {
     
     totalCargoCount += cargoCount;
   
-    if(currentRappGeneratorType === 1){
+    if(currentRappGeneratorType === 1 || currentRappGeneratorType === 2 || currentRappGeneratorType === 3){
       //~ МАГИСТРАЛИ • МАГИСТРАЛИ • МАГИСТРАЛИ
       if (isCargoDisabled) {
         orders.push([
@@ -1980,7 +2057,7 @@ function generatePDF() {
   });
   // Строка "Итого"
   let totalRow = []
-  if(currentRappGeneratorType === 1){
+  if(currentRappGeneratorType === 1 || currentRappGeneratorType === 2 || currentRappGeneratorType === 3){
     //~ МАГИСТРАЛИ • МАГИСТРАЛИ • МАГИСТРАЛИ
     totalRow = [
       { 
@@ -2038,7 +2115,7 @@ function generatePDF() {
 
   // Стили таблицы
   let tableStyles = {};
-  if(currentRappGeneratorType === 1){
+  if(currentRappGeneratorType === 1 || currentRappGeneratorType === 2 || currentRappGeneratorType === 3){
     //~ МАГИСТРАЛИ • МАГИСТРАЛИ • МАГИСТРАЛИ
     tableStyles = {
       headStyles: {
@@ -2134,13 +2211,48 @@ function generatePDF() {
   doc.text(`Акт приема-передачи №${actNumber.value} от ${date}`, 105, 40, { align: 'center' });
 
   doc.setFontSize(12);
-  doc.text(`Отправитель: ${sender}`, 5, 65);
-  doc.text("Адрес Отправителя: Воронежская область, Айдаровское сельское поселение, 2-я Промышленная зона, д. 27", 5, 70, { maxWidth: 190 });
-  doc.text(`Получатель: ${recipient}`, 5, 90);
-  doc.text(`Адрес получателя: ${recipientAddresses[recipient]}`, 5, 95, { maxWidth: 190 });
-  doc.text("Заказчик: ООО «Яндекс»", 5, 110);
+  if(currentRappGeneratorType === 1 || currentRappGeneratorType === 4 || currentRappGeneratorType === 5){
+    doc.text(`Отправитель: ${sender}`, 5, 65);
+  }else{
+    doc.text(`Отправитель: ИП Боровлев Дмитрий Алексеевич, СЦ МК Воронеж, ${sender}`, 5, 75);
+  }
+
+  if(currentRappGeneratorType === 1 || currentRappGeneratorType === 4 || currentRappGeneratorType === 5){
+    doc.text("Адрес Отправителя: Воронежская область, Айдаровское сельское поселение, 2-я Промышленная зона, д. 27", 5, 70, { maxWidth: 190 });
+  }else{
+    doc.text("", 5, 70, { maxWidth: 190 });
+  }
+
+  if(currentRappGeneratorType === 1 || currentRappGeneratorType === 4 || currentRappGeneratorType === 5){
+    doc.text(`Получатель: ${recipient}`, 5, 90);
+  }else if(currentRappGeneratorType === 2){
+    doc.text(`Получатель (Субподрядчик): ${recipient}`, 5, 85);
+  }else{
+    doc.text(`Получатель: ${recipient}`, 5, 85);
+  }
+
+  if(currentRappGeneratorType === 1 || currentRappGeneratorType === 4 || currentRappGeneratorType === 5){
+    doc.text(`Адрес получателя: ${recipientAddresses[recipient]}`, 5, 95, { maxWidth: 190 });
+  }else{
+    doc.text("", 5, 95, { maxWidth: 190 });
+  }
+
+  if(currentRappGeneratorType === 1 || currentRappGeneratorType === 4 || currentRappGeneratorType === 5){
+    doc.text("Заказчик: ООО «Яндекс»", 5, 110);
+  }else{
+    doc.text("Заказчик: ООО «Яндекс»", 5, 65);
+  }
+
   doc.setFontSize(10);
-  doc.text("Настоящий акт составлен о том, что в дату подписания настоящего Акта Получателем Отправитель передал, а Получатель принял следующие нижеуказанные Отправления (номера отправлений в соответствии с данными ПО СЦ)/грузоместа с визуальной проверкой целостности транспортной (если нет, то фирменной) упаковки, без проверки и пересчёта Отправлений:", 5, 115, { maxWidth: 190, fontSize: 10 });
+  if(currentRappGeneratorType === 1 || currentRappGeneratorType === 4 || currentRappGeneratorType === 5){
+    doc.text("Настоящий акт составлен о том, что в дату подписания настоящего Акта Получателем Отправитель передал, а Получатель принял следующие нижеуказанные Отправления (номера отправлений в соответствии с данными ПО СЦ)/грузоместа с визуальной проверкой целостности транспортной (если нет, то фирменной) упаковки, без проверки и пересчёта Отправлений:", 5, 115, { maxWidth: 190, fontSize: 10 });
+  }else if (currentRappGeneratorType === 2){
+    doc.text("Настоящий акт составлен о том, что в указанную выше дату (дата приема Отправления) Отправитель передал, а Исполнитель (Субподрядчик) принял следующие Отправления для передачи Получателю:", 5, 95, { maxWidth: 190, fontSize: 10 });
+  }else if (currentRappGeneratorType === 3){
+    doc.text("Настоящий акт составлен о том, что в указанную выше дату (дату возврата Товаров) Исполнитель в лице Складского Оператора/Субподрядчика передал, а Получатель принял следующие Товары:", 5, 95, { maxWidth: 190, fontSize: 10 });
+  }else{
+    doc.text("Что-то сломалось", 5, 115, { maxWidth: 190, fontSize: 10 });
+  }
   doc.setTextColor("#000");
 
   // Генерация таблицы
@@ -2148,6 +2260,22 @@ function generatePDF() {
     //~ МАГИСТРАЛИ • МАГИСТРАЛИ • МАГИСТРАЛИ
     doc.autoTable({
       startY: 135,
+      head: [["№ п/п", "Номер отправления в системе заказчика", "Код грузоместа", "Кол-во грузомест"]],
+      body: [...orders, totalRow],
+      margin: { left: 5 },
+      ...tableStyles,
+      didParseCell: function(data) {
+        if (data.row.index === orders.length) {
+          // Применяем границы для строки "Итого"
+          data.cell.styles.lineWidth = 0.25;
+          data.cell.styles.lineColor = [0, 0, 0];
+        }
+      }
+    });
+  }else if(currentRappGeneratorType === 2 || currentRappGeneratorType === 3){
+    //~ Курьеры/Мерчи • Курьеры/Мерчи • Курьеры/Мерчи
+    doc.autoTable({
+      startY: 105,
       head: [["№ п/п", "Номер отправления в системе заказчика", "Код грузоместа", "Кол-во грузомест"]],
       body: [...orders, totalRow],
       margin: { left: 5 },
@@ -2229,8 +2357,6 @@ function generatePDF() {
   } else {
       console.error("Элемент <a id='pdfPrint'> не найден!");
   }
-
-  
   
 // Читаем Blob и передаём в PDF.js
 const reader = new FileReader();
@@ -2303,14 +2429,18 @@ async function renderPDF(pdfData) {
     dots = (dots + 1) % 4;
   }, 150);
 
-  // Создаем круг загрузки
+  const loaderContainerBlock = document.createElement("div");
+  loaderContainerBlock.classList.add("loaderContainer-block")
+  
   const loadingCircle = document.createElement("div");
-  loadingCircle.classList.add("loaderContainerCircle", "loaderContainerCircleRender");
-  const loaderContainerIcon = document.createElement("i");
-  loaderContainerIcon.classList.add("loaderContainerIcon", "loaderContainerIconRender", "fa-solid", "fa-pen-ruler", "fa-beat-fade");
+  loadingCircle.classList.add("loaderContainerCircle", "loaderContainerCircleRender")
 
-  loaderContainer.appendChild(loadingCircle);
-  loaderContainer.appendChild(loaderContainerIcon);
+  const loaderContainerIcon = document.createElement("i")
+  loaderContainerIcon.classList.add("loaderContainerIcon", "loaderContainerIconRender", "fa-solid", "fa-rotate", "fa-spin-pulse");
+
+  loaderContainer.appendChild(loaderContainerBlock);
+  loaderContainerBlock.appendChild(loaderContainerIcon);
+  loaderContainerBlock.appendChild(loadingCircle);
   canvasContainer.appendChild(loaderContainer);
 
   // Скрываем все canvas в контейнере
@@ -2349,7 +2479,7 @@ async function renderPDF(pdfData) {
     }
 
     containerCanvas_highlightColor = '#5E5E5E';
-    canvasContainer.style.overflowY = "auto";
+    canvasContainer.style.overflowY = "scroll";
     // Показываем все canvas обратно
     Array.from(canvasContainer.getElementsByTagName("canvas")).forEach(c => c.style.display = "flex");
 
