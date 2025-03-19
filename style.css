@@ -1833,12 +1833,19 @@ header h1{
   margin: 0;
   position: relative;
   box-shadow: 0px 0px 10px 0px #000;
+  transition: background-color 150ms, color 150ms;
 
   --tooltipPosition-x: 50%;
   --tooltipPosition-y: -20px;
   --tooltipArrowPosition-type-y: 1;
   --tooltipArrowRotation: 0deg;
   --tooltipText: "Распечатать документ";
+}
+
+button.printDocument:disabled{
+  background: #000000;
+  color: #fff;
+  transition: background-color 150ms, color 150ms;
 }
 
 .printLabels{
