@@ -233,20 +233,27 @@
       </div>
       <div id="container" class="onLoad" style="display: flex;">
         <div class="textAreaControls onLoad">
-          <button class="textAreaControls-button onLoadItem pegasusTooltip" id="allSelect-btn">
+          <button class="textAreaControls-button onLoadItem onLoadItemAnimation pegasusTooltip" id="allSelect-btn">
             <i class="fa-solid fa-check-double"></i>
           </button>
-          <button class="textAreaControls-button onLoadItem pegasusTooltip" id="clearAll-btn">
+          <button class="textAreaControls-button onLoadItem onLoadItemAnimation pegasusTooltip" id="clearAll-btn">
             <i class="fa-regular fa-trash"></i>
           </button>
-          <button class="textAreaControls-button onLoadItem pegasusTooltip" id="clearAllEmptyLines-btn">
+          <button class="textAreaControls-button onLoadItem onLoadItemAnimation pegasusTooltip" id="clearAllEmptyLines-btn">
             <i class="fa-regular fa-trash-xmark"></i>
           </button>
-          <button class="textAreaControls-button onLoadItem pegasusTooltip" id="textareaUndo-btn">
+          <button class="textAreaControls-button onLoadItem onLoadItemAnimation pegasusTooltip" id="textareaUndo-btn">
             <i class="fa-solid fa-rotate-left"></i>
           </button>
-          <button class="textAreaControls-button onLoadItem pegasusTooltip" id="textareaRedo-btn">
+          <button class="textAreaControls-button onLoadItem onLoadItemAnimation pegasusTooltip" id="textareaRedo-btn">
             <i class="fa-solid fa-rotate-right"></i>
+          </button>
+          <div class="textAreaControls-button-devider onLoadItemDevider"></div>
+          <button class="textAreaControls-button onLoadItem onLoadItemAnimation pegasusTooltip" id="textareaInsertKey-btn">
+            <i class="fa-solid fa-lock-keyhole-open"></i>
+          </button>
+          <button class="textAreaControls-button onLoadItem onLoadItemAnimation pegasusTooltip" id="textareaGetKey-btn">
+            <i class="fa-solid fa-key-skeleton"></i>
           </button>
         </div>
         <div class="textAreaContainer">
@@ -412,7 +419,7 @@
       </div>
     </div>
     <div class="preview">
-      <h1 class="generatorTite onLoadText">Предварительный просмотр</h1>
+      <h1 class="generatorTite onLoadText" id="topAnchor">Предварительный просмотр</h1>
       <div id="canvasContainer" class="onLoad">
         <div class="previewScaleControl">
           <div class="previewScaleControlContainer">
@@ -438,6 +445,7 @@
   <script src="https://cdn.jsdelivr.net/gh/sphilee/jsPDF-CustomFonts-support/dist/jspdf.customfonts.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/sphilee/jsPDF-CustomFonts-support/dist/fonts/pt-sans-normal.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.9.179/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.4/pako.min.js"></script>
   <script src="script.js" defer></script>
 </body>
 </html>

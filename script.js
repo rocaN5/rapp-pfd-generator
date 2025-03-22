@@ -6,6 +6,8 @@ const onLoad = document.querySelectorAll('.onLoad')
 const onLoadItem = document.querySelectorAll('.onLoadItem')
 const onLoadMenu = document.querySelectorAll(".onLoadMenu")
 const onLoadText = document.querySelectorAll(".onLoadText")
+const onLoadItemAnimation = document.querySelectorAll('.onLoadItemAnimation')
+const onLoadItemDevider = document.querySelectorAll('.onLoadItemDevider')
 
 const currentGeneratorType_title = document.getElementById("currentGeneratorType-title");
 const currentGeneratorType_selection = document.querySelectorAll("input.currentGeneratorType-selection");
@@ -28,12 +30,15 @@ window.onload = () => {
         freshLoading()
       }, 50);
     }, 500);
-  }, 3000);
+  }, 50);
 };
 
 function freshLoading(){
   onLoadItem.forEach(loadingItem =>{
     loadingItem.classList.remove("onLoadItem")
+  })
+  onLoadItemDevider.forEach(loadingItem =>{
+    loadingItem.classList.remove("onLoadItemDevider")
   })
   onLoad.forEach(loadingItem => {
     loadingItem.classList.remove("onLoad")
@@ -44,8 +49,493 @@ function freshLoading(){
   onLoadText.forEach(loadingItem => {
     loadingItem.classList.remove("onLoadText")
   });
+  setTimeout(() => {
+    onLoadItemAnimation.forEach(loadingItem => {
+    loadingItem.classList.remove("onLoadItemAnimation")
+    });
+  }, 1500);
 }
 //~ LOAD END 
+
+//~ HESH KEY
+
+// Сжатие строки с помощью pako (gzip) и кодирование в Base64-URL
+function compressAndEncode(text) {
+  const compressed = pako.deflate(text); // Получаем Uint8Array
+  return btoa(String.fromCharCode(...compressed)) // Преобразуем в Base64
+      .replace(/\+/g, '-') // Меняем '+' на '-'
+      .replace(/\//g, '_') // Меняем '/' на '_'
+      .replace(/=+$/, ''); // Убираем '='
+}
+
+// Декодирование и разжатие
+function decodeAndDecompress(encoded) {
+  encoded = encoded.replace(/-/g, '+').replace(/_/g, '/'); // Возвращаем в обычный Base64
+  const byteArray = Uint8Array.from(atob(encoded), c => c.charCodeAt(0)); // Преобразуем обратно в Uint8Array
+  return pako.inflate(byteArray, { to: 'string' }); // Декодируем в строку
+}
+
+// Функция выбора радиокнопки перед вставкой текста
+function selectMatchingRadioButton(symbol) {
+  const typeMapping = { 'm': 1, 'c': 2, 's': 3, 'a': 4, 'z': 5 };
+  const selectedType = typeMapping[symbol] || 1; // По умолчанию 1 (если символ не найден)
+
+  const radioButtons = document.querySelectorAll("input.currentGeneratorType-selection");
+
+  radioButtons.forEach(input => {
+      if (input.id === `rapp-${selectedType}`) {
+          input.checked = true;
+          input.dispatchEvent(new Event("change", { bubbles: true })); // Вызывает связанный обработчик
+      } else {
+          input.checked = false;
+      }
+  });
+}
+
+// Генерация и копирование хеша
+document.getElementById('textareaGetKey-btn').addEventListener('click', function () {
+  const textarea = document.querySelector('textarea.allOrders');
+  const text = textarea.value.trim();
+  const rappType = currentRappGeneratorType || 1;
+  const date = document.getElementById('dateDisplay')?.innerText.trim() || ''; // Получаем дату
+  const recipient = document.getElementById('recipient')?.value.trim() || ''; // Получаем получателя
+
+  const typeSymbols = { 1: 'm', 2: 'c', 3: 's', 4: 'a', 5: 'z' };
+  const symbol = typeSymbols[rappType] || 'm';
+
+  // Формируем полные данные
+  const fullText = JSON.stringify({ text, date, recipient });
+
+  const compressedHash = compressAndEncode('iRock' + fullText);
+  const finalHash = `iRDG-${symbol}-${compressedHash}`;
+
+  navigator.clipboard.writeText(finalHash).then(() => {
+      console.log('Хеш-код скопирован в буфер обмена:', finalHash);
+  }).catch(err => {
+      console.error('Ошибка копирования:', err);
+  });
+});
+
+// Вставка текста из буфера с выбором радиокнопки и заполнением даты/получателя
+document.getElementById('textareaInsertKey-btn').addEventListener('click', async function () {
+  try {
+      const clipboardText = await navigator.clipboard.readText();
+      if (clipboardText.startsWith('iRDG-')) {
+          const parts = clipboardText.split('-');
+          if (parts.length >= 3) {
+              const symbol = parts[1]; // Символ типа (m, c, s, a, z)
+              const hash = parts.slice(2).join('-');
+              const decodedData = decodeAndDecompress(hash).replace(/^iRock/, '');
+              const { text, date, recipient } = JSON.parse(decodedData); // Декодируем JSON-данные
+
+              // Выбираем нужную радиокнопку перед вставкой текста
+              selectMatchingRadioButton(symbol);
+
+              // Заполняем textarea
+              const textarea = document.querySelector('textarea.allOrders');
+              textarea.value = text;
+              textarea.dispatchEvent(new Event('input', { bubbles: true }));
+
+              // Заполняем дату
+              if (document.getElementById('dateDisplay')) {
+                  document.getElementById('dateDisplay').innerText = date;
+              }
+
+              // Заполняем получателя
+              if (document.getElementById('recipient')) {
+                  document.getElementById('recipient').value = recipient;
+                  document.getElementById('recipient').dispatchEvent(new Event('input', { bubbles: true }));
+              }
+          }
+      }
+  } catch (err) {
+      console.error('Ошибка вставки из буфера обмена:', err);
+  }
+});
+
+// Обработчик изменения радиокнопки (из вашего кода)
+currentGeneratorType_selection.forEach(input => {
+  input.addEventListener("change", (event) => {
+      direction__input.value = "Не выбран";
+      let title = "";
+      getDataAndMakeOrderRow(event);
+
+      if (input.id === "rapp-1") {
+          title = "Магистрали";
+          currentRappGeneratorType = 1;
+      } else if (input.id === "rapp-2") {
+          title = "Курьеры / СРК";
+          currentRappGeneratorType = 2;
+      } else if (input.id === "rapp-3") {
+          title = "Мерчи";
+          currentRappGeneratorType = 3;
+      } else if (input.id === "rapp-4") {
+          title = "Аномалии";
+          currentRappGeneratorType = 4;
+      } else if (input.id === "rapp-5") {
+          title = "Засылы / Дубли / Lost / Невыкуп";
+          currentRappGeneratorType = 5;
+      } else {
+          title = "Что-то новенькое 😐";
+      }
+
+      currentGeneratorType_title.innerText = title;
+
+      // Создаем событие input для textarea
+      const textarea = document.querySelector('.allOrders');
+      textarea.dispatchEvent(new Event("input", { bubbles: true }));
+
+      // Вызов функции предпросмотра
+      throttledGeneratePreview();
+      setTimeout(() => {
+          hideMenu();
+      }, 300);
+      setTimeout(() => {
+        direction__dropdownList.classList.remove("show");
+      }, 10);
+  });
+});
+
+//~ HESH KEY END
+
+//~ Move me to top button
+
+const moveMeToTop = document.createElement("button");
+const topAnchor = document.querySelector("#topAnchor");
+const pdfForm = document.querySelector("#pdf-form");
+moveMeToTop.className = "moveMeToTop";
+moveMeToTop.innerHTML = '<i class="fa-solid fa-arrow-up"></i>';
+pdfForm.appendChild(moveMeToTop);
+
+
+function checkScroll() {
+    if (pdfForm.scrollTop > 700) {
+        moveMeToTop.style.opacity = "1";
+        moveMeToTop.style.pointerEvents = "auto";
+        moveMeToTop.removeAttribute("inert");
+    } else {
+        moveMeToTop.style.opacity = "0";
+        moveMeToTop.style.pointerEvents = "none";
+    }
+}
+
+pdfForm.addEventListener("scroll", checkScroll);
+
+moveMeToTop.addEventListener("click", function () {
+    if (topAnchor) {
+        pdfForm.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    setTimeout(() => {
+        moveMeToTop.style.opacity = "0.4";
+        moveMeToTop.setAttribute("inert", "");
+        moveMeToTop.style.pointerEvents = "none";
+    }, 500);
+});
+
+moveMeToTop.addEventListener("mouseenter", function () {
+    const icon = moveMeToTop.querySelector("i");
+    icon.classList.add("fa-bounce");
+});
+
+moveMeToTop.addEventListener("mouseleave", function () {
+    const icon = moveMeToTop.querySelector("i");
+    icon.classList.remove("fa-bounce");
+});
+
+//~ Move me to top button END
+
+//~ RightClick menu popup
+
+const textarea = document.querySelector("textarea.allOrders");
+
+textarea.addEventListener("contextmenu", function (event) {
+    event.preventDefault();
+    
+    // Удаляем все ранее созданные меню
+    document.querySelectorAll(".textArea__contextMenu").forEach(menu => menu.remove());
+
+    // Создаем новое меню
+    const menu = document.createElement("div");
+    menu.classList.add("textArea__contextMenu");
+    menu.style.position = "absolute";
+    menu.style.display = "flex";
+    
+    // Получаем контейнер, куда добавляем меню
+    const container = document.querySelector(".textAreaContainer");
+    const containerRect = container.getBoundingClientRect();
+    const pdfForm = document.querySelector("#pdf-form");
+    const pdfFormRect = pdfForm.getBoundingClientRect();
+    
+    const x = event.clientX - containerRect.left;
+    let y = event.clientY - containerRect.top;
+
+    // Проверяем, выходит ли меню за пределы #pdf-form
+    const menuHeight = 260; // Примерная высота меню, можно изменить
+    if (event.clientY + menuHeight > pdfFormRect.bottom) {
+        y = pdfFormRect.bottom - containerRect.top - menuHeight + 80
+    } else {
+        y += 90; // Обычное размещение
+    }
+
+    menu.style.left = `${x + 20}px`;
+    menu.style.top = `${y}px`;
+    
+    menu.style.opacity = "0";
+    menu.style.transform = "scale(0)";
+    menu.style.transition = "opacity 0.2s ease-out, transform 0.2s ease-out";
+    
+    menu.innerHTML = `
+      <div class="contextMenu-item contextMenu-item-onCreate contextMenu-item-onCreate-animationDelay" id="contextMenu-paste">
+        <i class="fa-solid fa-paste"></i>
+        <p>Вставить</p>
+      </div>
+      <div class="contextMenu-item contextMenu-item-onCreate contextMenu-item-onCreate-animationDelay" id="contextMenu-copy">
+          <i class="fa-solid fa-clone"></i>
+          <p>Копировать</p>
+      </div>
+      <div class="contextMenu-item contextMenu-item-onCreate contextMenu-item-onCreate-animationDelay" id="contextMenu-cut">
+          <i class="fa-solid fa-scissors"></i>
+          <p>Вырезать</p>
+      </div>
+      <div class="contextMenu-item contextMenu-item-onCreate contextMenu-item-onCreate-animationDelay" id="contextMenu-delete">
+          <i class="fa-solid fa-eraser"></i>
+          <p>Удалить</p>
+      </div>
+      <div class="contextMenu-item-devider contextMenu-item-onCreate contextMenu-item-onCreate-animationDelay"></div>
+      <div class="contextMenu-item contextMenu-item-onCreate contextMenu-item-onCreate-animationDelay" id="contextMenu-undo">
+        <i class="fa-solid fa-rotate-left"></i>
+        <p>Назад</p>
+      </div>
+      <div class="contextMenu-item contextMenu-item-onCreate contextMenu-item-onCreate-animationDelay" id="contextMenu-redo">
+        <i class="fa-solid fa-rotate-right"></i>
+        <p>Вперед</p>
+      </div>
+      <div class="contextMenu-item-devider contextMenu-item-onCreate contextMenu-item-onCreate-animationDelay"></div>
+      <div class="contextMenu-item contextMenu-item-onCreate contextMenu-item-onCreate-animationDelay" id="contextMenu-showspot">
+          <i class="fa-solid fa-eye"></i>
+          <p>Показать</p>
+      </div>
+      <div class="contextMenu-item contextMenu-item-onCreate contextMenu-item-onCreate-animationDelay" id="contextMenu-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <p>Найти в ПИ</p>
+      </div>
+      <div class="contextMenu-item contextMenu-item-onCreate contextMenu-item-onCreate-animationDelay" id="contextMenu-increment">
+          <i class="fa-solid fa-magnifying-glass-arrows-rotate"></i>
+          <p>Инкрементировать</p>
+      </div>
+    `;
+
+    setTimeout(() => {
+      const contextMenu_item_onCreate = document.querySelectorAll(".contextMenu-item-onCreate");
+      contextMenu_item_onCreate.forEach(item => {
+          item.classList.remove("contextMenu-item-onCreate");
+      });
+    }, 50);
+
+    setTimeout(() => {
+      const contextMenu_item_onCreate_animationDelay = document.querySelectorAll(".contextMenu-item-onCreate-animationDelay");
+      contextMenu_item_onCreate_animationDelay.forEach(item => {
+          item.classList.remove("contextMenu-item-onCreate-animationDelay");
+      });
+    }, 250);
+  
+    function triggerHumanInput() {
+      textarea.dispatchEvent(new Event("input", { bubbles: true }));
+      if (typeof textAreaOverLay__updateCanvas === "function") {
+          textAreaOverLay__updateCanvas();
+      }
+  }
+
+  const selectedText = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd);
+    
+    // Получаем элементы для операций
+    const pasteItem = menu.querySelector("#contextMenu-paste");
+    const copyItem = menu.querySelector("#contextMenu-copy");
+    const cutItem = menu.querySelector("#contextMenu-cut");
+    const deleteItem = menu.querySelector("#contextMenu-delete");
+    const showSpotItem = menu.querySelector("#contextMenu-showspot");
+    const contextMenu_Undo = menu.querySelector("#contextMenu-undo");
+    const contextMenu_Redo = menu.querySelector("#contextMenu-redo");
+    
+    // Функция для эмуляции действия человека
+    function triggerHumanInput() {
+        textarea.dispatchEvent(new Event("input", { bubbles: true }));
+        if (typeof textAreaOverLay__updateCanvas === "function") {
+            textAreaOverLay__updateCanvas();
+        }
+    }
+    
+    // Вставка из буфера обмена
+    pasteItem.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        try {
+            const text = await navigator.clipboard.readText();
+            let start = textarea.selectionStart;
+            let end = textarea.selectionEnd;
+            textarea.value = textarea.value.slice(0, start) + text + textarea.value.slice(end);
+            triggerHumanInput();
+        } catch (err) {
+            console.error("Ошибка вставки: ", err);
+        }
+        document.querySelectorAll(".textArea__contextMenu").forEach(menu => menu.remove());
+    });
+
+    // Undoooooooooooooo
+    contextMenu_Undo.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      try {
+        if (historyIndex > 0) {
+          historyIndex--;
+          allOrders.value = history[historyIndex];
+          allOrders.dispatchEvent(new Event("input", { bubbles: true }));
+          throttledGeneratePreview();
+          textAreaOverLay__updateCanvas()
+        }
+      } catch (err) {
+          console.error("Ошибка undo: ", err);
+      }
+      document.querySelectorAll(".textArea__contextMenu").forEach(menu => menu.remove());
+    });
+
+    // Redooooooooooooooooooooo
+    contextMenu_Redo.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      try {
+        if (historyIndex < history.length - 1) {
+          historyIndex++;
+          allOrders.value = history[historyIndex];
+          allOrders.dispatchEvent(new Event("input", { bubbles: true }));
+          throttledGeneratePreview();
+          textAreaOverLay__updateCanvas()
+        }
+      } catch (err) {
+          console.error("Ошибка redo: ", err);
+      }
+      document.querySelectorAll(".textArea__contextMenu").forEach(menu => menu.remove());
+    });
+    
+    // Если нет выделенного текста, деактивируем copy, cut и delete
+    if (!selectedText) {
+        [copyItem, cutItem].forEach(item => {
+            item.style.filter = "brightness(0.5)";
+            item.addEventListener("click", (e) => {
+                e.stopPropagation();
+            });
+        });
+    } else {
+        copyItem.addEventListener("click", (e) => {
+            e.stopPropagation();
+            navigator.clipboard.writeText(selectedText).catch(err => console.error("Ошибка копирования: ", err));
+            triggerHumanInput();
+            document.querySelectorAll(".textArea__contextMenu").forEach(menu => menu.remove());
+        });
+        cutItem.addEventListener("click", (e) => {
+            e.stopPropagation();
+            navigator.clipboard.writeText(selectedText).catch(err => console.error("Ошибка вырезания: ", err));
+            let start = textarea.selectionStart;
+            let end = textarea.selectionEnd;
+            textarea.value = textarea.value.slice(0, start) + textarea.value.slice(end);
+            triggerHumanInput();
+            document.querySelectorAll(".textArea__contextMenu").forEach(menu => menu.remove());
+        });
+    }
+    
+    // Функция "Удалить": если есть выделение, удаляем выделенное, иначе удаляем всю строку.
+    deleteItem.addEventListener("click", (e) => {
+        e.stopPropagation();
+        let start = textarea.selectionStart;
+        let end = textarea.selectionEnd;
+        if (start === end) {
+            // Нет выделения – удаляем всю строку, в которой находится курсор
+            const before = textarea.value.substring(0, start);
+            const after = textarea.value.substring(start);
+            const lineStart = before.lastIndexOf("\n") + 1; // если не найден, вернется 0
+            const nextNewLine = after.indexOf("\n");
+            const lineEnd = nextNewLine === -1 ? textarea.value.length : start + nextNewLine;
+            textarea.value = textarea.value.substring(0, lineStart) + textarea.value.substring(lineEnd);
+        } else {
+            // Если есть выделение – удаляем выделенный текст
+            textarea.value = textarea.value.slice(0, start) + textarea.value.slice(end);
+        }
+        triggerHumanInput();
+        document.querySelectorAll(".textArea__contextMenu").forEach(menu => menu.remove());
+    });
+    
+    // Обработчик для "Показать"
+    showSpotItem.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const cursor = textarea.selectionStart;
+        const allLines = textarea.value.split("\n");
+        let cumulative = 0;
+        let nonEmptyCount = 0;
+        let currentLineContent = "";
+        
+        for (let i = 0; i < allLines.length; i++) {
+            const line = allLines[i];
+            if (cursor <= cumulative + line.length) {
+                currentLineContent = line;
+                if (line.trim() !== "") {
+                    nonEmptyCount++; // учитываем текущую строку, если она не пустая
+                }
+                break;
+            }
+            if (line.trim() !== "") {
+                nonEmptyCount++;
+            }
+            cumulative += line.length + 1; // +1 для символа новой строки
+        }
+        
+        if (currentLineContent.trim() === "") {
+            showSpotItem.style.filter = "brightness(0.5)";
+        } else {
+            const targetId = "orderRow-id-" + nonEmptyCount;
+            const targetEl = document.getElementById(targetId);
+            if (targetEl) {
+                targetEl.scrollIntoView({ behavior: "smooth", block: "center" });
+                targetEl.classList.add("order-row-showMePlace");
+                setTimeout(() => {
+                    targetEl.classList.remove("order-row-showMePlace");
+                }, 3000);
+            }
+        }
+        document.querySelectorAll(".textArea__contextMenu").forEach(menu => menu.remove());
+    });
+
+    // Предотвращаем закрытие меню при клике внутри него
+    menu.addEventListener("click", function(e) {
+        e.stopPropagation();
+    });
+    
+    container.appendChild(menu);
+    
+    // Запускаем анимацию появления
+    setTimeout(() => {
+        menu.style.opacity = "1";
+        menu.style.transform = "scale(1)";
+    }, 10);
+});
+
+// Удаляем меню при клике вне него
+document.addEventListener("click", function (event) {
+    if (!event.target.closest(".textArea__contextMenu")) {
+        document.querySelectorAll(".textArea__contextMenu").forEach(menu => menu.remove());
+    }
+});
+
+// Если ПКМ происходит вне textarea и меню – удаляем все меню
+document.addEventListener("contextmenu", function (event) {
+    if (!event.target.closest("textarea.allOrders") && !event.target.closest(".textArea__contextMenu")) {
+        document.querySelectorAll(".textArea__contextMenu").forEach(menu => menu.remove());
+    }
+});
+
+const pdfFormScroll = document.querySelector("#pdf-form")
+pdfFormScroll.addEventListener("scroll", function () {
+    document.querySelectorAll(".textArea__contextMenu").forEach(menu => menu.remove());
+});
+
+
+//~ RightClick menu popup END
 
 //~ CANVAS textarea overlay
 
@@ -373,10 +863,40 @@ toggleTooltipClass(); // Вызываем при загрузке, чтобы п
 //~ Direction dropdown menu
 
 const direction__options = [
-    "СЦ Домодедово ЕВСЦ", "СЦ Яндекс Маркет Софьино ФФЦ", "СЦ Яндекс Маркет Софьино Суперсклад",
-    "СЦ Яндекс Маркет Софьино КГТ", "СЦ Тарный (Тарный Дропофф)", "СЦ Ростов", "СЦ Краснодар",
-    "Ростов КГТ", "СЦ Строгино", "СЦ Дзержинский", "СЦ Троицкий", "СЦ Казань", "СЦ Запад",
-    "СЦ Самара", "СЦ Грибки", "СЦ Ставрополь", "СЦ Дмитровское", "СЦ СПБ Бугры"
+  "СЦ Домодедово ЕВСЦ",
+  "СЦ Яндекс Маркет Софьино ФФЦ",
+  "СЦ Яндекс Маркет Софьино Суперсклад",
+  "СЦ Яндекс Маркет Софьино КГТ",
+  "СЦ Тарный (Тарный Дропофф)",
+  "СЦ Липецк",
+  "СЦ Курск",
+  "СЦ Белгород",
+  "СЦ Ростов",
+  "СЦ Краснодар",
+  "Ростов КГТ",
+  "СЦ Строгино",
+  "СЦ Дзержинский",
+  "СЦ Троицкий",
+  "СЦ Казань",
+  "СЦ Запад",
+  "СЦ Самара",
+  "СЦ Грибки",
+  "СЦ Ставрополь",
+  "СЦ Дмитровское",
+  "СЦ СПБ Бугры",
+  "СЦ Ленинские горки",
+  "СЦ Муром",
+  "СЦ Челябинск",
+  "СЦ Чебоксары",
+  "СЦ Ижевск",
+  "СЦ Тюмень",
+  "СЦ Екатеринбург",
+  "СЦ Набережные Челны",
+  "СЦ Оренбург",
+  "СЦ Новосибирск",
+  "СЦ Барнаул",
+  "СЦ Вологда",
+  "СЦ Смоленск"
 ];
 
 const courier__options = [
@@ -1277,6 +1797,7 @@ undoBtn.addEventListener("click", () => {
     allOrders.value = history[historyIndex];
     allOrders.dispatchEvent(new Event("input", { bubbles: true }));
     throttledGeneratePreview();
+    textAreaOverLay__updateCanvas()
   }
 });
 
@@ -1286,6 +1807,7 @@ redoBtn.addEventListener("click", () => {
     allOrders.value = history[historyIndex];
     allOrders.dispatchEvent(new Event("input", { bubbles: true }));
     throttledGeneratePreview();
+    textAreaOverLay__updateCanvas()
   }
 });
 
@@ -1308,6 +1830,7 @@ document.getElementById("clearAll-btn").addEventListener("click", (event) => {
   document.querySelector("#line-numbers").innerHTML = "<div>1</div>";
   formatingAnimation();
   throttledGeneratePreview();
+  textAreaOverLay__updateCanvas()
 });
 
 document.getElementById("clearAllEmptyLines-btn").addEventListener("click", (event) => {
@@ -1318,6 +1841,7 @@ document.getElementById("clearAllEmptyLines-btn").addEventListener("click", (eve
       .split("\n")
       .filter(line => line.trim() !== "")
       .join("\n");
+      textAreaOverLay__updateCanvas()
   }
 });
 
@@ -1777,6 +2301,7 @@ document.addEventListener("click", (event) => {
     
       const newOrderRow = document.createElement("div");
       newOrderRow.classList.add("order-row");
+      newOrderRow.id = `orderRow-id-${index + 1}`
 
       newOrderRow.innerHTML = `
       <div class="orderRowNumber">${setcionNumber++}</div>
