@@ -2625,3 +2625,137 @@ span.hints-description-span-10{
   opacity: 0;
   pointer-events: none;
 }
+
+.notification-wrapper{
+
+  position: fixed;
+  --pos: 10px;
+  right: var(--pos);
+  bottom: var(--pos);
+  width: 220px;
+  height: 320px;
+  display: flex;
+  justify-content: flex-end;
+  flex-flow: column;
+  padding: 10px;
+  border-radius: 10px;
+  gap: 10px;
+  overflow: hidden;
+  z-index: 999999999;
+  pointer-events: none;
+}
+
+.notification-item{
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 40px;
+  overflow: hidden !important;
+  background: #000000;
+  border-radius: 6px;
+  border: 2px solid #000000;
+  transition: 200ms;
+  box-shadow: 0px 0px 10px 0px #000, 0px 0px 0px 2px var(--notification-main-color) inset;
+}
+
+.notification-item[notification-type="true"]{
+  --notification-main-color: #cf0;
+}
+.notification-item[notification-type="bell"]{
+  --notification-main-color: #00dcff;
+}
+.notification-item[notification-type="error"]{
+  --notification-main-color: #ff0000;
+  box-shadow: 0px 0px 10px 0px #000, 0px 0px 6px 0px var(--notification-main-color) inset;
+}
+
+.notification-item-color-animation{
+  --circleWidth: 80px;
+  --circleHeight: 80px;
+  background: linear-gradient(45deg, var(--notification-main-color), var(--notification-main-color));
+  width: var(--circleWidth);
+  height: var(--circleHeight);
+  top: calc(50% - (var(--circleHeight) / 2));
+  left: calc(-14% - (var(--circleWidth) / 2));
+  position: absolute;
+  filter: blur(0px);
+  box-shadow: 0px 0px 10px 0px var(--notification-main-color);
+  border-radius: 63% 37% 70% 30% / 30% 35% 65% 70%;
+  animation: 5s ease-in-out 0s infinite alternate none running blurChangeDiman;
+}
+
+@keyframes blurChangeDiman{
+  0%{
+      left: calc(-6% - (var(--circleWidth) / 2));
+      width: var(--circleWidth);
+      height: var(--circleHeight);
+      transform: rotate(0deg);
+      border-radius: 63% 37% 70% 30% / 30% 35% 65% 70%;
+  }
+  50%{
+      width: calc(var(--circleWidth) * 1.2);
+      height: calc(var(--circleHeight) * 1.2);
+      transform: rotate(90deg);
+      border-radius: 88% 12% 38% 62% / 10% 89% 11% 90%;
+  }
+  75%{
+      width: calc(var(--circleWidth) * 1.2);
+      height: calc(var(--circleHeight) * 1.4);
+      transform: rotate(180deg);
+      border-radius: 45% 55% 49% 51% / 100% 20% 80% 0%;
+  }
+  100%{
+      width: calc(var(--circleWidth) * 1.4);
+      height: calc(var(--circleHeight) * 1.05);
+      transform: rotate(270deg);
+      border-radius: 45% 55% 38% 62% / 7% 58% 42% 93%;
+  }
+}
+
+.notification-item-info{
+  box-shadow: 0px 0px 4px 0px var(--notification-main-color) inset;
+}
+.notification-item-info{
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  background: #00000059;
+  border-radius: 4px;
+  backdrop-filter: blur(20px) saturate(5.5) brightness(2.0);
+  overflow: hidden;
+  align-items: center;
+}
+
+.notification-item-info-icon{
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 15%;
+  font-size: 1rem;
+  text-shadow: 0px 0px 10px #000, -10px -10px 20px #000, 10px 10px 20px #000, 0px 0px 10px #000, 0px 0px 10px #000;
+  color: #ffffff;
+}
+
+.notification-item-info-description{
+  height: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 75%;
+  font-size: .55rem;
+  text-shadow: 0px 0px 10px #000, 0px 0px 10px #000, 0px 0px 10px #000;
+  user-select: none;
+}
+
+.notification-item-info-close{
+  font-size: .8rem;
+  width: 10%;
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  pointer-events: auto;
+}

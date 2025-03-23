@@ -57,8 +57,89 @@ function freshLoading(){
 }
 //~ LOAD END 
 
-//~ HESH KEY
+//~ Notification
 
+function makeNotification(callReason, typeReason) {
+  const notificationDescriptions = {
+    "notification:insertHESHkey:type:true": "Ключ был успешно применён",
+    "notification:insertHESHkey:type:error": "Ошибка чтения, ключ содержит ошибку",
+
+    "notification:getHESHkey:type:bell": "Ключ был успешно скопирован",
+    "notification:getHESHkey:type:error": "Ошибка при копировании ключа"
+  };
+
+  let notificationIcon = "";
+  const notificationKey = `${callReason}:${typeReason}`;
+  const notificationText = notificationDescriptions[notificationKey] || "Неизвестное уведомление";
+  const notificationWrapper = document.querySelector(".notification-wrapper");
+  const createNotification = document.createElement("div");
+  createNotification.classList.add("notification-item");
+
+  if (typeReason === "type:true") {
+    notificationIcon = `<i class="fa-regular fa-circle-check fa-bounce"></i>`;
+    createNotification.setAttribute("notification-type","true")
+  } else if (typeReason === "type:bell") {
+    notificationIcon = `<i class="fa-regular fa-bell fa-shake"></i>`;
+    createNotification.setAttribute("notification-type","bell")
+  } else if (typeReason === "type:error") {
+    notificationIcon = `<i class="fa-regular fa-shield-xmark fa-beat-fade"></i>`;
+    createNotification.setAttribute("notification-type","error")
+  } else {
+    return "mega-error";
+  }
+
+  createNotification.innerHTML = `
+    <div class="notification-item-color-animation"></div>
+    <div class="notification-item-info">
+      <div class="notification-item-info-icon">
+        ${notificationIcon}
+      </div>
+      <div class="notification-item-info-description">
+        <p>${notificationText}</p>
+      </div>
+      <div class="notification-item-info-close">
+        <i class="fa-solid fa-xmark"></i>
+      </div>
+    </div>
+  `;
+
+  createNotification.style.transform = "translateY(50%)"
+  createNotification.style.opacity = "0"
+  notificationWrapper.appendChild(createNotification);
+
+  
+  setTimeout(() => {
+    createNotification.style.transform = "translateY(0)"
+    createNotification.style.opacity = "1"
+  }, 10)
+
+  const notificationClose = document.querySelectorAll(".notification-item-info-close");
+
+  notificationClose.forEach(closeBtn => {
+    closeBtn.addEventListener("click", (e) => {
+      e.currentTarget.closest(".notification-item")?.remove();
+    });
+  });
+
+  setTimeout(() => {
+    createNotification.style.transform = "translateY(-50%)"
+    createNotification.style.opacity = "0"
+    setTimeout(() => {
+      if(createNotification){
+        createNotification.remove()
+      }
+    }, 200);
+  }, 3000);
+}
+
+makeNotification("notification:insertHESHkey", "type:true");
+makeNotification("notification:getHESHkey", "type:bell"); 
+makeNotification("notification:insertHESHkey", "type:error");
+makeNotification("notification:getHESHkey", "type:error"); 
+
+//~ Notification END
+
+//~ HESH KEY
 // Сжатие строки с помощью pako (gzip) и кодирование в Base64-URL
 function compressAndEncode(text) {
   const compressed = pako.deflate(text); // Получаем Uint8Array
@@ -111,8 +192,10 @@ document.getElementById('textareaGetKey-btn').addEventListener('click', function
 
   navigator.clipboard.writeText(finalHash).then(() => {
       console.log('Хеш-код скопирован в буфер обмена:', finalHash);
+      makeNotification("notification:getHESHkey", "type:bell")
   }).catch(err => {
       console.error('Ошибка копирования:', err);
+      makeNotification("notification:getHESHkey", "type:error")
   });
 });
 
@@ -147,9 +230,11 @@ document.getElementById('textareaInsertKey-btn').addEventListener('click', async
                   document.getElementById('recipient').dispatchEvent(new Event('input', { bubbles: true }));
               }
           }
+          makeNotification("notification:insertHESHkey", "type:true")
       }
   } catch (err) {
       console.error('Ошибка вставки из буфера обмена:', err);
+      makeNotification("notification:insertHESHkey", "type:error")
   }
 });
 
