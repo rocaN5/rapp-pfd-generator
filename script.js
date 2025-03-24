@@ -2744,11 +2744,19 @@ reGenerateDocument.addEventListener('click', ()=>{
 
 let timeout;
 function throttledGeneratePreview() {
-    clearTimeout(timeout);
-    formatingAnimation()
-    timeout = setTimeout(() => {
-        generatePreview();
-    }, 2000);
+  const pdfPrint = document.querySelector(".pdfPrint");
+  const iconHtml = `<i class="fa-regular fa-spinner-scale fa-spin-pulse"></i>`;
+  if (!pdfPrint.innerHTML.includes(iconHtml)) {
+      pdfPrint.innerHTML = iconHtml;
+  }
+  pdfPrint.removeAttribute("href");
+  pdfPrint.setAttribute("disabled", "disabled");
+
+  clearTimeout(timeout);
+  formatingAnimation()
+  timeout = setTimeout(() => {
+      generatePreview();
+  }, 2000);
 }
 
 document.querySelectorAll(".orderData-container .no-cargo").forEach(button => {
@@ -3381,6 +3389,13 @@ async function renderPDF(pdfData) {
     if(statusFinishIcon){
       statusFinishIcon.remove()
     }
+
+    setTimeout(() => {
+      const pdfPrint = document.querySelector(".pdfPrint")
+      pdfPrint.innerHTML = `<i class="fa-solid fa-print fa-beat-fade"></i>`
+      pdfPrint.removeAttribute("disabled")
+    }, 50);
+
     const textAreaDashboard = document.querySelector(".textAreaDashboard");
     if (textAreaDashboard) {
       const isIconShowed = document.querySelector("i.fa-check")
@@ -3404,7 +3419,6 @@ async function renderPDF(pdfData) {
           document.querySelector('.dashboardInfoText').innerText = localBlob
         }    
       }
-  
     }
   }, 1000);
 }

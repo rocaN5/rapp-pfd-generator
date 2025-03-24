@@ -1939,7 +1939,7 @@ header h1{
   justify-content: center;
   align-items: center;
   border-radius: 10px;
-  background: #b3ff00;
+  background: linear-gradient(45deg, #cf0, #4bff00);
   position: relative;
   box-shadow: 0px 0px 10px 0px #000;
 
@@ -1959,18 +1959,25 @@ header h1{
   justify-content: center;
   align-items: center;
   border-radius: 10px;
-  background: #00dcff;
+  background: linear-gradient(45deg, #00dcff, #00ffbd);
   padding: 0;
   margin: 0;
   position: relative;
   box-shadow: 0px 0px 10px 0px #000;
-  transition: background-color 150ms, color 150ms;
+  transition: background-color 150ms, color 150ms, filter 150ms;
+  cursor: pointer;
 
   --tooltipPosition-x: 50%;
   --tooltipPosition-y: -20px;
   --tooltipArrowPosition-type-y: 1;
   --tooltipArrowRotation: 0deg;
   --tooltipText: "Распечатать документ";
+}
+
+.printDocument[disabled]{
+  filter: grayscale(1) brightness(0.9);
+  transition: 150ms;
+  cursor: progress;
 }
 
 button.printDocument:disabled{
@@ -1988,7 +1995,7 @@ button.printDocument:disabled{
   justify-content: center;
   align-items: center;
   border-radius: 10px;
-  background: #00ff68;
+  background: linear-gradient(45deg, #00ff68, #55ff00);
   padding: 0;
   margin: 0;
   position: relative;
