@@ -2668,6 +2668,15 @@ span.hints-description-span-10{
   --notification-main-color: #ff0000;
   box-shadow: 0px 0px 10px 0px #000, 0px 0px 6px 0px var(--notification-main-color) inset;
 }
+.notification-item[notification-type="default"]{
+  --notification-main-color: #aaa9aa;
+}
+.notification-item[notification-type="support"]{
+  --notification-main-color: #fc0;
+}
+.notification-item[notification-type="welcome"]{
+  --notification-main-color: #06ff00;
+}
 
 .notification-item-color-animation{
   --circleWidth: 80px;

@@ -28,6 +28,7 @@ window.onload = () => {
       loadingWrapper.remove()
       setTimeout(() => {
         freshLoading()
+        makeNotification("notification:welcomeOnWeb", "type:welcome");
       }, 50);
     }, 500);
   }, 50);
@@ -61,11 +62,15 @@ function freshLoading(){
 
 function makeNotification(callReason, typeReason) {
   const notificationDescriptions = {
+    "notification:welcomeOnWeb:type:welcome": "Страница успешно загружена, хорошего дня !",
     "notification:insertHESHkey:type:true": "Ключ был успешно применён",
     "notification:insertHESHkey:type:error": "Ошибка чтения, ключ содержит ошибку",
-
     "notification:getHESHkey:type:bell": "Ключ был успешно скопирован",
-    "notification:getHESHkey:type:error": "Ошибка при копировании ключа"
+    "notification:getHESHkey:type:error": "Ошибка копирования ключа, проверьте доступ страницы к буфферу обмена",
+    "notification:currentGeneratorType:type:default": "Изменение типа генерации РАПП",
+    "notification:currentGeneratorType:type:error": "Ошибка при изменении типа генерации РАПП",
+    "notification:callDeveloper:type:support": "Ваше сообщение было отправлено разработчику",
+    "notification:callDeveloper:type:error": "Ошибка при отправке сообщения"
   };
 
   let notificationIcon = "";
@@ -84,6 +89,15 @@ function makeNotification(callReason, typeReason) {
   } else if (typeReason === "type:error") {
     notificationIcon = `<i class="fa-regular fa-shield-xmark fa-beat-fade"></i>`;
     createNotification.setAttribute("notification-type","error")
+  } else if (typeReason === "type:default") {
+    notificationIcon = `<i class="fa-solid fa-file-circle-info"></i>`;
+    createNotification.setAttribute("notification-type","default")
+  } else if (typeReason === "type:support") {
+    notificationIcon = `<i class="fa-solid fa-headset fa-shake"></i>`;
+    createNotification.setAttribute("notification-type","support")
+  } else if (typeReason === "type:welcome") {
+    notificationIcon = `<i class="fa-solid fa-hand-wave fa-shake"></i>`;
+    createNotification.setAttribute("notification-type","welcome")
   } else {
     return "mega-error";
   }
@@ -105,6 +119,9 @@ function makeNotification(callReason, typeReason) {
 
   createNotification.style.transform = "translateY(50%)"
   createNotification.style.opacity = "0"
+  if (notificationWrapper.children.length >= 6) {
+    notificationWrapper.removeChild(notificationWrapper.firstElementChild);
+  }
   notificationWrapper.appendChild(createNotification);
 
   
@@ -131,11 +148,6 @@ function makeNotification(callReason, typeReason) {
     }, 200);
   }, 3000);
 }
-
-makeNotification("notification:insertHESHkey", "type:true");
-makeNotification("notification:getHESHkey", "type:bell"); 
-makeNotification("notification:insertHESHkey", "type:error");
-makeNotification("notification:getHESHkey", "type:error"); 
 
 //~ Notification END
 
@@ -190,13 +202,25 @@ document.getElementById('textareaGetKey-btn').addEventListener('click', function
   const compressedHash = compressAndEncode('iRock' + fullText);
   const finalHash = `iRDG-${symbol}-${compressedHash}`;
 
-  navigator.clipboard.writeText(finalHash).then(() => {
-      console.log('Хеш-код скопирован в буфер обмена:', finalHash);
-      makeNotification("notification:getHESHkey", "type:bell")
-  }).catch(err => {
-      console.error('Ошибка копирования:', err);
-      makeNotification("notification:getHESHkey", "type:error")
-  });
+  // try{
+  //   console.log('Хеш-код скопирован в буфер обмена:', finalHash);
+  //   makeNotification("notification:getHESHkey", "type:bell")
+  // }catch (err){
+  //   console.error('Ошибка копирования:', err);
+  //   makeNotification("notification:getHESHkey", "type:error")
+  // }
+  // navigator.clipboard.writeText(finalHash)
+
+  const copyHashToClipboard = async (finalHash) => {
+    try {
+        await navigator.clipboard.writeText(finalHash);
+        makeNotification("notification:getHESHkey", "type:bell");
+    } catch (error) {
+        makeNotification("notification:getHESHkey", "type:error");
+    }
+  };
+
+  copyHashToClipboard(finalHash);
 });
 
 // Вставка текста из буфера с выбором радиокнопки и заполнением даты/получателя
@@ -231,6 +255,8 @@ document.getElementById('textareaInsertKey-btn').addEventListener('click', async
               }
           }
           makeNotification("notification:insertHESHkey", "type:true")
+      }else{
+      makeNotification("notification:insertHESHkey", "type:error")
       }
   } catch (err) {
       console.error('Ошибка вставки из буфера обмена:', err);
@@ -717,40 +743,45 @@ textAreaOverLay__textarea.addEventListener("paste", (event) => {
 
 currentGeneratorType_selection.forEach(input => {
   input.addEventListener("change", (event) => {
-    direction__input.value = "Не выбран"
-    let title = "";
-    getDataAndMakeOrderRow(event);
-    if (input.id === "rapp-1") {
-      title = "Магистрали";
-      currentRappGeneratorType = 1;
-    } else if (input.id === "rapp-2") {
-      title = "Курьеры / СРК";
-      currentRappGeneratorType = 2;
-    } else if (input.id === "rapp-3") {
-      title = "Мерчи";
-      currentRappGeneratorType = 3;
-    } else if (input.id === "rapp-4") {
-      title = "Аномалии";
-      currentRappGeneratorType = 4;
-    } else if (input.id === "rapp-5") {
-      title = "Засылы / Дубли / Lost / Невыкуп";
-      currentRappGeneratorType = 5;
-    } else {
-      title = "Что-то новенькое 😐";
-    }
-    currentGeneratorType_title.innerText = title;
+    try{
+      direction__input.value = "Не выбран"
+      let title = "";
+      getDataAndMakeOrderRow(event);
+      if (input.id === "rapp-1") {
+        title = "Магистрали";
+        currentRappGeneratorType = 1;
+      } else if (input.id === "rapp-2") {
+        title = "Курьеры / СРК";
+        currentRappGeneratorType = 2;
+      } else if (input.id === "rapp-3") {
+        title = "Мерчи";
+        currentRappGeneratorType = 3;
+      } else if (input.id === "rapp-4") {
+        title = "Аномалии";
+        currentRappGeneratorType = 4;
+      } else if (input.id === "rapp-5") {
+        title = "Засылы / Дубли / Lost / Невыкуп";
+        currentRappGeneratorType = 5;
+      } else {
+        title = "Что-то новенькое 😐";
+      }
+      currentGeneratorType_title.innerText = title;
 
-    // Получаем textarea
-    const textarea = document.querySelector('.allOrders');
-    
-    // Создаем событие input для textarea и отправляем его
-    textarea.dispatchEvent(new Event("input", { bubbles: true }));
-    
-    // Вызов функции предпросмотра после изменения
-    throttledGeneratePreview();
-    setTimeout(() => {
-      hideMenu()
-    }, 300);
+      // Получаем textarea
+      const textarea = document.querySelector('.allOrders');
+      
+      // Создаем событие input для textarea и отправляем его
+      textarea.dispatchEvent(new Event("input", { bubbles: true }));
+      
+      // Вызов функции предпросмотра после изменения
+      throttledGeneratePreview();
+      setTimeout(() => {
+        hideMenu()
+        makeNotification("notification:currentGeneratorType", "type:default")
+      }, 300);
+    }catch{
+      makeNotification("notification:currentGeneratorType", "type:error")
+    }
   });
 });
 
