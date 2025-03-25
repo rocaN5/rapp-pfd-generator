@@ -1759,6 +1759,9 @@ function updateCalendarNavButtons(currentMonth) {
 
 dateDisplay.addEventListener('click', () => {
     calendarModalWindow.classList.toggle('active');
+    setTimeout(() => {
+      calendar.classList.remove("calendarOnLoad")
+    }, 50);
     renderCalendar(selectedDate);
     const pdfForm = document.getElementById("pdf-form")
     const preview = document.querySelector(".preview")
@@ -1774,6 +1777,7 @@ dateDisplay.addEventListener('click', () => {
       calendarModalWindow.addEventListener('click', (event) => {
           if (!calendar.contains(event.target)) {
               calendarModalWindow.classList.remove("active")
+              calendar.classList.add("calendarOnLoad")
           }
           if(pdfForm && preview){
             pdfForm.removeAttribute("inert")
@@ -2741,7 +2745,6 @@ reGenerateDocument.addEventListener('click', ()=>{
 
 //~ Пересоздать файл END
 
-
 let timeout;
 function throttledGeneratePreview() {
   const pdfPrint = document.querySelector(".pdfPrint");
@@ -3237,11 +3240,16 @@ function generatePDF() {
   
   const pdfPrintLink = document.querySelector(".pdfPrint");
   if (pdfPrintLink) {
+    setTimeout(() => {
       pdfPrintLink.href = blobUrl;
       pdfPrintLink.target = "_blank";
       
-    // const printDocument = document.querySelector("button.printDocument")
-    // printDocument.removeAttribute("disabled")
+      setTimeout(() => {
+        const pdfPrint = document.querySelector(".pdfPrint")
+        pdfPrint.innerHTML = `<i class="fa-solid fa-print fa-beat-fade"></i>`
+        pdfPrint.removeAttribute("disabled")
+      }, 50);
+    }, 2000);
   } else {
       console.error("Элемент <a id='pdfPrint'> не найден!");
   }
@@ -3390,11 +3398,7 @@ async function renderPDF(pdfData) {
       statusFinishIcon.remove()
     }
 
-    setTimeout(() => {
-      const pdfPrint = document.querySelector(".pdfPrint")
-      pdfPrint.innerHTML = `<i class="fa-solid fa-print fa-beat-fade"></i>`
-      pdfPrint.removeAttribute("disabled")
-    }, 50);
+
 
     const textAreaDashboard = document.querySelector(".textAreaDashboard");
     if (textAreaDashboard) {

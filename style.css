@@ -434,6 +434,7 @@ select option:hover {
   background: #363636;
   border-radius: 10px;
   flex-flow: column;
+  box-shadow: 0px 0px 6px 0px #000;
 
   transition: 500ms ease-in-out;
 
@@ -1073,6 +1074,7 @@ button.textAreaControls-button.onLoadItemAnimation:nth-child(8){
   border-radius: 10px;
   transition: scale 500ms ease-in-out, opacity 500ms ease-in-out, transforom 500ms ease-in-out;
   transition-delay: 100ms;
+  box-shadow: 0px 0px 6px 0px #000;
   
   scale: 1;
   animation: loadingAnimation 500ms ease-in-out;
@@ -1585,9 +1587,18 @@ header h1{
   padding: 10px;
   border-radius: 10px;
   box-shadow: 0px 0px 10px #000, 0px 0px 10px #000;
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition: 300ms linear(0 0%, 0 1.8%, 0.01 3.6%, 0.03 6.35%, 0.07 9.1%, 0.13 11.4%, 0.19 13.4%, 0.27 15%, 0.34 16.1%, 0.54 18.35%, 0.66 20.6%, 0.72 22.4%, 0.77 24.6%, 0.81 27.3%, 0.85 30.4%, 0.88 35.1%, 0.92 40.6%, 0.94 47.2%, 0.96 55%, 0.98 64%, 0.99 74.4%, 1 86.4%, 1 100%);
   z-index: 99999999999;
 }
+
+.calendar.calendarOnLoad{
+  transition: 500ms;
+  transition-timing-function: linear(0 0%, 0 1.8%, 0.01 3.6%, 0.03 6.35%, 0.07 9.1%, 0.13 11.4%, 0.19 13.4%, 0.27 15%, 0.34 16.1%, 0.54 18.35%, 0.66 20.6%, 0.72 22.4%, 0.77 24.6%, 0.81 27.3%, 0.85 30.4%, 0.88 35.1%, 0.92 40.6%, 0.94 47.2%, 0.96 55%, 0.98 64%, 0.99 74.4%, 1 86.4%, 1 100%);
+  scale: .5;
+  filter: grayscale(1);
+  opacity: .2;
+}
+
 .calendar-controls{
   display: flex;
   gap: 2px;
@@ -1800,6 +1811,7 @@ header h1{
   scale: 1;
   animation: loadingAnimation 500ms ease-in-out;
   transition: scale 500ms ease-in-out, opacity 500ms ease-in-out, transform 500ms ease-in-out;
+  width: 100%;
 }
 
 @keyframes loadingAnimation{
@@ -1817,6 +1829,8 @@ header h1{
   display: flex;
   flex-flow: column;
   --border-radius: 20px;
+  border-radius: 20px;
+  box-shadow: 0px 0px 6px 0px #000;
 }
 
 .documentDataBlock > .documentDataContainer:nth-child(1){
@@ -1872,6 +1886,7 @@ header h1{
   border-radius: 10px;
   box-shadow: 0px 0px 0px 1px #000;
   position: relative;
+  justify-content: center;
 
   transition: 750ms ease-in-out;
 }
@@ -2009,7 +2024,9 @@ button.printDocument:disabled{
 }
 
 .fromScSelection,
-.fromScSelection > *{
+.fromScSelection > *,
+.documentNumber,
+.documentNumber > *{
   cursor: not-allowed !important;
   position: relative;
 }
