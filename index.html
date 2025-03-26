@@ -175,6 +175,130 @@
     </div>
   </div>
   <div class="modalWindow"></div>
+
+  <div class="labelGenerator-modal">
+    <div class="labelGenerator-window labelOnLoad">
+        <div class="labelGenerator-content">
+            <div class="labelGenerator-preview">
+                <h1>Предварительный просмотр:</h1>
+                <div class="labelGenerator-previewBox"></div>
+            </div>
+            <div class="labelGenerator-settings">
+                <div class="labelGenerator-settingsWrapper">
+                    <h1>Настройки:</h1>
+                    <div class="labelGenerator-settingsBox">
+                        <div class="labelGenerator-field">
+                            <label for="moveFrom">Отправитель:</label>
+                            <div class="labelGenerator-inputWrapper">
+                                <i class="fa-solid fa-lock"></i>
+                                <input type="text" id="moveFrom" placeholder="Отправитель" value="СЦ Воронеж" readonly>
+                            </div>
+                        </div>
+                        <div class="labelGenerator-field">
+                            <label for="moveKross">Кросс-док через:</label>
+                            <input type="text" id="moveKross" placeholder="Кросс-док через" value="СЦ Ростов">
+                        </div>
+                        <div class="labelGenerator-field">
+                            <label for="moveTo">Получатель:</label>
+                            <input type="text" id="moveTo" placeholder="Получатель" value="Ростов КГТ">
+                        </div>
+                    </div>
+                </div>
+                <div class="labelGenerator-divider"></div>
+                <div class="labelGenerator-settingsWrapper">
+                  <h1>Печать:</h1>
+                  <div class="labelGenerator-printBox">
+                      <div class="labelGenerator-field">
+                          <label for="labelID">Номер акта:</label>
+                          <div class="labelGenerator-inputWrapper">
+                              <i class="fa-solid fa-lock"></i>
+                              <input type="text" id="labelID" placeholder="Отправитель" value="iRDG-m..." readonly>
+                          </div>
+                      </div>
+                      <div class="labelGenerator-field">
+                          <label for="labelButtons">Управление:</label>
+                          <div class="labelGenerator-buttons">
+                              <button type="submit" class="labelGenerator-reGenerate">
+                                  <i class="fa-solid fa-rotate fa-spin-pulse"></i>
+                              </button>
+                              <a class="labelGenerator-print" href="#">
+                                  <i class="fa-solid fa-print fa-beat-fade"></i>
+                              </a>
+                          </div>
+                      </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <div id="calendarModalWindow">
+    <div class="calendar calendarOnLoad" id="calendar">
+      <div class="calendar-controls">
+        <button id="prevMonth" class="changeMonth">
+          <i class="fa-solid fa-left"></i>
+        </button>
+        <button id="nextMonth" class="changeMonth">
+          <i class="fa-solid fa-right"></i>
+        </button>
+        <button id="todayBtn">Сегодня</button>
+        <button id="tomorrowBtn">Завтра</button>
+        <button id="noDayBtn">Без дня</button>
+      </div>
+      <div class="calendar-nav-container">
+        <div class="calendar-nav">
+          <div class="calendar-nav-buttonContainer">
+            <button class="calendar-nav-sellction">01</button>
+          </div>
+          <div class="calendar-nav-buttonContainer">
+            <button class="calendar-nav-sellction">02</button>
+          </div>
+          <div class="calendar-nav-buttonContainer">
+            <button class="calendar-nav-sellction">03</button>
+          </div>
+          <div class="calendar-nav-buttonContainer">
+            <button class="calendar-nav-sellction">04</button>
+          </div>
+          <div class="calendar-nav-buttonContainer">
+            <button class="calendar-nav-sellction">05</button>
+          </div>
+          <div class="calendar-nav-buttonContainer">
+            <button class="calendar-nav-sellction">06</button>
+          </div>
+          <div class="calendar-nav-buttonContainer">
+            <button class="calendar-nav-sellction">07</button>
+          </div>
+          <div class="calendar-nav-buttonContainer">
+            <button class="calendar-nav-sellction">08</button>
+          </div>
+          <div class="calendar-nav-buttonContainer">
+            <button class="calendar-nav-sellction">09</button>
+          </div>
+          <div class="calendar-nav-buttonContainer">
+            <button class="calendar-nav-sellction">10</button>
+          </div>
+          <div class="calendar-nav-buttonContainer">
+            <button class="calendar-nav-sellction">11</button>
+          </div>
+          <div class="calendar-nav-buttonContainer">
+            <button class="calendar-nav-sellction">12</button>
+          </div>
+        </div>
+      </div>
+      <div class="calendar-wrapper">
+        <div class="calendar-month">
+          <span id="currentMonth1" class="currentMonthTitle"></span>
+          <div class="calendar-days" id="calendarDays1"></div>
+        </div>
+        <div class="calendar-month">
+          <span id="currentMonth2" class="currentMonthTitle"></span>
+          <div class="calendar-days" id="calendarDays2"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="container">
     <canvas id="containerCanvas"></canvas>
     <form id="pdf-form">
@@ -200,9 +324,9 @@
               </button>
             </div>
             <div class="documentDataItem onLoad">
-              <a class="pdfPrint-labels printLabels pegasusTooltip">
+              <button class="pdfPrint-labels printLabels pegasusTooltip">
                 <i class="fa-solid fa-note-sticky fa-bounce"></i>
-              </a>
+              </button>
             </div>
             <div class="documentDataItem onLoad">
               <a class="pdfPrint printDocument pegasusTooltip">
@@ -353,71 +477,7 @@
       <div id="orders-container">
       </div>
     </form>
-    <div id="calendarModalWindow">
-      <div class="calendar calendarOnLoad" id="calendar">
-        <div class="calendar-controls">
-          <button id="prevMonth" class="changeMonth">
-            <i class="fa-solid fa-left"></i>
-          </button>
-          <button id="nextMonth" class="changeMonth">
-            <i class="fa-solid fa-right"></i>
-          </button>
-          <button id="todayBtn">Сегодня</button>
-          <button id="tomorrowBtn">Завтра</button>
-          <button id="noDayBtn">Без дня</button>
-        </div>
-        <div class="calendar-nav-container">
-          <div class="calendar-nav">
-            <div class="calendar-nav-buttonContainer">
-              <button class="calendar-nav-sellction">01</button>
-            </div>
-            <div class="calendar-nav-buttonContainer">
-              <button class="calendar-nav-sellction">02</button>
-            </div>
-            <div class="calendar-nav-buttonContainer">
-              <button class="calendar-nav-sellction">03</button>
-            </div>
-            <div class="calendar-nav-buttonContainer">
-              <button class="calendar-nav-sellction">04</button>
-            </div>
-            <div class="calendar-nav-buttonContainer">
-              <button class="calendar-nav-sellction">05</button>
-            </div>
-            <div class="calendar-nav-buttonContainer">
-              <button class="calendar-nav-sellction">06</button>
-            </div>
-            <div class="calendar-nav-buttonContainer">
-              <button class="calendar-nav-sellction">07</button>
-            </div>
-            <div class="calendar-nav-buttonContainer">
-              <button class="calendar-nav-sellction">08</button>
-            </div>
-            <div class="calendar-nav-buttonContainer">
-              <button class="calendar-nav-sellction">09</button>
-            </div>
-            <div class="calendar-nav-buttonContainer">
-              <button class="calendar-nav-sellction">10</button>
-            </div>
-            <div class="calendar-nav-buttonContainer">
-              <button class="calendar-nav-sellction">11</button>
-            </div>
-            <div class="calendar-nav-buttonContainer">
-              <button class="calendar-nav-sellction">12</button>
-            </div>
-          </div>
-        </div>
-        <div class="calendar-wrapper">
-          <div class="calendar-month">
-            <span id="currentMonth1" class="currentMonthTitle"></span>
-            <div class="calendar-days" id="calendarDays1"></div>
-          </div>
-          <div class="calendar-month">
-            <span id="currentMonth2" class="currentMonthTitle"></span>
-            <div class="calendar-days" id="calendarDays2"></div>
-          </div>
-        </div>
-      </div>
-    </div>
+
     <div class="preview">
       <h1 class="generatorTite onLoadText" id="topAnchor">Предварительный просмотр</h1>
       <div id="canvasContainer" class="onLoad">

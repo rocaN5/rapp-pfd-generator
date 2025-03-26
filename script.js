@@ -944,6 +944,9 @@ function showMenu(){
     header.classList.remove("onLoading")
   }
   calendarModalWindow.classList.remove("active")
+  calendar.classList.add("calendarOnLoad")
+  labelGeneratorModal.classList.remove("active")
+  labelGeneratorWindow.classList.add("labelOnLoad")
   modalWindow.style.display = "flex"
   menuToggle.style.backgroundColor = "#ff0000"
   header.style.transform = `translateY(0)`;
@@ -1622,6 +1625,93 @@ containerCanvas_animate();
 
 //~ CANVAS Container END
 
+//~ Генератор этикеток
+
+const printLabels = document.querySelector(".printLabels")
+const labelGeneratorModal = document.querySelector(".labelGenerator-modal")
+const labelGeneratorWindow = document.querySelector(".labelGenerator-window")
+
+printLabels.addEventListener('click', () => {
+  takeDataToLabels()
+  labelGeneratorModal.classList.toggle('active');
+  setTimeout(() => {
+    labelGeneratorWindow.classList.remove("labelOnLoad")
+  }, 50);
+  const containerForModal = document.querySelector(".container")
+  containerForModal.setAttribute("inert", true)
+  function setupLabelModal() {
+    if (!labelGeneratorModal || !labelGeneratorWindow) return;
+    
+    labelGeneratorModal.addEventListener('click', (event) => {
+        if (!labelGeneratorWindow.contains(event.target)) {
+            labelGeneratorModal.classList.remove("active")
+            labelGeneratorWindow.classList.add("labelOnLoad")
+            containerForModal.removeAttribute("inert")
+        }
+    });
+  }
+  setupLabelModal()
+});
+
+//~ Генератор этикеток END
+
+//~ Данные для генератора этикеток
+
+const directionCross_north = "СЦ Грибки"
+const directionCross_south = "СЦ Ростов"
+const directionCross_unknow = "Нет инфо"
+
+const direction_to_label_names = {
+  "СЦ Домодедово ЕВСЦ": "north",
+  "СЦ Яндекс Маркет Софьино ФФЦ": "north",
+  "СЦ Яндекс Маркет Софьино Суперсклад": "north",
+  "СЦ Яндекс Маркет Софьино КГТ": "north",
+  "СЦ Тарный (Тарный Дропофф)": "north",
+  "СЦ Липецк": "default",
+  "СЦ Курск": "default",
+  "СЦ Белгород": "default",
+  "СЦ Ростов": "default",
+  "СЦ Краснодар": "south",
+  "Ростов КГТ": "south",
+  "СЦ Строгино": "north",
+  "СЦ Дзержинский": "north",
+  "СЦ Троицкий": "north",
+  "СЦ Казань": "north",
+  "СЦ Запад": "north",
+  "СЦ Самара": "north",
+  "СЦ Грибки": "default",
+  "СЦ Ставрополь": "south",
+  "СЦ Дмитровское": "unknown",
+  "СЦ СПБ Бугры": "north",
+  "СЦ Ленинские горки": "unknown",
+  "СЦ Муром": "unknown",
+  "СЦ Челябинск": "unknown",
+  "СЦ Чебоксары": "unknown",
+  "СЦ Ижевск": "unknown",
+  "СЦ Тюмень": "unknown",
+  "СЦ Екатеринбург": "north",
+  "СЦ Набережные Челны": "unknown",
+  "СЦ Оренбург": "unknown",
+  "СЦ Новосибирск": "unknown",
+  "СЦ Барнаул": "unknown",
+  "СЦ Вологда": "unknown",
+  "СЦ Смоленск" : "unknown"
+};
+
+function takeDataToLabels(){
+  const sender = document.getElementById("sender");
+  const moveFrom = document.getElementById("moveFrom");
+
+  if (sender && moveFrom) {
+    moveFrom.value = sender.value;
+    console.log(`Значение скопировано: ${moveFrom.value}`);
+  } else {
+    console.error("Один из элементов не найден");
+  }
+}
+
+//~ Данные для генератора этикеток END
+
 //~ Календарь
 
 const dateDisplay = document.getElementById('dateDisplay');
@@ -1763,12 +1853,11 @@ dateDisplay.addEventListener('click', () => {
       calendar.classList.remove("calendarOnLoad")
     }, 50);
     renderCalendar(selectedDate);
-    const pdfForm = document.getElementById("pdf-form")
-    const preview = document.querySelector(".preview")
-    if(pdfForm && preview){
-      pdfForm.setAttribute("inert", true)
-      preview.setAttribute("inert", true)
-    }
+    const pdfFormModal = document.getElementById("pdf-form")
+    const previewModal = document.querySelector(".preview")
+
+    const containerForModal = document.querySelector(".container")
+    containerForModal.setAttribute("inert", true)
     function setupCalendarModal() {
       const calendarModalWindow = document.getElementById('calendarModalWindow');
       
@@ -1778,10 +1867,7 @@ dateDisplay.addEventListener('click', () => {
           if (!calendar.contains(event.target)) {
               calendarModalWindow.classList.remove("active")
               calendar.classList.add("calendarOnLoad")
-          }
-          if(pdfForm && preview){
-            pdfForm.removeAttribute("inert")
-            preview.removeAttribute("inert")
+              containerForModal.removeAttribute("inert")
           }
       });
     }
@@ -1848,6 +1934,7 @@ monthButtons.forEach(button => {
 
 
 //~ Календарь END
+
 
 //~ Анимация превью при загрузке страницы
 const previewWelcomeMessageIcon = document.querySelector(".previewWelcomeMessage-icon");
@@ -2048,7 +2135,6 @@ document.getElementById("pdf-form").addEventListener("submit", function (event) 
   throttledGeneratePreview();
 });
 
-
 //~ Анимация генерации документа в DASHBOARD
 function formatingAnimation() {
   // const printDocument = document.querySelector("button.printDocument")
@@ -2217,13 +2303,12 @@ document.addEventListener("click", (event) => {
 
 
 
-  const ordersContainer = document.getElementById("orders-container");
-  const lines = event.target.value
-      .split('\n')
-      .map(line => line.trim().replace(/\s+/g, ' ').replace(/[()"'`]/g, ''))
-      .filter(line => line.length > 0);
-
-  ordersContainer.innerHTML = '';
+const ordersContainer = document.getElementById("orders-container");
+const lines = event.target.value
+.split('\n')
+.map(line => line.trim().replace(/\s+/g, ' ').replace(/[()"'`]/g, ''))
+.filter(line => line.length > 0);
+ordersContainer.innerHTML = '';
 
   lines.forEach((line, index) => {
       line = line.replace(/[()"'`]/g, '');
@@ -2839,9 +2924,6 @@ function generatePDF() {
   // Получение данных формы
   const sender = document.getElementById("sender").value;
   const recipient = document.getElementById("recipient").value;
-  // const actNumber = document.getElementById("actNumber");
-  // let actNumber_data = null;
-  // actNumber.value =
   const date = document.getElementById("dateDisplay").innerText;
 
   const actNumber = document.getElementById("actNumber");
@@ -2850,8 +2932,10 @@ function generatePDF() {
     Math.random() < 0.5 
       ? String.fromCharCode(48 + Math.floor(Math.random() * 10))
       : String.fromCharCode(65 + Math.floor(Math.random() * 26) + (Math.random() < 0.5 ? 32 : 0))).join("");
-  let actNumber_data = `iRDG-${typeMap[currentRappGeneratorType] || "e"}:${randomString}`;
+  let actNumber_data = `iRDG-${typeMap[currentRappGeneratorType] || "err"}:${randomString}`;
   actNumber.value = actNumber_data;
+  const labelID = document.getElementById("labelID")
+  labelID.value = actNumber_data;
 
   // Адреса получателей
   const recipientAddresses = {
@@ -3260,7 +3344,6 @@ reader.onload = function () {
     renderPDF(new Uint8Array(reader.result)); // Теперь вызывается только один раз
 };
 reader.readAsArrayBuffer(pdfBlob);
-
 }
 
 //! START
@@ -3433,6 +3516,7 @@ async function renderPDF(pdfData) {
 function generatePreview() {
   generatePDF()
 }
+
 
 // Обработчики изменений для автогенерации PDF
 document.querySelectorAll("input, select").forEach(input => {
