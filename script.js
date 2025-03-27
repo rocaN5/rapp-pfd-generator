@@ -1657,9 +1657,9 @@ printLabels.addEventListener('click', () => {
 
 //~ Данные для генератора этикеток
 
-const directionCross_north = "СЦ Грибки"
-const directionCross_south = "СЦ Ростов"
-const directionCross_unknow = "Нет инфо"
+const directionCross_north = "СЦ Грибки";
+const directionCross_south = "СЦ Ростов";
+const directionCross_unknow = "Нет инфо";
 
 const direction_to_label_names = {
   "СЦ Домодедово ЕВСЦ": "north",
@@ -1695,16 +1695,58 @@ const direction_to_label_names = {
   "СЦ Новосибирск": "unknown",
   "СЦ Барнаул": "unknown",
   "СЦ Вологда": "unknown",
-  "СЦ Смоленск" : "unknown"
+  "СЦ Смоленск": "unknown",
+  "СЦ Софьино ФФЦ": "north",
+  "СЦ Софьино Суперсклад": "north",
+  "СЦ Софьино КГТ": "north",
+  "СЦ Тарный": "north"
 };
 
-function takeDataToLabels(){
+const recipient_replacements = {
+  "СЦ Яндекс Маркет Софьино ФФЦ": "СЦ Софьино ФФЦ",
+  "СЦ Яндекс Маркет Софьино Суперсклад": "СЦ Софьино Суперсклад",
+  "СЦ Яндекс Маркет Софьино КГТ": "СЦ Софьино КГТ",
+  "СЦ Тарный (Тарный Дропофф)": "СЦ Тарный"
+};
+
+function takeDataToLabels() {
   const sender = document.getElementById("sender");
+  const recipient = document.getElementById("recipient");
   const moveFrom = document.getElementById("moveFrom");
+  const moveKross = document.getElementById("moveKross");
+  const moveTo = document.getElementById("moveTo");
 
   if (sender && moveFrom) {
     moveFrom.value = sender.value;
-    console.log(`Значение скопировано: ${moveFrom.value}`);
+  } else {
+    console.error("Один из элементов не найден");
+  }
+
+  if (recipient && moveTo && moveKross) {
+    let recipientValue = recipient.value;
+    
+    if (recipient_replacements.hasOwnProperty(recipientValue)) {
+      recipientValue = recipient_replacements[recipientValue];
+    }
+    
+    if (direction_to_label_names.hasOwnProperty(recipientValue)) {
+      moveTo.value = recipientValue;
+      const direction = direction_to_label_names[recipientValue];
+      switch (direction) {
+        case "north":
+          moveKross.value = directionCross_north;
+          break;
+        case "south":
+          moveKross.value = directionCross_south;
+          break;
+        case "unknown":
+          moveKross.value = directionCross_unknow;
+          break;
+        case "default":
+          console.log("кросс-дока нет");
+          break;
+      }
+    }
   } else {
     console.error("Один из элементов не найден");
   }
@@ -2540,7 +2582,7 @@ ordersContainer.innerHTML = '';
           :
           'Что-то сломлось'
         }"
-        required autocomplete="off">
+         autocomplete="off">
 
         <label
         for="orderNumber${index + 1}"
@@ -2664,7 +2706,7 @@ ordersContainer.innerHTML = '';
           id="anomalyDescription${index + 1}"
           value="${anomalyDescription}"
           placeholder="Описание Аномалии"
-          required autocomplete="off">
+           autocomplete="off">
           <label
           for="anomalyDescription${index + 1}"
           class="orderData-label">
@@ -2706,7 +2748,7 @@ ordersContainer.innerHTML = '';
             id="orderNumber${index + 1}"
             value="Ильяшенко - клоун 🤡"
             placeholder="Ильяшенко - клоун 🤡"
-            required
+            
             readonly
             autocomplete="off">
       

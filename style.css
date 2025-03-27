@@ -306,7 +306,7 @@ form#pdf-form::before {
 
 input:focus-visible,
 select:focus-visible{
-  outline: 1px solid #b3ff00;
+  outline: 2px solid #b3ff00;
 }
 
 input[type=number]::-webkit-inner-spin-button {
@@ -2878,9 +2878,9 @@ span.hints-description-span-10{
     height: 100%;
     display: flex;
     align-items: flex-start;
-    justify-content: space-between;
+    justify-content: flex-start;
     flex-flow: column;
-    gap: 10px;
+    gap: 20px;
     position: relative;
     border-left: 1px solid #3b3b3b;
     padding-left: 10px;
