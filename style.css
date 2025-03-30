@@ -2864,13 +2864,38 @@ span.hints-description-span-10{
   font-weight: 500;
 }
 
-.labelGenerator-previewBox {
-  width: calc(100% - 40px);
+.labelGenerator-previewBoxWrapper{
+  width: 100%;
+  display: flex;
   height: 100%;
+  justify-content: center;
+  align-items: flex-start;
+  overflow: hidden;
+  border-radius: 10px;
   background: #515151;
-  border-radius: 6px;
   box-shadow: 0px 0px 10px 0px #000, 0px 0px 10px 0px #100 inset;
+  position: relative;
+}
+
+.labelGenerator-previewBox {
+  width: calc(100% - 60px);
+  height: calc(100% - 40px);
+  border-radius: 6px;
   padding: 20px;
+  display: flex;
+  flex-flow: column;
+  justify-content: flex-start;
+  align-items: center;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  gap: 20px;
+  position: relative;
+}
+
+.labelGenerator-previewBox canvas{
+  border-radius: 4px;
+  border: 1px solid #000;
+  box-shadow: 0px 0px 10px 0px #000;
 }
 
 .labelGenerator-settings {
@@ -2923,6 +2948,10 @@ span.hints-description-span-10{
 
 .labelGenerator-field input > *{
 
+}
+
+.labelGenerator-field > * {
+  cursor: text !important;
 }
 
 .labelGenerator-field input[readonly]{
@@ -2980,18 +3009,33 @@ span.hints-description-span-10{
 
 .labelGenerator-buttons {
   display: flex;
-  gap: 10px;
+  gap: 20px;
   align-items: center;
-  padding: 10px;
+  justify-content: center;
 }
 
 .labelGenerator-buttons button,
 .labelGenerator-buttons a {
-  width: 30px;
-  height: 30px;
-  font-size: 0.8rem;
+  width: 40px;
+  height: 40px;
+  font-size: 1rem;
+  color: #000;
+  border-radius: 10px;
+  border: 2px solid #000;
+  box-shadow: 0px 0px 10px 0px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
   padding: 0;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.labelGenerator-reGenerate{
+  background: linear-gradient(45deg, #cf0, #4bff00);
+}
+
+.labelGenerator-print{
+  background: linear-gradient(45deg, #00dcff, #00ffbd);
 }

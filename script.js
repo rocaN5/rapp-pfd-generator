@@ -1,6 +1,7 @@
 //A- Global variables
 
 let currentRappGeneratorType = 1;
+let defaultLabel = false
 
 const onLoad = document.querySelectorAll('.onLoad')
 const onLoadItem = document.querySelectorAll('.onLoadItem')
@@ -30,7 +31,7 @@ window.onload = () => {
         freshLoading()
         makeNotification("notification:welcomeOnWeb", "type:welcome");
       }, 50);
-    }, 500);
+    }, 50);
   }, 50);
 };
 
@@ -1651,6 +1652,7 @@ printLabels.addEventListener('click', () => {
     });
   }
   setupLabelModal()
+  generateLabelPDF()
 });
 
 //~ Генератор этикеток END
@@ -1735,15 +1737,18 @@ function takeDataToLabels() {
       switch (direction) {
         case "north":
           moveKross.value = directionCross_north;
+          defaultLabel = false
           break;
         case "south":
           moveKross.value = directionCross_south;
+          defaultLabel = false
           break;
         case "unknown":
           moveKross.value = directionCross_unknow;
+          defaultLabel = false
           break;
         case "default":
-          console.log("кросс-дока нет");
+          defaultLabel = true
           break;
       }
     }
@@ -1753,6 +1758,108 @@ function takeDataToLabels() {
 }
 
 //~ Данные для генератора этикеток END
+
+//~ Превью label
+
+document.querySelector('.labelGenerator-reGenerate').addEventListener('click', generateLabelPDF);
+
+function generateLabelPDF() {
+    const { jsPDF } = window.jspdf;
+    const docLabeles = new jsPDF({ unit: 'cm', format: [10, 10] });
+    docLabeles.addFont('Roboto-Regular.ttf', 'Roboto', 'normal');
+    docLabeles.setFont('Roboto');
+
+    let labelName = currentRappGeneratorType === 1 ? "Заказы" : currentRappGeneratorType === 4 ? "Аномалии" : currentRappGeneratorType === 5 ? "Заказы" : "error"
+    let getDate = document.getElementById("dateDisplay").innerText
+    if(getDate.startsWith("___.")){
+      labelDate = "-unwrited-"
+    } else{
+      labelDate = getDate
+    }
+
+    const moveFrom = document.querySelector('#moveFrom').value;
+    const moveKross = document.querySelector('#moveKross').value;
+    const moveTo = document.querySelector('#moveTo').value;
+    const labelID = document.querySelector('#labelID').value;
+    
+    const previewBox = document.querySelector('.labelGenerator-previewBox');
+    previewBox.innerHTML = '';
+    
+    for (let i = 0; i < 4; i++) {
+        if (i > 0) docLabeles.addPage();
+        
+        if(defaultLabel === false){
+          docLabeles.setFontSize(30);
+          docLabeles.text(`${labelName} по РАПП`, 5, 1, { align: 'center', fontStyle: "bold"  });
+  
+          docLabeles.setLineWidth(0.05);
+          docLabeles.rect(0, 1.7, 10, .005);
+          
+          docLabeles.setFontSize(10);
+          docLabeles.text(`Номер РАПП: ${labelID} /// ${labelDate}`, 5, 1.45, { align: 'center', maxWidth: 9 });
+          
+          docLabeles.setFontSize(32);
+
+          docLabeles.text(moveFrom, 5, 3.0, { align: 'center', maxWidth: 9 });
+          
+          docLabeles.addImage('img/labelArrow.png', 'PNG', 4.5, 3.5, 1, 1.25);
+          
+          docLabeles.text(moveKross, 5, 5.75, { align: 'center', maxWidth: 9 });
+          
+          docLabeles.addImage('img/labelArrow.png', 'PNG', 4.5, 6.2, 1, 1.25);
+          
+          docLabeles.text(moveTo, 5, 8.25, { align: 'center', maxWidth: 9 });
+
+        }else if(defaultLabel === true){
+          docLabeles.setFontSize(30);
+          docLabeles.text(`${labelName} по РАПП`, 5, 1, { align: 'center', fontStyle: "bold"  });
+          
+          docLabeles.setLineWidth(0.1);
+          docLabeles.rect(0, 1.5, 10, .005);
+
+          docLabeles.setFontSize(36);
+          docLabeles.text(moveFrom, 5, 3.0, { align: 'center', maxWidth: 9 });
+          docLabeles.addImage('img/labelArrow.png', 'PNG', 4.5, 3.25, 1, 1.25);
+          docLabeles.text(moveTo, 5, 7.5, { align: 'center', maxWidth: 9 });
+        }
+    }
+    
+    // Генерация Blob и рендер в canvas
+    const pdfBlob = docLabeles.output('blob');
+    const blobUrl = URL.createObjectURL(pdfBlob);
+    
+    const printLink = document.querySelector('a.labelGenerator-print');
+    printLink.href = blobUrl;
+    printLink.target = '_blank';
+    
+    for (let i = 0; i < 4; i++) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 300; // 10см
+        canvas.height = 300; // 10см
+        previewBox.appendChild(canvas);
+        
+        const ctx = canvas.getContext('2d');
+        
+        pdfjsLib.getDocument(blobUrl).promise.then(pdf => {
+            return pdf.getPage(i + 1);
+        }).then(page => {
+            const viewport = page.getViewport({ scale: 1.5 });
+            const scale = Math.min(canvas.width / viewport.width, canvas.height / viewport.height);
+            const scaledViewport = page.getViewport({ scale });
+            
+            canvas.width = scaledViewport.width;
+            canvas.height = scaledViewport.height;
+            
+            const renderContext = {
+                canvasContext: ctx,
+                viewport: scaledViewport
+            };
+            return page.render(renderContext).promise;
+        });
+    }
+}
+
+//~ Превью label END
 
 //~ Календарь
 
@@ -1929,6 +2036,7 @@ todayBtn.addEventListener('click', () => {
     selectedMonth = selectedDate.getMonth(); // Обновляем выбранный месяц
     selectedDay = selectedDate.getDate(); // Обновляем выбранный день
     renderCalendar(selectedDate); // Перерисовываем календарь с сегодняшним днем
+    container.removeAttribute("inert")
     throttledGeneratePreview()
 });
 
@@ -1940,6 +2048,7 @@ tomorrowBtn.addEventListener('click', () => {
     selectedMonth = selectedDate.getMonth(); // Обновляем выбранный месяц
     selectedDay = selectedDate.getDate(); // Обновляем выбранный день
     renderCalendar(selectedDate); // Перерисовываем календарь с завтрашним днем
+    container.removeAttribute("inert")
     throttledGeneratePreview()
 });
 
@@ -1950,6 +2059,7 @@ noDayBtn.addEventListener('click', () => {
     dateDisplay.textContent = `___.${month}.${year}`;
     calendarModalWindow.classList.remove('active');
     renderCalendar(selectedDate); // Перерисовываем календарь
+    container.removeAttribute("inert")
     throttledGeneratePreview()
 });
 

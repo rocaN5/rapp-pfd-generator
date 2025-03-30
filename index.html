@@ -3,7 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Генерация PDF</title>
+
+  <meta name="description" content="iRDG • Удобный генератор РАПП">
+  <meta property="og:title" content="iRDG • Генератор РАПП 💚 Создавайте РАПП в пару кликов и сохраняйте историю автоматически !">
+  <meta property="og:description" content="iRDG • Генератор РАПП 💚 Создавайте РАПП в пару кликов и сохраняйте историю автоматически !">
+  <meta property="og:image" content="img/title.png">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="img/title.png">
+  <meta name="twitter:card" content="img/title.png" />
+  <meta name="twitter:image" content="img/title.png" />
+
+  <title>iRDG • Генератор РАПП</title>
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@900&display=swap" rel="stylesheet">
@@ -12,6 +22,7 @@
   <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.28/dist/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.9.179/pdf.min.js"></script>
   <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.5.2/css/all.css">
+  <link rel="shortcut icon" class="favIcon" href="img/iRDG.png" type="image/x-icon">
 </head>
 <body>
   <header class="onloading">
@@ -181,7 +192,9 @@
         <div class="labelGenerator-content">
             <div class="labelGenerator-preview">
                 <h1>Предварительный просмотр:</h1>
-                <div class="labelGenerator-previewBox"></div>
+                <div class="labelGenerator-previewBoxWrapper">
+                  <div class="labelGenerator-previewBox"></div>
+                </div>
             </div>
             <div class="labelGenerator-settings">
                 <div class="labelGenerator-settingsWrapper">
@@ -196,11 +209,11 @@
                         </div>
                         <div class="labelGenerator-field">
                             <label for="moveKross">Кросс-док через:</label>
-                            <input type="text" id="moveKross" placeholder="Кросс-док через" value="СЦ Ростов">
+                            <input type="text" id="moveKross" placeholder="Кросс-док через" value="Кросс-док СЦ">
                         </div>
                         <div class="labelGenerator-field">
                             <label for="moveTo">Получатель:</label>
-                            <input type="text" id="moveTo" placeholder="Получатель" value="Ростов КГТ">
+                            <input type="text" id="moveTo" placeholder="Получатель" value="СЦ Получатель">
                         </div>
                     </div>
                 </div>
@@ -212,20 +225,19 @@
                           <label for="labelID">Номер акта:</label>
                           <div class="labelGenerator-inputWrapper">
                               <i class="fa-solid fa-lock"></i>
-                              <input type="text" id="labelID" placeholder="Отправитель" value="iRDG-m..." readonly>
+                              <input type="text" id="labelID" placeholder="Отправитель" value="" readonly>
                           </div>
                       </div>
-                      <div class="labelGenerator-field">
-                          <label for="labelButtons">Управление:</label>
-                          <div class="labelGenerator-buttons">
-                              <button type="submit" class="labelGenerator-reGenerate">
-                                  <i class="fa-solid fa-rotate fa-spin-pulse"></i>
-                              </button>
-                              <a class="labelGenerator-print" href="#">
-                                  <i class="fa-solid fa-print fa-beat-fade"></i>
-                              </a>
-                          </div>
-                      </div>
+                  </div>
+                  <div class="labelGenerator-printBox">
+                    <div class="labelGenerator-buttons">
+                        <button type="submit" class="labelGenerator-reGenerate">
+                            <i class="fa-solid fa-rotate fa-spin-pulse"></i>
+                        </button>
+                        <a class="labelGenerator-print" href="#">
+                            <i class="fa-solid fa-print fa-beat-fade"></i>
+                        </a>
+                    </div>
                   </div>
                 </div>
             </div>
