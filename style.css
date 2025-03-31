@@ -1024,7 +1024,7 @@ div#orders-container:not(:has(.order-row)) {
   transition: 200ms;
 }
 
-.textAreaControls > button:hover{
+.textAreaControls button:hover{
   transition: 200ms box-shadow, 200ms border-color;
   box-shadow: 0px 0px 10px 0px inset #000;
   border-color: #3d3d3d;
@@ -1062,6 +1062,121 @@ button.textAreaControls-button.onLoadItemAnimation:nth-child(7){
 }
 button.textAreaControls-button.onLoadItemAnimation:nth-child(8){
   transition-delay: 900ms;
+}
+
+.textAreaControls-generatorType-6{
+  position: relative;
+  display: flex;
+}
+
+.textareaChangeOrderType-menu{
+  position: absolute;
+  left: 0;
+  border-radius: 10px;
+  width: 0px;
+  overflow: hidden;
+  transition: 200ms;
+  box-shadow: 0px 0px 0px 0px #000;
+  display: none;
+  opacity: 1;
+}
+
+.textareaChangeOrderType-menu[isCalled="true"]{
+  width: 160px;
+  box-shadow: 0px 0px 20px 2px #000;
+  transition: 200ms;
+  opacity: 1;
+}
+
+.textareaChangeOrderType-menu[isSelected="true"]{
+  --isSelected-color: #cf0;
+  outline: 2px solid var(--isSelected-color);
+  box-shadow: 0px 0px 20px 2px var(--isSelected-color);
+}
+
+.textareaChangeOrderType-menu[isSelected="false"]{
+  --isSelected-color: #ff0000;
+  outline: 2px solid var(--isSelected-color);
+  box-shadow: 0px 0px 20px 2px var(--isSelected-color);
+}
+
+/* button#textAreaChangeOrderType:hover {
+  transition: 200ms box-shadow, 200ms border-color;
+  box-shadow: 0px 0px 10px 0px inset #000;
+  border-color: #3d3d3d;
+} */
+
+.textareaChangeOrderType-menu *{
+  user-select: none !important;
+}
+.textareaChangeOrderType-menu button{
+  width: 40px;
+  height: 40px;
+  padding: 10px;
+  font-size: 1rem;
+  background: #272727;
+  border: 2px solid #484848;
+  margin: unset;
+  transition: 500ms;
+}
+
+.textareaChangeOrderType-menu button#changeOrderType-prev{
+  border-radius: 10px 0px 0px 10px;
+  transition: 100ms;
+
+  &:active > i {
+    transform: translateX(-3px) scale(.85);
+    transition: 100ms;
+  }
+}
+.textareaChangeOrderType-menu button#changeOrderType-next{
+  border-radius: 0px 10px 10px 0px;
+  transition: 100ms;
+
+  &:active > i {
+    transform: translateX(3px) scale(.85);
+    transition: 100ms;
+  }
+}
+
+.textareaChangeOrderType-menu input#changeOrderType-input{
+  border: 2px solid #484848;
+  border-left: 0;
+  background: #272727;
+  outline: none;
+  padding: 10px;
+  text-align: center;
+  max-width: 60px;
+  border-right: 0px;
+  font-weight: 600;
+  line-height: 1rem;
+  user-select: none !important;
+  cursor: pointer;
+  text-shadow: 0px 0px 6px #000, 0px 0px 6px #000;
+}
+
+.textareaChangeOrderType-menu input#changeOrderType-input:hover{
+  transition: 200ms box-shadow, 200ms border-color;
+  box-shadow: 0px 0px 10px 0px inset #000;
+  border-color: #3d3d3d;
+}
+
+#textareaChangeOrderType > i{
+  pointer-events: none;
+}
+
+#textareaChangeOrderType[inert="true"]{
+  scale: 0;
+  transition: 300ms;
+}
+
+#textareaChangeOrderType i {
+  transition: 500ms;
+  transition-delay: 300ms;
+}
+#textareaChangeOrderType[inert="true"] i {
+  transform: rotate(-360deg);
+  transition: 500ms;
 }
 
 .textAreaDashboard{
@@ -2167,6 +2282,15 @@ button.printDocument:disabled{
   --tooltipText: "Получить данные поля ввода";
 }
 
+#textareaChangeOrderType{
+  position: relative;
+  --tooltipPosition-x: 50%;
+  --tooltipPosition-y: -20px;
+  --tooltipArrowPosition-type-y: 1;
+  --tooltipArrowRotation: 0deg;
+  --tooltipText: "Изменить тип для всех заказов";
+}
+
 #actNumber{
   cursor: not-allowed;
   position: relative;
@@ -2703,6 +2827,9 @@ span.hints-description-span-10{
 .notification-item[notification-type="welcome"]{
   --notification-main-color: #06ff00;
 }
+.notification-item[notification-type="select"]{
+  --notification-main-color: #cf0;
+}
 
 .notification-item-color-animation{
   --circleWidth: 80px;
@@ -2946,8 +3073,8 @@ span.hints-description-span-10{
   border: 0;
 }
 
-.labelGenerator-field input > *{
-
+.labelGenerator-field[isCross="false"]{
+  display: none;
 }
 
 .labelGenerator-field > * {

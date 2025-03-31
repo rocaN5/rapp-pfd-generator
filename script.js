@@ -71,7 +71,8 @@ function makeNotification(callReason, typeReason) {
     "notification:currentGeneratorType:type:default": "Изменение типа генерации РАПП",
     "notification:currentGeneratorType:type:error": "Ошибка при изменении типа генерации РАПП",
     "notification:callDeveloper:type:support": "Ваше сообщение было отправлено разработчику",
-    "notification:callDeveloper:type:error": "Ошибка при отправке сообщения"
+    "notification:callDeveloper:type:error": "Ошибка при отправке сообщения",
+    "notification:changeOrderType:type:select": "Тип заказов успешно изменён",
   };
 
   let notificationIcon = "";
@@ -99,6 +100,9 @@ function makeNotification(callReason, typeReason) {
   } else if (typeReason === "type:welcome") {
     notificationIcon = `<i class="fa-solid fa-hand-wave fa-shake"></i>`;
     createNotification.setAttribute("notification-type","welcome")
+  } else if (typeReason === "type:select") {
+    notificationIcon = `<i class="fa-solid fa-arrows-spin"></i>`;
+    createNotification.setAttribute("notification-type","select")
   } else {
     return "mega-error";
   }
@@ -186,7 +190,7 @@ function selectMatchingRadioButton(symbol) {
   });
 }
 
-// Генерация и копирование хеша
+//~ Генерация и копирование хеша
 document.getElementById('textareaGetKey-btn').addEventListener('click', function () {
   const textarea = document.querySelector('textarea.allOrders');
   const text = textarea.value.trim();
@@ -260,7 +264,6 @@ document.getElementById('textareaInsertKey-btn').addEventListener('click', async
       makeNotification("notification:insertHESHkey", "type:error")
       }
   } catch (err) {
-      console.error('Ошибка вставки из буфера обмена:', err);
       makeNotification("notification:insertHESHkey", "type:error")
   }
 });
@@ -309,6 +312,74 @@ currentGeneratorType_selection.forEach(input => {
 });
 
 //~ HESH KEY END
+
+//~ call "Change orderTpe"
+
+const textareaChangeOrderType = document.getElementById("textareaChangeOrderType")
+const changeOrderType_input = document.getElementById("changeOrderType-input");
+const textareaChangeOrderType_menu = document.querySelector(".textareaChangeOrderType-menu")
+
+textareaChangeOrderType.addEventListener('click', callMeChangeOrderType)
+document.addEventListener("click", (event) => {
+  if (!textareaChangeOrderType_menu.contains(event.target) && event.target !== textareaChangeOrderType) {
+    changeOrderType_clickOFF()
+  }
+});
+changeOrderType_input.addEventListener("click", ()=>{
+  makeNotification("notification:changeOrderType", "type:select")
+  changeOrderType_selected()
+})
+
+function callMeChangeOrderType(){
+  textareaChangeOrderType_menu.style.display = "flex"
+  textareaChangeOrderType.setAttribute("inert", true)
+  setTimeout(() => {
+    textareaChangeOrderType_menu.setAttribute("isCalled", true)
+  }, 100);
+}
+
+function changeOrderType_selected(){
+  textareaChangeOrderType_menu.setAttribute("isSelected", true)
+  hideFromMeChangeOrderType()
+}
+
+function changeOrderType_clickOFF(){
+  textareaChangeOrderType_menu.setAttribute("isSelected", false)
+  hideFromMeChangeOrderType()
+}
+
+function hideFromMeChangeOrderType(){
+  setTimeout(() => {
+    textareaChangeOrderType_menu.removeAttribute("isCalled")
+    textareaChangeOrderType_menu.removeAttribute("isSelected")
+    textareaChangeOrderType.removeAttribute("inert")
+    setTimeout(() => {
+          textareaChangeOrderType_menu.style.display = "none"
+    }, 200);
+  }, 200);
+}
+
+//~ call "Change orderTpe" END
+
+//~ Change orderTpe
+
+const orderTypes = ["Засыл", "Дубль", "LOST", "Невыкуп"];
+const changeOrderType_prevButton = document.getElementById("changeOrderType-prev");
+const changeOrderType_nextButton = document.getElementById("changeOrderType-next");
+
+let currentIndex = orderTypes.indexOf(changeOrderType_input.value);
+
+changeOrderType_prevButton.addEventListener("click", () => {
+    currentIndex = (currentIndex - 1 + orderTypes.length) % orderTypes.length;
+    changeOrderType_input.value = orderTypes[currentIndex];
+});
+
+changeOrderType_nextButton.addEventListener("click", () => {
+    currentIndex = (currentIndex + 1) % orderTypes.length;
+    changeOrderType_input.value = orderTypes[currentIndex];
+});
+
+//~ Change orderTpe END
 
 //~ Move me to top button
 
@@ -1764,6 +1835,14 @@ function takeDataToLabels() {
 document.querySelector('.labelGenerator-reGenerate').addEventListener('click', generateLabelPDF);
 
 function generateLabelPDF() {
+    const isCross = document.querySelector(".labelGenerator-field:has(input#moveKross)")
+
+    if(defaultLabel === false){
+      isCross.setAttribute("isCross", true)
+    }else if(defaultLabel === true){
+      isCross.setAttribute("isCross", false)
+    }
+
     const { jsPDF } = window.jspdf;
     const docLabeles = new jsPDF({ unit: 'cm', format: [10, 10] });
     docLabeles.addFont('Roboto-Regular.ttf', 'Roboto', 'normal');
@@ -1813,13 +1892,16 @@ function generateLabelPDF() {
         }else if(defaultLabel === true){
           docLabeles.setFontSize(30);
           docLabeles.text(`${labelName} по РАПП`, 5, 1, { align: 'center', fontStyle: "bold"  });
+  
+          docLabeles.setLineWidth(0.05);
+          docLabeles.rect(0, 1.7, 10, .005);
           
-          docLabeles.setLineWidth(0.1);
-          docLabeles.rect(0, 1.5, 10, .005);
+          docLabeles.setFontSize(10);
+          docLabeles.text(`Номер РАПП: ${labelID} /// ${labelDate}`, 5, 1.45, { align: 'center', maxWidth: 9 });
 
           docLabeles.setFontSize(36);
-          docLabeles.text(moveFrom, 5, 3.0, { align: 'center', maxWidth: 9 });
-          docLabeles.addImage('img/labelArrow.png', 'PNG', 4.5, 3.25, 1, 1.25);
+          docLabeles.text(moveFrom, 5, 4.5, { align: 'center', maxWidth: 9 });
+          docLabeles.addImage('img/labelArrow.png', 'PNG', 4.5, 5, 1.25, 1.5);
           docLabeles.text(moveTo, 5, 7.5, { align: 'center', maxWidth: 9 });
         }
     }
