@@ -20,6 +20,10 @@ html {
   color-scheme: dark !important;
 }
 
+*{
+  font-family: "Roboto";
+}
+
 *::selection{
   background: #b3ff00;
   color: #000;
@@ -277,6 +281,7 @@ form#pdf-form {
   transition: 800ms linear(0 0%, 0 2.27%, 0.02 4.53%, 0.04 6.8%, 0.06 9.07%, 0.1 11.33%, 0.14 13.6%, 0.25 18.15%, 0.39 22.7%, 0.56 27.25%, 0.77 31.8%, 1 36.35%, 0.89 40.9%, 0.85 43.18%, 0.81 45.45%, 0.79 47.72%, 0.77 50%, 0.75 52.27%, 0.75 54.55%, 0.75 56.82%, 0.77 59.1%, 0.79 61.38%, 0.81 63.65%, 0.85 65.93%, 0.89 68.2%, 1 72.7%, 0.97 74.98%, 0.95 77.25%, 0.94 79.53%, 0.94 81.8%, 0.94 84.08%, 0.95 86.35%, 0.97 88.63%, 1 90.9%, 0.99 93.18%, 0.98 95.45%, 0.99 97.73%, 1 100%) 200ms;
   text-shadow: 0px 0px 10px #000, 0px 0px 10px #000, 0px 0px 10px #000;
 }
+
 .onLoadText{
   opacity: 0;
   transition: 800ms;
@@ -1002,9 +1007,45 @@ div#orders-container:not(:has(.order-row)) {
   border-radius: 10px;
   margin-bottom: 10px;
   box-shadow: 0px 0px 0px 1px #000;
-
+  
   transition: scale 500ms ease-in-out, opacity 500ms ease-in-out, transform 500ms ease-in-out;
   transition-delay: 0ms;
+}
+
+.textAreaControls-section{
+  display: flex;
+  flex-flow: column;
+  gap: 10px;
+  border-radius: 10px;
+  background: #1a1a1a;
+  padding: 10px;
+  outline: 2px solid #000;
+  transition: 200ms;
+  &:hover{
+    outline: 2px solid #525252;
+    transition: 200ms;
+  }
+}
+
+.textAreaControls-sectionTitle{
+  margin: 0;
+  font-size: .8rem;
+  color: #fff;
+  font-weight: 500;
+  cursor: default;
+}
+
+.textAreaControls-sectionSupport{
+      position: absolute;
+    right: 10px;
+    color: #525252;
+    cursor: pointer;
+    font-size: .85rem;
+}
+
+.textAreaControls-sectionBlock{
+  display: flex;
+  gap: 10px;
 }
 
 .textAreaControls-button-devider{
@@ -1045,6 +1086,7 @@ button.textAreaControls-button{
   transition-delay: 300ms;
 }
 
+
 button.textAreaControls-button.onLoadItemAnimation:nth-child(2){
   transition-delay: 400ms;
 }
@@ -1079,6 +1121,7 @@ button.textAreaControls-button.onLoadItemAnimation:nth-child(8){
   box-shadow: 0px 0px 0px 0px #000;
   display: none;
   opacity: 1;
+  z-index: 1;
 }
 
 .textareaChangeOrderType-menu[isCalled="true"]{
@@ -1168,6 +1211,37 @@ button.textAreaControls-button.onLoadItemAnimation:nth-child(8){
 #textareaChangeOrderType[inert="true"]{
   scale: 0;
   transition: 300ms;
+}
+
+#textareaChangeOrderType i.availabilityIcon{
+  position: absolute;
+  top: 0;
+  right: 0;
+  border-radius: 50%;
+  background: #1a1a1a;
+  color: #cf0;
+  outline: 2px solid #1a1a1a;
+  box-shadow: 0px 0px 0px 4px #484848;
+  font-size: .8rem;
+  transform: translate(20%, -20%);
+  transition: 200ms;
+}
+
+#textareaChangeOrderType[disabled] {
+  filter: brightness(0.6);
+  transition: 200ms;
+  cursor: not-allowed;
+
+  --tooltipPosition-x: 50%;
+  --tooltipPosition-y: -20px;
+  --tooltipArrowPosition-type-y: 1;
+  --tooltipArrowRotation: 0deg;
+  --tooltipText: "Доступен только в РАПП на Засылы/Дубли..." !important;
+}
+
+#textareaChangeOrderType[disabled] i.availabilityIcon{
+  color: #ff0000;
+  transition: 200ms;
 }
 
 #textareaChangeOrderType i {
@@ -2104,6 +2178,7 @@ header h1{
   --tooltipText: "Распечатать документ";
 }
 
+.printLabels[disabled],
 .printDocument[disabled]{
   filter: grayscale(1) brightness(0.9);
   transition: 150ms;
@@ -2285,10 +2360,15 @@ button.printDocument:disabled{
 #textareaChangeOrderType{
   position: relative;
   --tooltipPosition-x: 50%;
-  --tooltipPosition-y: -20px;
-  --tooltipArrowPosition-type-y: 1;
+  --tooltipPosition-y: -34px;
+  --tooltipArrowPosition-type-y: 1.9;
   --tooltipArrowRotation: 0deg;
-  --tooltipText: "Изменить тип для всех заказов";
+  --tooltipText: "Изменить \"Тип грузоместа\" \a для всех заказов";
+}
+
+
+#textareaChangeOrderType::before{
+  white-space: pre;
 }
 
 #actNumber{

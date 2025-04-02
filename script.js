@@ -19,20 +19,20 @@ const currentGeneratorType_selection = document.querySelectorAll("input.currentG
 window.onload = () => {
   showMenu()
   setTimeout(() => {
+    hideMenu()
     const loadingWrapper = document.querySelector(".loadingWrapper")
     const loadingBlock = document.querySelector(".loadingBlock")
     const loadingBlockBlur = document.querySelector(".loadingBlock-blur")
     loadingBlock.style.filter = "blur(200px)"
     loadingBlockBlur.style.filter = "blur(200px)"
-    hideMenu()
     setTimeout(() => {
       loadingWrapper.remove()
       setTimeout(() => {
         freshLoading()
         makeNotification("notification:welcomeOnWeb", "type:welcome");
-      }, 50);
-    }, 50);
-  }, 50);
+      }, 300);
+    }, 150);
+  }, 5000);
 };
 
 function freshLoading(){
@@ -278,18 +278,23 @@ currentGeneratorType_selection.forEach(input => {
       if (input.id === "rapp-1") {
           title = "Магистрали";
           currentRappGeneratorType = 1;
+          extraOptionsUnavalible()
       } else if (input.id === "rapp-2") {
           title = "Курьеры / СРК";
           currentRappGeneratorType = 2;
+          extraOptionsUnavalible()
       } else if (input.id === "rapp-3") {
           title = "Мерчи";
           currentRappGeneratorType = 3;
+          extraOptionsUnavalible()
       } else if (input.id === "rapp-4") {
           title = "Аномалии";
           currentRappGeneratorType = 4;
+          extraOptionsUnavalible()
       } else if (input.id === "rapp-5") {
           title = "Засылы / Дубли / Lost / Невыкуп";
           currentRappGeneratorType = 5;
+          extraOptionsAvalible()
       } else {
           title = "Что-то новенькое 😐";
       }
@@ -308,6 +313,21 @@ currentGeneratorType_selection.forEach(input => {
       setTimeout(() => {
         direction__dropdownList.classList.remove("show");
       }, 10);
+
+      function extraOptionsAvalible(){
+        const textareaChangeOrderType = document.getElementById("textareaChangeOrderType")
+        const availabilityIcon = document.querySelector(".availabilityIcon")
+        textareaChangeOrderType.removeAttribute("disabled")
+        availabilityIcon.classList.remove("fa-circle-xmark")
+        availabilityIcon.classList.add("fa-circle-check")
+      }
+      function extraOptionsUnavalible(){
+        const textareaChangeOrderType = document.getElementById("textareaChangeOrderType")
+        const availabilityIcon = document.querySelector(".availabilityIcon")
+        textareaChangeOrderType.setAttribute("disabled", true)
+        availabilityIcon.classList.add("fa-circle-xmark")
+        availabilityIcon.classList.remove("fa-circle-check")
+      }
   });
 });
 
@@ -3067,12 +3087,18 @@ reGenerateDocument.addEventListener('click', ()=>{
 let timeout;
 function throttledGeneratePreview() {
   const pdfPrint = document.querySelector(".pdfPrint");
+  const printLabels = document.querySelector(".printLabels");
   const iconHtml = `<i class="fa-regular fa-spinner-scale fa-spin-pulse"></i>`;
   if (!pdfPrint.innerHTML.includes(iconHtml)) {
       pdfPrint.innerHTML = iconHtml;
   }
   pdfPrint.removeAttribute("href");
   pdfPrint.setAttribute("disabled", "disabled");
+
+  if (!printLabels.innerHTML.includes(iconHtml)) {
+      printLabels.innerHTML = iconHtml;
+  }
+  printLabels.setAttribute("disabled", "disabled");
 
   clearTimeout(timeout);
   formatingAnimation()
@@ -3566,12 +3592,14 @@ function generatePDF() {
         const pdfPrint = document.querySelector(".pdfPrint")
         pdfPrint.innerHTML = `<i class="fa-solid fa-print fa-beat-fade"></i>`
         pdfPrint.removeAttribute("disabled")
+
+        const printLabels = document.querySelector(".printLabels")
+        printLabels.innerHTML = `<i class="fa-solid fa-note-sticky fa-bounce"></i>`
+        printLabels.removeAttribute("disabled")
+        
       }, 50);
     }, 2000);
-  } else {
-      console.error("Элемент <a id='pdfPrint'> не найден!");
   }
-  
 // Читаем Blob и передаём в PDF.js
 const reader = new FileReader();
 reader.onload = function () {
