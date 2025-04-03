@@ -73,6 +73,7 @@ function makeNotification(callReason, typeReason) {
     "notification:callDeveloper:type:support": "Ваше сообщение было отправлено разработчику",
     "notification:callDeveloper:type:error": "Ошибка при отправке сообщения",
     "notification:changeOrderType:type:select": "Тип заказов успешно изменён",
+    "notification:colorSwitchEror:type:error": "Ошибка изменении подсветки "
   };
 
   let notificationIcon = "";
@@ -155,6 +156,41 @@ function makeNotification(callReason, typeReason) {
 }
 
 //~ Notification END
+
+//~ Вкл/Выкл Подсветка текст
+
+const backlightSwitch = document.getElementById("backlightSwitch-btn")
+const controlsButtonActive = document.querySelector(".controlsButton-active")
+const textAreaStyle = document.querySelector(".allOrders")
+let backlightSwitch_state = true
+backlightSwitch.addEventListener("click", ()=>{
+  if(backlightSwitch_state === true || backlightSwitch_state === false){
+    switchMy_backlightSwitch()
+  }else{
+    alert("ooops")
+    makeNotification("notification:colorSwitchEror", "type:error")
+  }
+})
+
+function switchMy_backlightSwitch(){
+  if(backlightSwitch_state === true){
+    backlightSwitch_state = false
+    controlsButtonActive.classList.remove("fa-circle-check")
+    controlsButtonActive.classList.add("fa-circle-xmark")
+    backlightSwitch.setAttribute("isActive", backlightSwitch_state)
+    textAreaStyle.setAttribute("isColored", false)
+    textAreaOverLay__updateCanvas()
+  }else if(backlightSwitch_state === false){
+    backlightSwitch_state = true
+    controlsButtonActive.classList.remove("fa-circle-xmark")
+    controlsButtonActive.classList.add("fa-circle-check")
+    backlightSwitch.setAttribute("isActive", backlightSwitch_state)
+    textAreaStyle.setAttribute("isColored", true)
+    textAreaOverLay__updateCanvas()
+  }
+}
+
+//~ Вкл/Выкл Подсветка текст END
 
 //~ HESH KEY
 // Сжатие строки с помощью pako (gzip) и кодирование в Base64-URL
@@ -752,63 +788,68 @@ textAreaOverLay__canvas.style.top = textAreaOverLay__textarea.offsetTop + 'px';
 textAreaOverLay__canvas.style.left = textAreaOverLay__textarea.offsetLeft + 'px';
 
 function textAreaOverLay__updateCanvas() {
-  textAreaOverLay__canvas.width = textAreaOverLay__textarea.clientWidth;
-  textAreaOverLay__canvas.height = textAreaOverLay__textarea.clientHeight;
-  textAreaOverLay__ctx.clearRect(0, 0, textAreaOverLay__canvas.width, textAreaOverLay__canvas.height);
+  if(backlightSwitch_state === true){
+
+    textAreaOverLay__canvas.width = textAreaOverLay__textarea.clientWidth;
+    textAreaOverLay__canvas.height = textAreaOverLay__textarea.clientHeight;
+    textAreaOverLay__ctx.clearRect(0, 0, textAreaOverLay__canvas.width, textAreaOverLay__canvas.height);
+    
+    let text = textAreaOverLay__textarea.value.replace(/[()"'`]/g, ''); // Убираем кавычки и скобки
+    const lines = text.split('\n');
+    const fontSize = parseInt(window.getComputedStyle(textAreaOverLay__textarea).fontSize);
+    const lineHeight = fontSize * 1.2;
+    const scrollTop = textAreaOverLay__textarea.scrollTop;
+    const scrollLeft = textAreaOverLay__textarea.scrollLeft; // Добавляем горизонтальный скролл
+    const startY = 14 - scrollTop;
+    textAreaOverLay__ctx.font = `${fontSize}px ${window.getComputedStyle(textAreaOverLay__textarea).fontFamily}`;
+    textAreaOverLay__ctx.textBaseline = 'top';
   
-  let text = textAreaOverLay__textarea.value.replace(/[()"'`]/g, ''); // Убираем кавычки и скобки
-  const lines = text.split('\n');
-  const fontSize = parseInt(window.getComputedStyle(textAreaOverLay__textarea).fontSize);
-  const lineHeight = fontSize * 1.2;
-  const scrollTop = textAreaOverLay__textarea.scrollTop;
-  const scrollLeft = textAreaOverLay__textarea.scrollLeft; // Добавляем горизонтальный скролл
-  const startY = 14 - scrollTop;
-  textAreaOverLay__ctx.font = `${fontSize}px ${window.getComputedStyle(textAreaOverLay__textarea).fontFamily}`;
-  textAreaOverLay__ctx.textBaseline = 'top';
-
-  let y = startY;
-  for (const line of lines) {
-      if (y + lineHeight > 0 && y < textAreaOverLay__canvas.height) { // Отображать только видимые строки
-          const words = line.split(' ');
-          let x = 10 - scrollLeft; // Учитываем горизонтальный скролл
-          let firstWordColor = '#00ff68';
-          let secondWordColor = '#ccff00';
-          let otherWordsColor = '#ffffff';
-
-          if (/^(F0254|0|72|YP)/.test(line)) {
-              firstWordColor = '#ccff00';
-              secondWordColor = '#fff';
-              otherWordsColor = '#fff';
-          } else if (/^(F1254)/.test(line)) {
-              firstWordColor = '#00dcff';
-              secondWordColor = '#fff';
-              otherWordsColor = '#fff';
-          } else if (/^(F2254)/.test(line)) {
-              firstWordColor = '#00ff22';
-              secondWordColor = '#fff';
-              otherWordsColor = '#fff';
-          } else if (/^(F3000000000)/.test(line)) {
-              firstWordColor = '#fc0';
-              secondWordColor = '#fff';
-              otherWordsColor = '#fff';
-          } else if (/^(FA254)/.test(line)) {
-              firstWordColor = '#ff005c';
-              secondWordColor = '#ff00ae';
-              otherWordsColor = '#fff';
-          }
-
-          words.forEach((word, index) => {
-              if (index === 0) textAreaOverLay__ctx.fillStyle = firstWordColor;
-              else if (index === 1) textAreaOverLay__ctx.fillStyle = secondWordColor;
-              else textAreaOverLay__ctx.fillStyle = otherWordsColor;
-
-              textAreaOverLay__ctx.shadowColor = textAreaOverLay__ctx.fillStyle;
-              textAreaOverLay__ctx.shadowBlur = 10;
-              textAreaOverLay__ctx.fillText(word, x, y);
-              x += textAreaOverLay__ctx.measureText(word + ' ').width;
-          });
-      }
-      y += lineHeight;
+    let y = startY;
+    for (const line of lines) {
+        if (y + lineHeight > 0 && y < textAreaOverLay__canvas.height) { // Отображать только видимые строки
+            const words = line.split(' ');
+            let x = 10 - scrollLeft; // Учитываем горизонтальный скролл
+            let firstWordColor = '#00ff68';
+            let secondWordColor = '#ccff00';
+            let otherWordsColor = '#ffffff';
+  
+            if (/^(F0254|0|72|YP)/.test(line)) {
+                firstWordColor = '#ccff00';
+                secondWordColor = '#fff';
+                otherWordsColor = '#fff';
+            } else if (/^(F1254)/.test(line)) {
+                firstWordColor = '#00dcff';
+                secondWordColor = '#fff';
+                otherWordsColor = '#fff';
+            } else if (/^(F2254)/.test(line)) {
+                firstWordColor = '#00ff22';
+                secondWordColor = '#fff';
+                otherWordsColor = '#fff';
+            } else if (/^(F3000000000)/.test(line)) {
+                firstWordColor = '#fc0';
+                secondWordColor = '#fff';
+                otherWordsColor = '#fff';
+            } else if (/^(FA254)/.test(line)) {
+                firstWordColor = '#ff005c';
+                secondWordColor = '#ff00ae';
+                otherWordsColor = '#fff';
+            }
+  
+            words.forEach((word, index) => {
+                if (index === 0) textAreaOverLay__ctx.fillStyle = firstWordColor;
+                else if (index === 1) textAreaOverLay__ctx.fillStyle = secondWordColor;
+                else textAreaOverLay__ctx.fillStyle = otherWordsColor;
+  
+                textAreaOverLay__ctx.shadowColor = textAreaOverLay__ctx.fillStyle;
+                textAreaOverLay__ctx.shadowBlur = 10;
+                textAreaOverLay__ctx.fillText(word, x, y);
+                x += textAreaOverLay__ctx.measureText(word + ' ').width;
+            });
+        }
+        y += lineHeight;
+    }
+  }else{
+    textAreaOverLay__ctx.clearRect(0, 0, textAreaOverLay__canvas.width, textAreaOverLay__canvas.height);
   }
 }
 textAreaOverLay__textarea.parentNode.insertBefore(textAreaOverLay__canvas, textAreaOverLay__textarea.nextSibling);

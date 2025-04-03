@@ -59,9 +59,14 @@ html {
   height: 6px !important;
 }
 
-textarea::selection {
+textarea[iscolored="true"]::selection {
   background: #00dcff4d;
   color: transparent;
+}
+
+textarea[iscolored="false"]::selection {
+  background: #00dcff4d;
+  color: #fff;
 }
 
 body {
@@ -518,6 +523,14 @@ textarea.allOrders {
   box-shadow: 0px 0px 0px 1px #000, 0px 0px 10px 0px #000 inset;
 }
 
+textarea.allOrders[isColored="true"]{
+  color: transparent;
+}
+
+textarea.allOrders[isColored="false"]{
+  color: #fff;
+}
+
 .orderRowNumber{
   position: absolute;
   left: 0;
@@ -846,6 +859,10 @@ button.no-cargo {
   }
 }
 
+.cargoGroup{
+  transition: 200ms;
+}
+
 .orderData-container{
   display: flex;
   flex-flow: column;
@@ -1059,6 +1076,34 @@ div#orders-container:not(:has(.order-row)) {
   transition-delay: 700ms;
 }
 
+#backlightSwitch-btn[isActive="true"]{
+  --statusColor: #cf0;
+  
+  transition: 200ms;
+  border: 2px solid var(--statusColor);
+}
+
+#backlightSwitch-btn[isActive="false"]{
+  --statusColor: #c5c5c5;
+  
+  transition: 200ms;
+  border: 2px solid var(--statusColor);
+}
+
+i.controlsButton-active{
+  font-size: .5rem;
+  background: var(--statusColor);
+  padding: 2px;
+  border-radius: 6px 0px 6px 0px;
+  color: #000;
+  position: absolute;
+  bottom: 0;
+  user-select: none;
+  right: 0;
+  pointer-events: none;
+  transition: 200ms;
+}
+
 .onLoadItemDevider{
   top: 50%;
   height: 0%;
@@ -1086,6 +1131,21 @@ button.textAreaControls-button{
   transition-delay: 300ms;
 }
 
+button.textAreaControls-button:focus-visible,
+button.textAreaControls-button:focus-visible i.availabilityIcon,
+.hints-container-controls button:focus-visible,
+.order-row *:focus-visible
+{
+  outline: unset;
+  box-shadow: 0px 0px 0px 2px #1a1a1a, 0px 0px 0px 4px #cf0 !important;
+  transition: 200ms !important;
+}
+
+.reGenerateDocument:focus-visible{
+  outline: unset;
+  box-shadow: 0px 0px 0px 2px #1a1a1a, 0px 0px 0px 4px #cf0 !important;
+  transition: 200ms !important;
+}
 
 button.textAreaControls-button.onLoadItemAnimation:nth-child(2){
   transition-delay: 400ms;
@@ -2154,6 +2214,7 @@ header h1{
   --tooltipText: "Сгенерировать документ";
 }
 
+
 .printDocument{
   color: #000;
   font-size: 1.2rem;
@@ -2355,6 +2416,15 @@ button.printDocument:disabled{
   --tooltipArrowPosition-type-y: 1;
   --tooltipArrowRotation: 0deg;
   --tooltipText: "Получить данные поля ввода";
+}
+
+#backlightSwitch-btn{
+  position: relative;
+  --tooltipPosition-x: 50%;
+  --tooltipPosition-y: -20px;
+  --tooltipArrowPosition-type-y: 1;
+  --tooltipArrowRotation: 0deg;
+  --tooltipText: "Вкл/выкл подсветку текста";
 }
 
 #textareaChangeOrderType{
