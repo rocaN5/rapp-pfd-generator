@@ -30,9 +30,9 @@ window.onload = () => {
       setTimeout(() => {
         freshLoading()
         makeNotification("notification:welcomeOnWeb", "type:welcome");
-      }, 300);
-    }, 150);
-  }, 5000);
+      }, 50);
+    }, 50);
+  }, 50);
 };
 
 function freshLoading(){
@@ -167,7 +167,6 @@ backlightSwitch.addEventListener("click", ()=>{
   if(backlightSwitch_state === true || backlightSwitch_state === false){
     switchMy_backlightSwitch()
   }else{
-    alert("ooops")
     makeNotification("notification:colorSwitchEror", "type:error")
   }
 })

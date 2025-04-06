@@ -1038,6 +1038,7 @@ div#orders-container:not(:has(.order-row)) {
   padding: 10px;
   outline: 2px solid #000;
   transition: 200ms;
+  box-shadow: 0px 0px 10px 0px #000;
   &:hover{
     outline: 2px solid #525252;
     transition: 200ms;
@@ -1053,7 +1054,7 @@ div#orders-container:not(:has(.order-row)) {
 }
 
 .textAreaControls-sectionSupport{
-      position: absolute;
+    position: absolute;
     right: 10px;
     color: #525252;
     cursor: pointer;
@@ -1074,20 +1075,36 @@ div#orders-container:not(:has(.order-row)) {
   border-radius: 10px;
   transition: 200ms;
   transition-delay: 700ms;
+  outline: 1px solid #1a1a1a;
+  box-shadow: 0px 0px 10px 0px #000;
 }
 
-#backlightSwitch-btn[isActive="true"]{
+#backlightSwitch-btn[isActive="true"],
+#textareaAddCommentSection-btn[isActive="true"],
+#textareaSmartFormating-btn[isActive="true"]{
   --statusColor: #cf0;
   
   transition: 200ms;
   border: 2px solid var(--statusColor);
+  
+  i:nth-child(1){
+    color: var(--statusColor);
+    transition: 200ms;
+  }
 }
 
-#backlightSwitch-btn[isActive="false"]{
+#backlightSwitch-btn[isActive="false"],
+#textareaAddCommentSection-btn[isActive="false"],
+#textareaSmartFormating-btn[isActive="false"]{
   --statusColor: #c5c5c5;
   
   transition: 200ms;
   border: 2px solid var(--statusColor);
+  
+  i.fa-palette{
+    color: var(--statusColor);
+    transition: 200ms;
+  }
 }
 
 i.controlsButton-active{
@@ -1112,7 +1129,7 @@ i.controlsButton-active{
 
 .textAreaControls button:hover{
   transition: 200ms box-shadow, 200ms border-color;
-  box-shadow: 0px 0px 10px 0px inset #000;
+  box-shadow: 0px 0px 10px 0px inset #000, 0px 0px 10px 0px #000;
   border-color: #3d3d3d;
 }
 
@@ -1125,6 +1142,7 @@ button.textAreaControls-button{
   border-radius: 10px;
   border: 2px solid #484848;
   margin: unset;
+  box-shadow: 0px 0px 10px 0px #000;
 
   transition: scale 500ms ease-in-out, opacity 500ms ease-in-out, transform 500ms ease-in-out;
   transition-timing-function: linear(0 0%, 0 2.27%, 0.02 4.53%, 0.04 6.8%, 0.06 9.07%, 0.1 11.33%, 0.14 13.6%, 0.25 18.15%, 0.39 22.7%, 0.56 27.25%, 0.77 31.8%, 1 36.35%, 0.89 40.9%, 0.85 43.18%, 0.81 45.45%, 0.79 47.72%, 0.77 50%, 0.75 52.27%, 0.75 54.55%, 0.75 56.82%, 0.77 59.1%, 0.79 61.38%, 0.81 63.65%, 0.85 65.93%, 0.89 68.2%, 1 72.7%, 0.97 74.98%, 0.95 77.25%, 0.94 79.53%, 0.94 81.8%, 0.94 84.08%, 0.95 86.35%, 0.97 88.63%, 1 90.9%, 0.99 93.18%, 0.98 95.45%, 0.99 97.73%, 1 100%);
@@ -1134,11 +1152,34 @@ button.textAreaControls-button{
 button.textAreaControls-button:focus-visible,
 button.textAreaControls-button:focus-visible i.availabilityIcon,
 .hints-container-controls button:focus-visible,
-.order-row *:focus-visible
-{
+.order-row *:focus-visible{
   outline: unset;
   box-shadow: 0px 0px 0px 2px #1a1a1a, 0px 0px 0px 4px #cf0 !important;
   transition: 200ms !important;
+}
+
+.textAreaControls-button:hover > i:nth-child(1),
+.textAreaControls-button:focus-visible > i:nth-child(1){
+  animation: mouse-over-shake 2s infinite ease-in-out;
+}
+
+.textAreaControls-button > i:nth-child(1){
+  filter: drop-shadow(0px 0px 6px #000) drop-shadow(0px 0px 6px #000);
+}
+
+@Keyframes mouse-over-shake {
+  0%, 100% {
+  -webkit-transform: rotate(0deg);
+  transform: rotate(0deg);
+  }
+  10%, 30%, 50%, 70%, 90% {
+  -webkit-transform: rotate(5deg);
+  transform: rotate(5deg);
+  }
+  20%, 40%, 60%, 80% {
+  -webkit-transform: rotate(-5deg);
+  transform: rotate(-5deg);
+  }
 }
 
 .reGenerateDocument:focus-visible{
@@ -1146,24 +1187,49 @@ button.textAreaControls-button:focus-visible i.availabilityIcon,
   box-shadow: 0px 0px 0px 2px #1a1a1a, 0px 0px 0px 4px #cf0 !important;
   transition: 200ms !important;
 }
+.printLabels:focus-visible{
+  outline: unset;
+  box-shadow: 0px 0px 0px 2px #1a1a1a, 0px 0px 0px 4px #00ff68 !important;
+  transition: 200ms !important;
+}
+.pdfPrint:focus-visible{
+  outline: unset;
+  box-shadow: 0px 0px 0px 2px #1a1a1a, 0px 0px 0px 4px #00ffbd !important;
+  transition: 200ms !important;
+}
 
-button.textAreaControls-button.onLoadItemAnimation:nth-child(2){
+.textAreaControls-section:nth-child(1) .onLoadItemAnimation:nth-child(2){
   transition-delay: 400ms;
 }
-button.textAreaControls-button.onLoadItemAnimation:nth-child(3){
+.textAreaControls-section:nth-child(1) .onLoadItemAnimation:nth-child(3){
   transition-delay: 500ms;
 }
-button.textAreaControls-button.onLoadItemAnimation:nth-child(4){
+.textAreaControls-section:nth-child(1) .onLoadItemAnimation:nth-child(4){
   transition-delay: 600ms;
 }
-button.textAreaControls-button.onLoadItemAnimation:nth-child(5){
+.textAreaControls-section:nth-child(1) .onLoadItemAnimation:nth-child(5){
   transition-delay: 700ms;
 }
-button.textAreaControls-button.onLoadItemAnimation:nth-child(7){
-  transition-delay: 800ms;
+.textAreaControls-section:nth-child(3) .onLoadItemAnimation:nth-child(1){
+  transition-delay: 800ms !important;
 }
-button.textAreaControls-button.onLoadItemAnimation:nth-child(8){
+.textAreaControls-section:nth-child(3) .onLoadItemAnimation:nth-child(2){
   transition-delay: 900ms;
+}
+.textAreaControls-section:nth-child(3) .onLoadItemAnimation:nth-child(3){
+  transition-delay: 1000ms !important;
+}
+.textAreaControls-section:nth-child(3) .onLoadItemAnimation:nth-child(4){
+  transition-delay: 1100ms;
+}
+.textAreaControls-section:nth-child(3) .onLoadItemAnimation:nth-child(5){
+  transition-delay: 1200ms;
+}
+.textAreaControls-section:nth-child(5) .onLoadItemAnimation:nth-child(1){
+  transition-delay: 1300ms;
+}
+.textAreaControls-section:nth-child(5) .onLoadItemAnimation:nth-child(2){
+  transition-delay: 1400ms;
 }
 
 .textAreaControls-generatorType-6{
@@ -2427,6 +2493,15 @@ button.printDocument:disabled{
   --tooltipText: "Вкл/выкл подсветку текста";
 }
 
+#textareaFixLayout-btn{
+  position: relative;
+  --tooltipPosition-x: 50%;
+  --tooltipPosition-y: -20px;
+  --tooltipArrowPosition-type-y: 1;
+  --tooltipArrowRotation: 0deg;
+  --tooltipText: "Быстро исправить форматирование";
+}
+
 #textareaChangeOrderType{
   position: relative;
   --tooltipPosition-x: 50%;
@@ -2434,6 +2509,24 @@ button.printDocument:disabled{
   --tooltipArrowPosition-type-y: 1.9;
   --tooltipArrowRotation: 0deg;
   --tooltipText: "Изменить \"Тип грузоместа\" \a для всех заказов";
+}
+
+#textareaAddCommentSection-btn{
+  position: relative;
+  --tooltipPosition-x: 50%;
+  --tooltipPosition-y: -20px;
+  --tooltipArrowPosition-type-y: 1;
+  --tooltipArrowRotation: 0deg;
+  --tooltipText: "Вкл/выкл столбец \"Комментарий\"";
+}
+
+#textareaSmartFormating-btn{
+  position: relative;
+  --tooltipPosition-x: 50%;
+  --tooltipPosition-y: -20px;
+  --tooltipArrowPosition-type-y: 1;
+  --tooltipArrowRotation: 0deg;
+  --tooltipText: "Вкл/выкл умное автформатирование";
 }
 
 
