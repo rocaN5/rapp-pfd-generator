@@ -73,7 +73,9 @@ function makeNotification(callReason, typeReason) {
     "notification:callDeveloper:type:support": "Ваше сообщение было отправлено разработчику",
     "notification:callDeveloper:type:error": "Ошибка при отправке сообщения",
     "notification:changeOrderType:type:select": "Тип заказов успешно изменён",
-    "notification:colorSwitchEror:type:error": "Ошибка изменении подсветки "
+    "notification:colorSwitchError:type:error": "Ошибка изменении подсветки ",
+    "notification:brainSwitchError:type:error": "Ошибка отключения умного форматирования",
+    "notification:extraCommentColumnEror:type:error": "Ошибка добавления дополнительного столбца \"Комментарий\""
   };
 
   let notificationIcon = "";
@@ -157,39 +159,77 @@ function makeNotification(callReason, typeReason) {
 
 //~ Notification END
 
-//~ Вкл/Выкл Подсветка текст
+//~ Вкл/Выкл Подсветка текст + brains
 
-const backlightSwitch = document.getElementById("backlightSwitch-btn")
-const controlsButtonActive = document.querySelector(".controlsButton-active")
-const textAreaStyle = document.querySelector(".allOrders")
-let backlightSwitch_state = true
-backlightSwitch.addEventListener("click", ()=>{
-  if(backlightSwitch_state === true || backlightSwitch_state === false){
-    switchMy_backlightSwitch()
-  }else{
-    makeNotification("notification:colorSwitchEror", "type:error")
-  }
-})
+//~ Вкл/Выкл Подсветка текст + brains
 
-function switchMy_backlightSwitch(){
-  if(backlightSwitch_state === true){
-    backlightSwitch_state = false
-    controlsButtonActive.classList.remove("fa-circle-check")
-    controlsButtonActive.classList.add("fa-circle-xmark")
-    backlightSwitch.setAttribute("isActive", backlightSwitch_state)
-    textAreaStyle.setAttribute("isColored", false)
-    textAreaOverLay__updateCanvas()
-  }else if(backlightSwitch_state === false){
-    backlightSwitch_state = true
-    controlsButtonActive.classList.remove("fa-circle-xmark")
-    controlsButtonActive.classList.add("fa-circle-check")
-    backlightSwitch.setAttribute("isActive", backlightSwitch_state)
-    textAreaStyle.setAttribute("isColored", true)
-    textAreaOverLay__updateCanvas()
-  }
+const toggleStates = {
+  backlight: true,
+  smartFormating: true,
+  extraCommentColumn: false
 }
 
-//~ Вкл/Выкл Подсветка текст END
+const toggleConfig = [
+  {
+    id: "backlightSwitch-btn",
+    key: "backlight",
+    error: "notification:colorSwitchError",
+    onToggle: (state) => {
+      document.querySelector(".allOrders").setAttribute("isColored", state)
+      textAreaOverLay__updateCanvas()
+    }
+  },
+  {
+    id: "textareaSmartFormating-btn",
+    key: "smartFormating",
+    error: "notification:brainSwitchError",
+    onToggle: () => {
+      textarea.dispatchEvent(new Event("input", { bubbles: true }));
+      if (typeof textAreaOverLay__updateCanvas === "function") {
+          textAreaOverLay__updateCanvas();
+      }
+    }
+  },
+  {
+    id: "textareaAddCommentSection-btn",
+    key: "extraCommentColumn",
+    error: "notification:extraCommentColumnEror",
+    onToggle: () => {
+      textarea.dispatchEvent(new Event("input", { bubbles: true }));
+      if (typeof textAreaOverLay__updateCanvas === "function") {
+          textAreaOverLay__updateCanvas();
+      }
+    }
+  }
+]
+
+toggleConfig.forEach(({ id, key, error, onToggle }) => {
+  const button = document.getElementById(id)
+  if (!button) return
+
+  const icon = button.querySelector(".controlsButton-active")
+
+  button.addEventListener("click", () => {
+    if (typeof toggleStates[key] !== "boolean") {
+      makeNotification(error, "type:error")
+      return
+    }
+
+    toggleStates[key] = !toggleStates[key]
+    const state = toggleStates[key]
+
+    button.setAttribute("isActive", state)
+    if (icon) {
+      icon.classList.toggle("fa-circle-check", state)
+      icon.classList.toggle("fa-circle-xmark", !state)
+    }
+
+    onToggle(state)
+  })
+})
+
+
+//~ Вкл/Выкл Подсветка текст + brains END
 
 //~ HESH KEY
 // Сжатие строки с помощью pako (gzip) и кодирование в Base64-URL
@@ -226,6 +266,7 @@ function selectMatchingRadioButton(symbol) {
 }
 
 //~ Генерация и копирование хеша
+
 document.getElementById('textareaGetKey-btn').addEventListener('click', function () {
   const textarea = document.querySelector('textarea.allOrders');
   const text = textarea.value.trim();
@@ -313,23 +354,28 @@ currentGeneratorType_selection.forEach(input => {
       if (input.id === "rapp-1") {
           title = "Магистрали";
           currentRappGeneratorType = 1;
-          extraOptionsUnavalible()
+          changeOrderType_disabled()
+          extraComments_enabled()
       } else if (input.id === "rapp-2") {
           title = "Курьеры / СРК";
           currentRappGeneratorType = 2;
-          extraOptionsUnavalible()
+          changeOrderType_disabled()
+          extraComments_enabled()
       } else if (input.id === "rapp-3") {
           title = "Мерчи";
           currentRappGeneratorType = 3;
-          extraOptionsUnavalible()
+          changeOrderType_disabled()
+          extraComments_enabled()
       } else if (input.id === "rapp-4") {
           title = "Аномалии";
           currentRappGeneratorType = 4;
-          extraOptionsUnavalible()
+          changeOrderType_disabled()
+          extraComments_disabled()
       } else if (input.id === "rapp-5") {
           title = "Засылы / Дубли / Lost / Невыкуп";
           currentRappGeneratorType = 5;
-          extraOptionsAvalible()
+          changeOrderType_enabled()
+          extraComments_disabled()
       } else {
           title = "Что-то новенькое 😐";
       }
@@ -349,19 +395,39 @@ currentGeneratorType_selection.forEach(input => {
         direction__dropdownList.classList.remove("show");
       }, 10);
 
-      function extraOptionsAvalible(){
+      //~ changeOrderType option
+      function changeOrderType_enabled(){
         const textareaChangeOrderType = document.getElementById("textareaChangeOrderType")
-        const availabilityIcon = document.querySelector(".availabilityIcon")
+        const availabilityIcon = document.querySelector("#textareaChangeOrderType > .availabilityIcon")
         textareaChangeOrderType.removeAttribute("disabled")
         availabilityIcon.classList.remove("fa-circle-xmark")
         availabilityIcon.classList.add("fa-circle-check")
       }
-      function extraOptionsUnavalible(){
+      function changeOrderType_disabled(){
         const textareaChangeOrderType = document.getElementById("textareaChangeOrderType")
-        const availabilityIcon = document.querySelector(".availabilityIcon")
+        const availabilityIcon = document.querySelector("#textareaChangeOrderType > .availabilityIcon")
         textareaChangeOrderType.setAttribute("disabled", true)
         availabilityIcon.classList.add("fa-circle-xmark")
         availabilityIcon.classList.remove("fa-circle-check")
+      }
+
+      //~ addExtraComment option
+      function extraComments_enabled(){
+        const textareaAddCommentSection_btn = document.getElementById("textareaAddCommentSection-btn")
+        const availabilityIcon = document.querySelector("#textareaAddCommentSection-btn > .availabilityIcon")
+        textareaAddCommentSection_btn.removeAttribute("disabled")
+        availabilityIcon.classList.remove("fa-circle-xmark")
+        availabilityIcon.classList.add("fa-circle-check")
+      }
+
+      function extraComments_disabled(){
+        const textareaAddCommentSection_btn = document.getElementById("textareaAddCommentSection-btn")
+        const availabilityIcon = document.querySelector("#textareaAddCommentSection-btn > .availabilityIcon")
+        availabilityIcon.classList.add("fa-circle-xmark")
+        availabilityIcon.classList.remove("fa-circle-check")
+        textareaAddCommentSection_btn.setAttribute("disabled", true)
+        textareaAddCommentSection_btn.setAttribute("isActive", false)
+        toggleStates.extraCommentColumn = false
       }
   });
 });
@@ -582,7 +648,7 @@ textarea.addEventListener("contextmenu", function (event) {
       if (typeof textAreaOverLay__updateCanvas === "function") {
           textAreaOverLay__updateCanvas();
       }
-  }
+    }
 
   const selectedText = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd);
     
@@ -787,7 +853,7 @@ textAreaOverLay__canvas.style.top = textAreaOverLay__textarea.offsetTop + 'px';
 textAreaOverLay__canvas.style.left = textAreaOverLay__textarea.offsetLeft + 'px';
 
 function textAreaOverLay__updateCanvas() {
-  if(backlightSwitch_state === true){
+  if(toggleStates.backlight === true){
 
     textAreaOverLay__canvas.width = textAreaOverLay__textarea.clientWidth;
     textAreaOverLay__canvas.height = textAreaOverLay__textarea.clientHeight;
@@ -812,26 +878,32 @@ function textAreaOverLay__updateCanvas() {
             let secondWordColor = '#ccff00';
             let otherWordsColor = '#ffffff';
   
-            if (/^(F0254|0|72|YP)/.test(line)) {
-                firstWordColor = '#ccff00';
-                secondWordColor = '#fff';
-                otherWordsColor = '#fff';
-            } else if (/^(F1254)/.test(line)) {
-                firstWordColor = '#00dcff';
-                secondWordColor = '#fff';
-                otherWordsColor = '#fff';
-            } else if (/^(F2254)/.test(line)) {
-                firstWordColor = '#00ff22';
-                secondWordColor = '#fff';
-                otherWordsColor = '#fff';
-            } else if (/^(F3000000000)/.test(line)) {
-                firstWordColor = '#fc0';
-                secondWordColor = '#fff';
-                otherWordsColor = '#fff';
-            } else if (/^(FA254)/.test(line)) {
-                firstWordColor = '#ff005c';
-                secondWordColor = '#ff00ae';
-                otherWordsColor = '#fff';
+            if(toggleStates.smartFormating === true){
+              if (/^(F0254|0|72|YP)/.test(line)) {
+                  firstWordColor = '#ccff00';
+                  secondWordColor = '#fff';
+                  otherWordsColor = '#fff';
+              } else if (/^(F1254)/.test(line)) {
+                  firstWordColor = '#00dcff';
+                  secondWordColor = '#fff';
+                  otherWordsColor = '#fff';
+              } else if (/^(F2254)/.test(line)) {
+                  firstWordColor = '#00ff22';
+                  secondWordColor = '#fff';
+                  otherWordsColor = '#fff';
+              } else if (/^(F3000000000)/.test(line)) {
+                  firstWordColor = '#fc0';
+                  secondWordColor = '#fff';
+                  otherWordsColor = '#fff';
+              } else if (/^(FA254)/.test(line)) {
+                  firstWordColor = '#ff005c';
+                  secondWordColor = '#ff00ae';
+                  otherWordsColor = '#fff';
+              }
+            }else{
+              firstWordColor = '#00ff68';
+              secondWordColor = '#00ff68';
+              otherWordsColor = '#00ff68';
             }
   
             words.forEach((word, index) => {
@@ -2616,6 +2688,8 @@ ordersContainer.innerHTML = '';
 
       if(currentRappGeneratorType === 1 || currentRappGeneratorType === 2 || currentRappGeneratorType === 3){
         //~ МАГИСТРАЛИ • МАГИСТАРЛИ • МАГИСТАРЛИ 
+        if(toggleStates.smartFormating === true){
+          
         if (parts.length > 0) {
           const firstPart = parts[0];
 
@@ -2643,10 +2717,11 @@ ordersContainer.innerHTML = '';
               cargoCode = firstPart;
               orderNumber = parts.slice(1).join(' ');
               oneRow = false;
-          }else if (firstPart.startsWith('VOZ') || firstPart.startsWith('PVZ') || firstPart.startsWith('FBS') || firstPart.startsWith('FBY')) {
-              orderNumber = firstPart;
-              cargoCode = firstPart;
-              oneRow = false;
+          }else if (
+            (firstPart.startsWith('VOZ') || firstPart.startsWith('PVZ') || firstPart.startsWith('FBS') || firstPart.startsWith('FBY')) && parts.length === 1) {
+            orderNumber = firstPart;
+            cargoCode = firstPart;
+            oneRow = false;
           }else if (firstPart.startsWith('F1254')) {
             orderNumber = firstPart;
             cargoCode = 'ЛОТ';
@@ -2678,124 +2753,129 @@ ordersContainer.innerHTML = '';
               cargoCode = parts.slice(1).join(' ') || '';
               oneRow = false;
           }
+        }
+      }else{
+        orderNumber = parts[0] || '';
+        cargoCode = parts.slice(1).join(' ') || '';
+        oneRow = false;
       }
     }
-    if (currentRappGeneratorType === 4) {
-      //~ АНОМАЛИИ • АНОМАЛИИ • АНОМАЛИИ
-      if (parts.length > 1 && parts[1].startsWith('FA254')) {
-          orderNumber = parts[0] || '';
-          cargoCode = parts.length > 1 ? parts[1] : '';
-  
-          if (cargoCode.includes(' ')) {
-              let cargoParts = cargoCode.split(' ');
-              cargoCode = cargoParts[0]; // Берем только первую часть
-              anomalyDescription = cargoParts.slice(1).join(' '); // Остальное уходит в anomalyDescription
-          } else {
-              anomalyDescription = parts.length > 2 ? parts.slice(2).join(' ') : '';
-          }
-      } else {
-          orderNumber = parts[0] || '';
-          cargoCode = parts.slice(1).join(' ') || '';
-  
-          if (cargoCode.includes(' ')) {
-              let cargoParts = cargoCode.split(' ');
-              cargoCode = cargoParts[0]; // Оставляем первую часть в cargoCode
-              anomalyDescription = cargoParts.slice(1).join(' '); // Остальное в anomalyDescription
-          }
-      }
-  
-      // Удаляем все виды кавычек из anomalyDescription
-      anomalyDescription = anomalyDescription.replace(/["'`]/g, '');
-    }else if (currentRappGeneratorType === 5) {
-      const firstPart = parts[0];
-  
-      if (firstPart.startsWith('YP') || firstPart.startsWith('P0') || firstPart.startsWith('F0254'))  {
-          orderNumber = "—";
-          cargoCode = firstPart; // Текст, начинающийся с YP
-
-          if (parts.length > 1) {
-              const lowerText = parts[1].toLowerCase();
-              if (lowerText.includes("дубль") || lowerText.includes("le,km")) {
-                orderType = "Дубль";
-            } else if (lowerText.includes("lost") || lowerText.includes("дщые")) {
-                orderType = "LOST";
-            } else if (lowerText.includes("засыл") || lowerText.includes("pfcsk")) {
-                orderType = "Засыл";
-            } else if (lowerText.includes("невыкуп") || lowerText.includes("ytdsreg")) {
-                orderType = "Невыкуп";
+      if (currentRappGeneratorType === 4) {
+        //~ АНОМАЛИИ • АНОМАЛИИ • АНОМАЛИИ
+        if (parts.length > 1 && parts[1].startsWith('FA254')) {
+            orderNumber = parts[0] || '';
+            cargoCode = parts.length > 1 ? parts[1] : '';
+    
+            if (cargoCode.includes(' ')) {
+                let cargoParts = cargoCode.split(' ');
+                cargoCode = cargoParts[0]; // Берем только первую часть
+                anomalyDescription = cargoParts.slice(1).join(' '); // Остальное уходит в anomalyDescription
             } else {
-                orderType = "Неизвестно"; // Если тип не найден
+                anomalyDescription = parts.length > 2 ? parts.slice(2).join(' ') : '';
             }
-          }
-          oneRow = false;
-      } else if (firstPart.startsWith('VOZ') || firstPart.startsWith('PVZ') || firstPart.startsWith('FBS') || firstPart.startsWith('FBY')) {
-        orderNumber = firstPart;
-        cargoCode = firstPart;
-        oneRow = false;
-      } else if (parts.length > 1 && parts[1].startsWith('LO-')) {
-          cargoCode = parts[0];
-          orderNumber = parts[1];
-          oneRow = false;
-      } else if (firstPart.startsWith('LO-')) {
+        } else {
+            orderNumber = parts[0] || '';
+            cargoCode = parts.slice(1).join(' ') || '';
+    
+            if (cargoCode.includes(' ')) {
+                let cargoParts = cargoCode.split(' ');
+                cargoCode = cargoParts[0]; // Оставляем первую часть в cargoCode
+                anomalyDescription = cargoParts.slice(1).join(' '); // Остальное в anomalyDescription
+            }
+        }
+    
+        // Удаляем все виды кавычек из anomalyDescription
+        anomalyDescription = anomalyDescription.replace(/["'`]/g, '');
+      }else if (currentRappGeneratorType === 5) {
+        const firstPart = parts[0];
+    
+        if (firstPart.startsWith('YP') || firstPart.startsWith('P0') || firstPart.startsWith('F0254'))  {
+            orderNumber = "—";
+            cargoCode = firstPart; // Текст, начинающийся с YP
+
+            if (parts.length > 1) {
+                const lowerText = parts[1].toLowerCase();
+                if (lowerText.includes("дубль") || lowerText.includes("le,km")) {
+                  orderType = "Дубль";
+              } else if (lowerText.includes("lost") || lowerText.includes("дщые")) {
+                  orderType = "LOST";
+              } else if (lowerText.includes("засыл") || lowerText.includes("pfcsk")) {
+                  orderType = "Засыл";
+              } else if (lowerText.includes("невыкуп") || lowerText.includes("ytdsreg")) {
+                  orderType = "Невыкуп";
+              } else {
+                  orderType = "Неизвестно"; // Если тип не найден
+              }
+            }
+            oneRow = false;
+        } else if (firstPart.startsWith('VOZ') || firstPart.startsWith('PVZ') || firstPart.startsWith('FBS') || firstPart.startsWith('FBY')) {
           orderNumber = firstPart;
-          cargoCode = parts.slice(1).join(' ').split(' ')[0]; // Только первая часть после пробела
+          cargoCode = firstPart;
           oneRow = false;
-      } else if (firstPart.startsWith('FA254')) {
-          orderNumber = firstPart;
-          cargoCode = 'Аномалия';
-          orderType = "LOST";
+        } else if (parts.length > 1 && parts[1].startsWith('LO-')) {
+            cargoCode = parts[0];
+            orderNumber = parts[1];
+            oneRow = false;
+        } else if (firstPart.startsWith('LO-')) {
+            orderNumber = firstPart;
+            cargoCode = parts.slice(1).join(' ').split(' ')[0]; // Только первая часть после пробела
+            oneRow = false;
+        } else if (firstPart.startsWith('FA254')) {
+            orderNumber = firstPart;
+            cargoCode = 'Аномалия';
+            orderType = "LOST";
+            oneRow = false;
+        }else if (/^\d{9,}-\d+$/.test(firstPart)) {
+          cargoCode = firstPart;
+          orderNumber = firstPart.split('-')[0];
           oneRow = false;
-      }else if (/^\d{9,}-\d+$/.test(firstPart)) {
-        cargoCode = firstPart;
-        orderNumber = firstPart.split('-')[0];
-        oneRow = false;
-        const allOrdersTextarea = document.querySelector(".allOrders");
-        let lines = allOrdersTextarea.value.split("\n").map(line => {
-          return line.replace(/^(\d{9,})-(\d+)$/, "$1 $1-$2");
-        });
-        allOrdersTextarea.value = lines.join("\n");
-      }else {
-          orderNumber = parts[0] || '';
-          cargoCode = parts.slice(1).join(' ').split(' ')[0] || ''; // Только первая часть после пробела
-          oneRow = false;
+          const allOrdersTextarea = document.querySelector(".allOrders");
+          let lines = allOrdersTextarea.value.split("\n").map(line => {
+            return line.replace(/^(\d{9,})-(\d+)$/, "$1 $1-$2");
+          });
+          allOrdersTextarea.value = lines.join("\n");
+        }else {
+            orderNumber = parts[0] || '';
+            cargoCode = parts.slice(1).join(' ').split(' ')[0] || ''; // Только первая часть после пробела
+            oneRow = false;
+        }
+    
+        // Автоопределение типа грузоместа
+        const lowerText = line.toLowerCase();
+        if (lowerText.includes("дубль") || lowerText.includes("le,km") || lowerText.includes("dubll") || 
+        lowerText.includes("dubl") || lowerText.includes("duble") || lowerText.includes("дуль") || 
+        lowerText.includes("дуьл") || lowerText.includes("дубл") || lowerText.includes("дубиь") || 
+        lowerText.includes("le,kmr") || lowerText.includes("le,kz") || lowerText.includes("le,kmd") || 
+        lowerText.includes("дубьл") || lowerText.includes("дублл") || lowerText.includes("дубь") || 
+        lowerText.includes("dubbyl") || lowerText.includes("dublb") || lowerText.includes("le,kmv") || 
+        lowerText.includes("dublь") || lowerText.includes("dibl") || lowerText.includes("дубпь") || 
+        lowerText.includes("дубv") || lowerText.includes("le,ln") || lowerText.includes("duibl") || 
+        lowerText.includes("ду6ль") || lowerText.includes("дуб67ль") || lowerText.includes("le,km")) {
+          orderType = "Дубль";
+        } else if (lowerText.includes("lost") || lowerText.includes("лост") || lowerText.includes("лоst") || 
+        lowerText.includes("l0st") || lowerText.includes("lst") || lowerText.includes("lozt") || 
+        lowerText.includes("lostt") || lowerText.includes("lpst") || lowerText.includes("лоcт") || 
+        lowerText.includes("л0ст") || lowerText.includes("losty") || lowerText.includes("loxt") || 
+        lowerText.includes("loxst") || lowerText.includes("losts") || lowerText.includes("kjcn") ||
+        lowerText.includes("дщые")) {
+            orderType = "LOST";
+        } else if ( lowerText.includes("засыл") || lowerText.includes("pfscp") || lowerText.includes("засл") || 
+        lowerText.includes("засы") || lowerText.includes("засылл") || lowerText.includes("заысыл") || 
+        lowerText.includes("засцыл") || lowerText.includes("засыь") || lowerText.includes("pfscpu") || 
+        lowerText.includes("zasyl") || lowerText.includes("zasil") || lowerText.includes("zasul") || 
+        lowerText.includes("zasl") || lowerText.includes("zasill") || lowerText.includes("zasuyl") ||
+        lowerText.includes("pfcsk")) {
+            orderType = "Засыл";
+        } else if (lowerText.includes("невыкуп") || lowerText.includes("ytmdrel") || lowerText.includes("невыку") || 
+        lowerText.includes("неvykup") || lowerText.includes("невыкуn") || lowerText.includes("неыкуп") || 
+        lowerText.includes("невькуп") || lowerText.includes("невыкупп") || lowerText.includes("неаыкуп") || 
+        lowerText.includes("неввыкуп") || lowerText.includes("nevykup") || lowerText.includes("nevuikup") || 
+        lowerText.includes("niewykup") || lowerText.includes("nevykkup") || lowerText.includes("nvykup") || 
+        lowerText.includes("nevycoup") || lowerText.includes("nevykyp") || lowerText.includes("nevykupz") ||
+        lowerText.includes("ytdsreg")) {
+          orderType = "Невыкуп";
+        }      
       }
-  
-      // Автоопределение типа грузоместа
-      const lowerText = line.toLowerCase();
-      if (lowerText.includes("дубль") || lowerText.includes("le,km") || lowerText.includes("dubll") || 
-      lowerText.includes("dubl") || lowerText.includes("duble") || lowerText.includes("дуль") || 
-      lowerText.includes("дуьл") || lowerText.includes("дубл") || lowerText.includes("дубиь") || 
-      lowerText.includes("le,kmr") || lowerText.includes("le,kz") || lowerText.includes("le,kmd") || 
-      lowerText.includes("дубьл") || lowerText.includes("дублл") || lowerText.includes("дубь") || 
-      lowerText.includes("dubbyl") || lowerText.includes("dublb") || lowerText.includes("le,kmv") || 
-      lowerText.includes("dublь") || lowerText.includes("dibl") || lowerText.includes("дубпь") || 
-      lowerText.includes("дубv") || lowerText.includes("le,ln") || lowerText.includes("duibl") || 
-      lowerText.includes("ду6ль") || lowerText.includes("дуб67ль") || lowerText.includes("le,km")) {
-        orderType = "Дубль";
-    } else if (lowerText.includes("lost") || lowerText.includes("лост") || lowerText.includes("лоst") || 
-    lowerText.includes("l0st") || lowerText.includes("lst") || lowerText.includes("lozt") || 
-    lowerText.includes("lostt") || lowerText.includes("lpst") || lowerText.includes("лоcт") || 
-    lowerText.includes("л0ст") || lowerText.includes("losty") || lowerText.includes("loxt") || 
-    lowerText.includes("loxst") || lowerText.includes("losts") || lowerText.includes("kjcn") ||
-    lowerText.includes("дщые")) {
-        orderType = "LOST";
-    } else if ( lowerText.includes("засыл") || lowerText.includes("pfscp") || lowerText.includes("засл") || 
-    lowerText.includes("засы") || lowerText.includes("засылл") || lowerText.includes("заысыл") || 
-    lowerText.includes("засцыл") || lowerText.includes("засыь") || lowerText.includes("pfscpu") || 
-    lowerText.includes("zasyl") || lowerText.includes("zasil") || lowerText.includes("zasul") || 
-    lowerText.includes("zasl") || lowerText.includes("zasill") || lowerText.includes("zasuyl") ||
-    lowerText.includes("pfcsk")) {
-        orderType = "Засыл";
-    } else if (lowerText.includes("невыкуп") || lowerText.includes("ytmdrel") || lowerText.includes("невыку") || 
-    lowerText.includes("неvykup") || lowerText.includes("невыкуn") || lowerText.includes("неыкуп") || 
-    lowerText.includes("невькуп") || lowerText.includes("невыкупп") || lowerText.includes("неаыкуп") || 
-    lowerText.includes("неввыкуп") || lowerText.includes("nevykup") || lowerText.includes("nevuikup") || 
-    lowerText.includes("niewykup") || lowerText.includes("nevykkup") || lowerText.includes("nvykup") || 
-    lowerText.includes("nevycoup") || lowerText.includes("nevykyp") || lowerText.includes("nevykupz") ||
-    lowerText.includes("ytdsreg")) {
-      orderType = "Невыкуп";
-    }      
-  }
   
     
       const newOrderRow = document.createElement("div");
@@ -2930,7 +3010,8 @@ ordersContainer.innerHTML = '';
         
         ${
           currentRappGeneratorType === 4
-            ? ''
+            ? 
+            ''
             : 
             (oneRow === true
                 ? 
@@ -2951,36 +3032,118 @@ ordersContainer.innerHTML = '';
       ${
         currentRappGeneratorType === 4
         ?
-        `<div class="orderData-container anomalyDescription-container">
-          <input
-          type="text"
-          class="orderData-input"
-          id="anomalyDescription${index + 1}"
-          value="${anomalyDescription}"
-          placeholder="Описание Аномалии"
-           autocomplete="off">
-          <label
-          for="anomalyDescription${index + 1}"
-          class="orderData-label">
-            Описание Аномалии
-          </label>
-        </div>`
+        `
+          <div class="orderData-container anomalyDescription-container">
+            <input
+            type="text"
+            class="orderData-input"
+            id="anomalyDescription${index + 1}"
+            value="${anomalyDescription}"
+            placeholder="Описание Аномалии"
+            autocomplete="off">
+            <label
+            for="anomalyDescription${index + 1}"
+            class="orderData-label">
+              Описание Аномалии
+            </label>
+          </div>
+        `
         :
         currentRappGeneratorType === 5
         ?
         `
-        <div class="orderData-container">
-          <label class="orderType" for="selectOrderType${index + 1}">
-              <h1>Тип грузоместа:</h1>
-              <select class="selectListener" id="selectOrderType${index + 1}">
-                  <option value="Засыл" ${orderType === "Засыл" ? 'selected' : ''}>Засыл</option>
-                  <option value="Дубль" ${orderType === "Дубль" ? 'selected' : ''}>Дубль</option>
-                  <option value="LOST" ${orderType === "LOST" ? 'selected' : ''}>LOST</option>
-                  <option value="Невыкуп" ${orderType === "Невыкуп" ? 'selected' : ''}>Невыкуп</option>
-                  <option value="—" ${orderType === "—" ? 'selected' : ''}>—</option>
-              </select>
-          </label>
-        </div>`
+          <div class="orderData-container">
+            <label class="orderType" for="selectOrderType${index + 1}">
+                <h1>Тип грузоместа:</h1>
+                <select class="selectListener" id="selectOrderType${index + 1}">
+                    <option value="Засыл" ${orderType === "Засыл" ? 'selected' : ''}>Засыл</option>
+                    <option value="Дубль" ${orderType === "Дубль" ? 'selected' : ''}>Дубль</option>
+                    <option value="LOST" ${orderType === "LOST" ? 'selected' : ''}>LOST</option>
+                    <option value="Невыкуп" ${orderType === "Невыкуп" ? 'selected' : ''}>Невыкуп</option>
+                    <option value="—" ${orderType === "—" ? 'selected' : ''}>—</option>
+                </select>
+            </label>
+          </div>
+        `
+        :
+        ``
+      }
+      
+      ${
+        currentRappGeneratorType === 1
+        ?
+        (toggleStates.extraCommentColumn === true
+        ?
+        `
+          <div class="orderData-container extraCommentColum-container">
+            <input
+              type="text"
+              class="orderData-input"
+              id="extraCommentColum-${index + 1}"
+              value="${anomalyDescription}"
+              placeholder="Комментарий"
+              autocomplete="off"
+            >
+            <label
+              for="extraCommentColum-${index + 1}"
+              class="orderData-label">
+              Комментарий
+            </label>
+          </div>
+        `
+        :
+        ``
+        )
+        :
+        currentRappGeneratorType === 2
+        ?
+        (toggleStates.extraCommentColumn === true
+        ?
+        `
+          <div class="orderData-container extraCommentColum-container">
+            <input
+              type="text"
+              class="orderData-input"
+              id="extraCommentColum-${index + 1}"
+              value="${anomalyDescription}"
+              placeholder="Комментарий"
+              autocomplete="off"
+            >
+            <label
+              for="extraCommentColum-${index + 1}"
+              class="orderData-label">
+              Комментарий
+            </label>
+          </div>
+        `
+        :
+        ``
+        )
+        :
+        currentRappGeneratorType === 3
+        ?
+        (toggleStates.extraCommentColumn === true
+        ?
+        `
+          <div class="orderData-container extraCommentColum-container">
+            <input
+              type="text"
+              class="orderData-input"
+              id="extraCommentColum-${index + 1}"
+              value="${anomalyDescription}"
+              placeholder="Комментарий"
+              autocomplete="off"
+            >
+            <label
+              for="extraCommentColum-${index + 1}"
+              class="orderData-label">
+              Комментарий
+            </label>
+          </div>
+        `
+        :
+        ``
+        )
         :
         ``
       }
@@ -2992,25 +3155,26 @@ ordersContainer.innerHTML = '';
 
         ${currentRappGeneratorType === 1 && Math.random() < 0.01
         ?
-        `
-        <div class="orderData-container">
-          <input
-            type="text"
-            class="orderData-input"
-            id="orderNumber${index + 1}"
-            value="Ильяшенко - клоун 🤡"
-            placeholder="Ильяшенко - клоун 🤡"
-            
-            readonly
-            autocomplete="off">
+        ``
+        // `
+        //   <div class="orderData-container">
+        //     <input
+        //       type="text"
+        //       class="orderData-input"
+        //       id="orderNumber${index + 1}"
+        //       value="Ильяшенко - клоун 🤡"
+        //       placeholder="Ильяшенко - клоун 🤡"
+              
+        //       readonly
+        //       autocomplete="off">
       
-          <label
-            for="orderNumber${index + 1}"
-            class="orderData-label">
-            Чистая правда:
-          </label>
-        </div>
-        `
+        //     <label
+        //       for="orderNumber${index + 1}"
+        //       class="orderData-label">
+        //       Чистая правда:
+        //     </label>
+        //   </div>
+        // `
         :
         `` 
       }   
@@ -3052,8 +3216,8 @@ ordersContainer.innerHTML = '';
       });
   });
 
-textAreaOverLay__updateCanvas()
-throttledGeneratePreview()
+  textAreaOverLay__updateCanvas()
+  throttledGeneratePreview()
 
 }
 //~ Сбор данных из textarea и заполнение их в order-row END
@@ -3293,19 +3457,38 @@ function generatePDF() {
   
     if(currentRappGeneratorType === 1 || currentRappGeneratorType === 2 || currentRappGeneratorType === 3){
       //~ МАГИСТРАЛИ • МАГИСТРАЛИ • МАГИСТРАЛИ
-      if (isCargoDisabled) {
-        orders.push([
-          { content: (index + 1).toString(), styles: { font: "Roboto", cellWidth: 10 } }, // Узкий столбец для № п/п
-          { content: orderNumber, colSpan: 2, styles: { font: "Roboto", fontSize: 14, fontStyle: "bold" } },
-          { content: cargoCount.toString(), styles: { font: "Roboto", fontSize: 12} }
-        ]);
-      }else {
-        orders.push([
-          { content: (index + 1).toString(), styles: { font: "Roboto", cellWidth: 10 } }, // Узкий столбец для № п/п
-          { content: orderNumber, styles: { font: "Roboto", fontSize: 14, fontStyle: "bold" } },
-          { content: cargoCode, styles: { font: "Roboto", fontSize: 14, fontStyle: "bold" } },
-          { content: cargoCount.toString(), styles: { font: "Roboto", fontSize: 12} }
-        ]);
+      if(toggleStates.extraCommentColumn === true){
+        if (isCargoDisabled) {
+          orders.push([
+            { content: (index + 1).toString(), styles: { font: "Roboto", cellWidth: 10 } }, // Узкий столбец для № п/п
+            { content: orderNumber, colSpan: 2, styles: { font: "Roboto", fontSize: 14, fontStyle: "bold" } },
+            { content: "futureComments", styles: { font: "Roboto", fontSize: 10} },
+            { content: cargoCount.toString(), styles: { font: "Roboto", fontSize: 12} }
+          ]);
+        }else {
+          orders.push([
+            { content: (index + 1).toString(), styles: { font: "Roboto", cellWidth: 10 } }, // Узкий столбец для № п/п
+            { content: orderNumber, styles: { font: "Roboto", fontSize: 14, fontStyle: "bold" } },
+            { content: cargoCode, styles: { font: "Roboto", fontSize: 14, fontStyle: "bold" } },
+            { content: "futureComments", styles: { font: "Roboto", fontSize: 10} },
+            { content: cargoCount.toString(), styles: { font: "Roboto", fontSize: 12} }
+          ]);
+        }
+      } else if(toggleStates.extraCommentColumn === false){
+        if (isCargoDisabled) {
+          orders.push([
+            { content: (index + 1).toString(), styles: { font: "Roboto", cellWidth: 10 } }, // Узкий столбец для № п/п
+            { content: orderNumber, colSpan: 2, styles: { font: "Roboto", fontSize: 14, fontStyle: "bold" } },
+            { content: cargoCount.toString(), styles: { font: "Roboto", fontSize: 12} }
+          ]);
+        }else {
+          orders.push([
+            { content: (index + 1).toString(), styles: { font: "Roboto", cellWidth: 10 } }, // Узкий столбец для № п/п
+            { content: orderNumber, styles: { font: "Roboto", fontSize: 14, fontStyle: "bold" } },
+            { content: cargoCode, styles: { font: "Roboto", fontSize: 14, fontStyle: "bold" } },
+            { content: cargoCount.toString(), styles: { font: "Roboto", fontSize: 12} }
+          ]);
+        }
       }
     }else if(currentRappGeneratorType === 4){
       //~ АНОМАЛИИ • АНОМАЛИИ • АНОМАЛИИ
@@ -3331,31 +3514,59 @@ function generatePDF() {
   let totalRow = []
   if(currentRappGeneratorType === 1 || currentRappGeneratorType === 2 || currentRappGeneratorType === 3){
     //~ МАГИСТРАЛИ • МАГИСТРАЛИ • МАГИСТРАЛИ
-    totalRow = [
-      { 
-        content: "Итого:", 
-        colSpan: 3,
-        styles: { 
-          font: "Roboto",
-          halign: "left", // Выравнивание по левому краю
-          valign: "middle", // Выравнивание по центру вертикально
-          lineWidth: 0.25, // Граница для всей строки
-          lineColor: [0, 0, 0], // Цвет границы
-          fontSize: 12,
-          fillColor: false
+    if(toggleStates.extraCommentColumn === true){
+      totalRow = [
+        { 
+          content: "Итого:", 
+          colSpan: 4,
+          styles: { 
+            font: "Roboto",
+            halign: "left", // Выравнивание по левому краю
+            valign: "middle", // Выравнивание по центру вертикально
+            lineWidth: 0.25, // Граница для всей строки
+            lineColor: [0, 0, 0], // Цвет границы
+            fontSize: 12,
+            fillColor: false
+          }
+        },
+        { 
+          content: totalCargoCount.toString(),
+          styles: { 
+            font: "Roboto",
+            halign: "center", // Выравнивание по центру
+            lineWidth: 0.25, // Граница для всей строки
+            lineColor: [0, 0, 0], // Цвет границы
+            fontSize: 12
+          }
         }
-      },
-      { 
-        content: totalCargoCount.toString(),
-        styles: { 
-          font: "Roboto",
-          halign: "center", // Выравнивание по центру
-          lineWidth: 0.25, // Граница для всей строки
-          lineColor: [0, 0, 0], // Цвет границы
-          fontSize: 12
+      ];
+    }else if(toggleStates.extraCommentColumn === false){
+      totalRow = [
+        { 
+          content: "Итого:", 
+          colSpan: 3,
+          styles: { 
+            font: "Roboto",
+            halign: "left", // Выравнивание по левому краю
+            valign: "middle", // Выравнивание по центру вертикально
+            lineWidth: 0.25, // Граница для всей строки
+            lineColor: [0, 0, 0], // Цвет границы
+            fontSize: 12,
+            fillColor: false
+          }
+        },
+        { 
+          content: totalCargoCount.toString(),
+          styles: { 
+            font: "Roboto",
+            halign: "center", // Выравнивание по центру
+            lineWidth: 0.25, // Граница для всей строки
+            lineColor: [0, 0, 0], // Цвет границы
+            fontSize: 12
+          }
         }
-      }
-    ];
+      ];
+    }
   }else if(currentRappGeneratorType === 4 || currentRappGeneratorType === 5){
     //~ АНОМАЛИИ • АНОМАЛИИ • АНОМАЛИИ ○ ДУБЛИ/ЗАСЫЛЫ/LOST • ДУБЛИ/ЗАСЫЛЫ/LOST • ДУБЛИ/ЗАСЫЛЫ/LOST
     totalRow = [
@@ -3389,31 +3600,62 @@ function generatePDF() {
   let tableStyles = {};
   if(currentRappGeneratorType === 1 || currentRappGeneratorType === 2 || currentRappGeneratorType === 3){
     //~ МАГИСТРАЛИ • МАГИСТРАЛИ • МАГИСТРАЛИ
-    tableStyles = {
-      headStyles: {
-        fillColor: [211, 211, 211],
-        textColor: [0, 0, 0],
-        font: "Roboto",
-        fontSize: 12,
-        lineWidth: 0.25,
-        lineColor: [0, 0, 0],
-        halign: "center",
-        valign: "middle",
-      },
-      bodyStyles: {
-        halign: "center",
-        valign: "middle",
-        cellPadding: 2,
-        lineWidth: 0.25,
-        lineColor: [0, 0, 0],
-        textColor: [0, 0, 0],
-        font: "Roboto"
-      },
-      columnStyles: {
-        0: { cellWidth: 10 }, // Узкий столбец для № п/п
-        1: { cellWidth: 82 },
-        2: { cellWidth: 82 },
-        3: { cellWidth: 25 }
+    if(toggleStates.extraCommentColumn === true){
+      tableStyles = {
+        headStyles: {
+          fillColor: [211, 211, 211],
+          textColor: [0, 0, 0],
+          font: "Roboto",
+          fontSize: 12,
+          lineWidth: 0.25,
+          lineColor: [0, 0, 0],
+          halign: "center",
+          valign: "middle",
+        },
+        bodyStyles: {
+          halign: "center",
+          valign: "middle",
+          cellPadding: 2,
+          lineWidth: 0.25,
+          lineColor: [0, 0, 0],
+          textColor: [0, 0, 0],
+          font: "Roboto"
+        },
+        columnStyles: {
+          0: { cellWidth: 10 }, // Узкий столбец для № п/п
+          1: { cellWidth: 60 },
+          2: { cellWidth: 60 },
+          3: { cellWidth: 45 },
+          4: { cellWidth: 25 }
+        }
+      }
+    } else if(toggleStates.extraCommentColumn === false){
+      tableStyles = {
+        headStyles: {
+          fillColor: [211, 211, 211],
+          textColor: [0, 0, 0],
+          font: "Roboto",
+          fontSize: 12,
+          lineWidth: 0.25,
+          lineColor: [0, 0, 0],
+          halign: "center",
+          valign: "middle",
+        },
+        bodyStyles: {
+          halign: "center",
+          valign: "middle",
+          cellPadding: 2,
+          lineWidth: 0.25,
+          lineColor: [0, 0, 0],
+          textColor: [0, 0, 0],
+          font: "Roboto"
+        },
+        columnStyles: {
+          0: { cellWidth: 10 }, // Узкий столбец для № п/п
+          1: { cellWidth: 82 },
+          2: { cellWidth: 82 },
+          3: { cellWidth: 25 }
+        }
       }
     }
   }else if(currentRappGeneratorType === 4){
@@ -3530,36 +3772,70 @@ function generatePDF() {
   // Генерация таблицы
   if(currentRappGeneratorType === 1){
     //~ МАГИСТРАЛИ • МАГИСТРАЛИ • МАГИСТРАЛИ
-    doc.autoTable({
-      startY: 135,
-      head: [["№ п/п", "Номер отправления в системе заказчика", "Код грузоместа", "Кол-во грузомест"]],
-      body: [...orders, totalRow],
-      margin: { left: 5 },
-      ...tableStyles,
-      didParseCell: function(data) {
-        if (data.row.index === orders.length) {
-          // Применяем границы для строки "Итого"
-          data.cell.styles.lineWidth = 0.25;
-          data.cell.styles.lineColor = [0, 0, 0];
+    if(toggleStates.extraCommentColumn === true){
+      doc.autoTable({
+        startY: 135,
+        head: [["№ п/п", "Номер отправления в системе заказчика", "Код грузоместа", "Комментарий", "Кол-во грузомест"]],
+        body: [...orders, totalRow],
+        margin: { left: 5 },
+        ...tableStyles,
+        didParseCell: function(data) {
+          if (data.row.index === orders.length) {
+            // Применяем границы для строки "Итого"
+            data.cell.styles.lineWidth = 0.25;
+            data.cell.styles.lineColor = [0, 0, 0];
+          }
         }
-      }
-    });
+      });
+    }else if(toggleStates.extraCommentColumn === false){
+      doc.autoTable({
+        startY: 135,
+        head: [["№ п/п", "Номер отправления в системе заказчика", "Код грузоместа", "Кол-во грузомест"]],
+        body: [...orders, totalRow],
+        margin: { left: 5 },
+        ...tableStyles,
+        didParseCell: function(data) {
+          if (data.row.index === orders.length) {
+            // Применяем границы для строки "Итого"
+            data.cell.styles.lineWidth = 0.25;
+            data.cell.styles.lineColor = [0, 0, 0];
+          }
+        }
+      });
+    }
   }else if(currentRappGeneratorType === 2 || currentRappGeneratorType === 3){
     //~ Курьеры/Мерчи • Курьеры/Мерчи • Курьеры/Мерчи
-    doc.autoTable({
-      startY: 105,
-      head: [["№ п/п", "Номер отправления в системе заказчика", "Код грузоместа", "Кол-во грузомест"]],
-      body: [...orders, totalRow],
-      margin: { left: 5 },
-      ...tableStyles,
-      didParseCell: function(data) {
-        if (data.row.index === orders.length) {
-          // Применяем границы для строки "Итого"
-          data.cell.styles.lineWidth = 0.25;
-          data.cell.styles.lineColor = [0, 0, 0];
+    if(toggleStates.extraCommentColumn === true){
+      doc.autoTable({
+        startY: 105,
+        head: [["№ п/п", "Номер отправления в системе заказчика", "Код грузоместа", "Комментарий", "Кол-во грузомест"]],
+        body: [...orders, totalRow],
+        margin: { left: 5 },
+        ...tableStyles,
+        didParseCell: function(data) {
+          if (data.row.index === orders.length) {
+            // Применяем границы для строки "Итого"
+            data.cell.styles.lineWidth = 0.25;
+            data.cell.styles.lineColor = [0, 0, 0];
+          }
         }
-      }
-    });
+      });
+    }else if(toggleStates.extraCommentColumn === false){
+      doc.autoTable({
+        startY: 105,
+        head: [["№ п/п", "Номер отправления в системе заказчика", "Код грузоместа", "Кол-во грузомест"]],
+        body: [...orders, totalRow],
+        margin: { left: 5 },
+        ...tableStyles,
+        didParseCell: function(data) {
+          if (data.row.index === orders.length) {
+            // Применяем границы для строки "Итого"
+            data.cell.styles.lineWidth = 0.25;
+            data.cell.styles.lineColor = [0, 0, 0];
+          }
+        }
+      });
+    }
   }else if(currentRappGeneratorType === 4){
     //~ АНОМАЛИИ • АНОМАЛИИ • АНОМАЛИИ
     doc.autoTable({

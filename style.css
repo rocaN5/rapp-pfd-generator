@@ -1101,7 +1101,7 @@ div#orders-container:not(:has(.order-row)) {
   transition: 200ms;
   border: 2px solid var(--statusColor);
   
-  i.fa-palette{
+  & > i:first-child{
     color: var(--statusColor);
     transition: 200ms;
   }
@@ -1220,10 +1220,10 @@ button.textAreaControls-button:focus-visible i.availabilityIcon,
   transition-delay: 1000ms !important;
 }
 .textAreaControls-section:nth-child(3) .onLoadItemAnimation:nth-child(4){
-  transition-delay: 1100ms;
+  transition-delay: 1100ms !important;
 }
 .textAreaControls-section:nth-child(3) .onLoadItemAnimation:nth-child(5){
-  transition-delay: 1200ms;
+  transition-delay: 1200ms !important;
 }
 .textAreaControls-section:nth-child(5) .onLoadItemAnimation:nth-child(1){
   transition-delay: 1300ms;
@@ -1353,6 +1353,56 @@ button.textAreaControls-button:focus-visible i.availabilityIcon,
   transition: 200ms;
 }
 
+#textareaAddCommentSection-btn i.availabilityIcon{
+  position: absolute;
+  top: 0;
+  right: 0;
+  border-radius: 50%;
+  background: #1a1a1a;
+  outline: 2px solid #1a1a1a;
+  font-size: .8rem;
+  transform: translate(20%, -20%);
+  transition: 200ms;
+  --status-color: #cf0;
+  color: var(--status-color);
+  box-shadow: 0px 0px 0px 3.2px #c5c5c5;
+}
+
+#textareaAddCommentSection-btn[isActive="true"] i.availabilityIcon{
+  --status-color: #cf0;
+  color: var(--status-color);
+  box-shadow: 0px 0px 0px 3.2px var(--status-color);
+}
+
+#textareaAddCommentSection-btn[disabled]{
+  filter: brightness(0.6);
+  transition: 200ms;
+  --status-color: #484848;
+  color: var(--status-color);
+  border-color: var(--status-color);
+
+  position: relative;
+  --tooltipPosition-x: 50% !important;
+  --tooltipPosition-y: -34px !important;
+  --tooltipArrowPosition-type-y: 1.9 !important;
+  --tooltipArrowRotation: 0deg !important;
+  --tooltipText: "Изменить \"Тип грузоместа\" \a для всех заказов" !important;
+  --tooltipText: "Доступно только в РАПП на \a Магистрали, Курьеры, Мерчи" !important;
+
+  i.availabilityIcon{
+    --status-color: #484848;
+    box-shadow: 0px 0px 0px 3.2px var(--status-color);
+  }
+  & .controlsButton-active{
+    background-color: #484848;
+    color: #b8b8b8;
+    transition: 200ms;
+  }
+  &:before{
+    white-space: pre;
+  }
+}
+
 #textareaChangeOrderType[disabled] {
   filter: brightness(0.6);
   transition: 200ms;
@@ -1365,7 +1415,8 @@ button.textAreaControls-button:focus-visible i.availabilityIcon,
   --tooltipText: "Доступен только в РАПП на Засылы/Дубли..." !important;
 }
 
-#textareaChangeOrderType[disabled] i.availabilityIcon{
+#textareaChangeOrderType[disabled] i.availabilityIcon,
+#textareaAddCommentSection-btn[disabled] i.availabilityIcon{
   color: #ff0000;
   transition: 200ms;
 }
@@ -2490,7 +2541,13 @@ button.printDocument:disabled{
   --tooltipPosition-y: -20px;
   --tooltipArrowPosition-type-y: 1;
   --tooltipArrowRotation: 0deg;
-  --tooltipText: "Вкл/выкл подсветку текста";
+  --tooltipText: "Опа... Какая-то ошибка";
+  &[isActive="true"]{
+    --tooltipText: "Выключить подсветку текста";
+  }
+  &[isActive="false"]{
+    --tooltipText: "Включить подсветку текста";
+  }
 }
 
 #textareaFixLayout-btn{
@@ -2517,7 +2574,13 @@ button.printDocument:disabled{
   --tooltipPosition-y: -20px;
   --tooltipArrowPosition-type-y: 1;
   --tooltipArrowRotation: 0deg;
-  --tooltipText: "Вкл/выкл столбец \"Комментарий\"";
+  --tooltipText: "Опа... Какая-то ошибка";
+  &[isActive="true"]{
+    --tooltipText: "Выключить столбец \"Комментарий\"";
+  }
+  &[isActive="false"]{
+    --tooltipText: "Включить столбец \"Комментарий\"";
+  }
 }
 
 #textareaSmartFormating-btn{
@@ -2526,7 +2589,13 @@ button.printDocument:disabled{
   --tooltipPosition-y: -20px;
   --tooltipArrowPosition-type-y: 1;
   --tooltipArrowRotation: 0deg;
-  --tooltipText: "Вкл/выкл умное автформатирование";
+  --tooltipText: "Опа... Какая-то ошибка";
+  &[isActive="true"]{
+    --tooltipText: "Выключить умное автораспознавание";
+  }
+  &[isActive="false"]{
+    --tooltipText: "Включить умное автораспознавание";
+  }
 }
 
 
