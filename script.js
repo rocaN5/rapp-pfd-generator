@@ -2683,6 +2683,7 @@ ordersContainer.innerHTML = '';
       let orderNumber = '';
       let cargoCode = '';
       let anomalyDescription = '';
+      let extraComment = '';
       let orderType = '—'
       let oneRow = false;
 
@@ -2773,7 +2774,7 @@ ordersContainer.innerHTML = '';
             } else {
                 anomalyDescription = parts.length > 2 ? parts.slice(2).join(' ') : '';
             }
-        } else {
+        }else{
             orderNumber = parts[0] || '';
             cargoCode = parts.slice(1).join(' ') || '';
     
@@ -2875,6 +2876,21 @@ ordersContainer.innerHTML = '';
         lowerText.includes("ytdsreg")) {
           orderType = "Невыкуп";
         }      
+      }
+
+      if (currentRappGeneratorType === 1 || currentRappGeneratorType === 2 || currentRappGeneratorType === 3){
+        if(toggleStates.extraCommentColumn === true){
+          orderNumber = parts[0] || '';
+          cargoCode = parts.length > 1 ? parts[1] : '';
+  
+          if (cargoCode.includes(' ')) {
+              let cargoParts = cargoCode.split(' ');
+              cargoCode = cargoParts[0]; // Берем только первую часть
+              extraComment = cargoParts.slice(1).join(' '); // Остальное уходит в extraComment
+          } else {
+              extraComment = parts.length > 2 ? parts.slice(2).join(' ') : '';
+          }
+        }
       }
   
     
@@ -3079,13 +3095,13 @@ ordersContainer.innerHTML = '';
             <input
               type="text"
               class="orderData-input"
-              id="extraCommentColum-${index + 1}"
-              value="${anomalyDescription}"
+              id="extraComment${index + 1}"
+              value="${extraComment}"
               placeholder="Комментарий"
               autocomplete="off"
             >
             <label
-              for="extraCommentColum-${index + 1}"
+              for="extraComment${index + 1}"
               class="orderData-label">
               Комментарий
             </label>
@@ -3104,13 +3120,13 @@ ordersContainer.innerHTML = '';
             <input
               type="text"
               class="orderData-input"
-              id="extraCommentColum-${index + 1}"
-              value="${anomalyDescription}"
+              id="extraComment${index + 1}"
+              value="${extraComment}"
               placeholder="Комментарий"
               autocomplete="off"
             >
             <label
-              for="extraCommentColum-${index + 1}"
+              for="extraComment${index + 1}"
               class="orderData-label">
               Комментарий
             </label>
@@ -3129,13 +3145,13 @@ ordersContainer.innerHTML = '';
             <input
               type="text"
               class="orderData-input"
-              id="extraCommentColum-${index + 1}"
-              value="${anomalyDescription}"
+              id="extraComment${index + 1}"
+              value="${extraComment}"
               placeholder="Комментарий"
               autocomplete="off"
             >
             <label
-              for="extraCommentColum-${index + 1}"
+              for="extraComment${index + 1}"
               class="orderData-label">
               Комментарий
             </label>
@@ -3251,11 +3267,13 @@ function syncOrderRowToTextarea(rowNumber, row) {
   const orderNumber = row.querySelector("input[id^='orderNumber']").value.trim();
   const cargoCode = row.querySelector("input[id^='cargoCode']")?.value.trim() || "";
   const anomalyDescription = row.querySelector("input[id^='anomalyDescription']")?.value.trim() || "";
+  const extraComment = row.querySelector("input[id^='extraComment']")?.value.trim() || "";
   const orderType = row.querySelector("select")?.value || "";
 
   let updatedLine = orderNumber;
   if (cargoCode) updatedLine += ` ${cargoCode}`;
   if (anomalyDescription) updatedLine += ` ${anomalyDescription}`;
+  if (extraComment) updatedLine += ` ${extraComment}`;
   if (orderType && orderType !== "—") updatedLine += ` ${orderType}`;
 
   if (lines[rowNumber] === updatedLine) return;
@@ -3447,8 +3465,10 @@ function generatePDF() {
     const orderNumber = row.querySelector(`#orderNumber${index + 1}`).value;
     const cargoCode = row.querySelector(`#cargoCode${index + 1}`).value;
     const anomalyDescriptionInit = row.querySelector(`#anomalyDescription${index + 1}`);
-    const orderTypeInit = row.querySelector(`#selectOrderType${index + 1}`);
     let anomalyDescription = anomalyDescriptionInit ? anomalyDescriptionInit.value : null;
+    const extraCommentInit = row.querySelector(`#extraComment${index + 1}`);
+    let extraComment = extraCommentInit ? extraCommentInit.value : null;
+    const orderTypeInit = row.querySelector(`#selectOrderType${index + 1}`);
     let orderType = orderTypeInit ? orderTypeInit.value : "—";
     const cargoCount = parseInt(row.querySelector(`#cargoCount${index + 1}`).value);
     const isCargoDisabled = row.querySelector(`#cargoCode${index + 1}`).disabled;
@@ -3462,7 +3482,7 @@ function generatePDF() {
           orders.push([
             { content: (index + 1).toString(), styles: { font: "Roboto", cellWidth: 10 } }, // Узкий столбец для № п/п
             { content: orderNumber, colSpan: 2, styles: { font: "Roboto", fontSize: 14, fontStyle: "bold" } },
-            { content: "futureComments", styles: { font: "Roboto", fontSize: 10} },
+            { content: extraComment, styles: { font: "Roboto", fontSize: 10} },
             { content: cargoCount.toString(), styles: { font: "Roboto", fontSize: 12} }
           ]);
         }else {
@@ -3470,7 +3490,7 @@ function generatePDF() {
             { content: (index + 1).toString(), styles: { font: "Roboto", cellWidth: 10 } }, // Узкий столбец для № п/п
             { content: orderNumber, styles: { font: "Roboto", fontSize: 14, fontStyle: "bold" } },
             { content: cargoCode, styles: { font: "Roboto", fontSize: 14, fontStyle: "bold" } },
-            { content: "futureComments", styles: { font: "Roboto", fontSize: 10} },
+            { content: extraComment, styles: { font: "Roboto", fontSize: 10} },
             { content: cargoCount.toString(), styles: { font: "Roboto", fontSize: 12} }
           ]);
         }
