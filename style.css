@@ -2211,7 +2211,9 @@ header h1{
 }
 
 .anomalyDescription-container,
-.anomalyDescription-container input{
+.anomalyDescription-container input,
+.extraCommentColum-container,
+.extraCommentColum-container input{
   width: -webkit-fill-available;
 }
 
