@@ -446,10 +446,83 @@ document.addEventListener("click", (event) => {
     changeOrderType_clickOFF()
   }
 });
-changeOrderType_input.addEventListener("click", ()=>{
-  makeNotification("notification:changeOrderType", "type:select")
-  changeOrderType_selected()
-})
+
+changeOrderType_input.addEventListener("click", () => {
+  makeNotification("notification:changeOrderType", "type:select");
+  changeOrderType_selected();
+
+  const valueToInsert = changeOrderType_input.value.trim();
+  const textarea = document.querySelector("textarea.allOrders");
+  const blockedKeywords = ["Засыл", "Дубль", "LOST", "Невыкуп"];
+
+  const lines = textarea.value.split("\n");
+
+  const updatedLines = lines.map(line => {
+    const trimmed = line.trim();
+    if (trimmed === "") return line; // Пустая строка — не изменяем
+
+    // Проверяем, если в строке есть запрещённые слова
+    const containsBlockedWord = blockedKeywords.some(keyword => trimmed.includes(keyword));
+
+    // Если строка содержит запрещённое слово
+    if (containsBlockedWord) {
+      // Проверяем, если это слово совпадает с value
+      const blockedWordMatch = blockedKeywords.find(keyword => trimmed.includes(keyword));
+      if (blockedWordMatch === valueToInsert) {
+        return line; // Если слово совпадает с value, не меняем
+      }
+
+      // Если слово не совпадает с value, заменяем его на value
+      return trimmed.replace(blockedWordMatch, valueToInsert);
+    }
+
+    const parts = trimmed.split(/\s+/);
+
+    // Если одно слово, добавляем value после первого
+    if (parts.length === 1) {
+      if (parts[0] === valueToInsert) return line; // Если уже есть нужное значение, не меняем
+      return parts[0] + " " + valueToInsert;
+    }
+
+    // Если два слова, добавляем value после второго
+    if (parts.length === 2) {
+      if (parts[1] === valueToInsert) return line; // Если уже есть нужное значение, не меняем
+      return parts[0] + " " + parts[1] + " " + valueToInsert;
+    }
+
+    // Если три и более слов — заменяем всё, что после второго
+    const base = parts[0] + " " + parts[1];
+    const existingTail = parts.slice(2).join(" ");
+
+    // Если уже совпадает с value, не меняем
+    if (existingTail === valueToInsert) {
+      return line;
+    }
+
+    // Иначе, заменяем всё после второго пробела на value
+    return base + " " + valueToInsert;
+  });
+
+  // Обновляем текст в textarea
+  const scrollTop = textarea.scrollTop;
+  const selectionStart = textarea.selectionStart;
+  const selectionEnd = textarea.selectionEnd;
+
+  textarea.value = updatedLines.join("\n");
+
+  // Восстанавливаем позицию курсора и прокрутки
+  textarea.setSelectionRange(selectionStart, selectionEnd);
+  textarea.scrollTop = scrollTop;
+
+  // Генерируем событие input вручную, чтобы имитировать ввод пользователя
+  const inputEvent = new Event("input", {
+    bubbles: true,
+    cancelable: true
+  });
+  textarea.dispatchEvent(inputEvent);
+  textAreaOverLay__updateCanvas()
+});
+
 
 function callMeChangeOrderType(){
   textareaChangeOrderType_menu.style.display = "flex"
@@ -484,7 +557,7 @@ function hideFromMeChangeOrderType(){
 
 //~ Change orderTpe
 
-const orderTypes = ["Засыл", "Дубль", "LOST", "Невыкуп"];
+const orderTypes = ["Засыл", "Дубль", "LOST", "Невыкуп", "Удалить"];
 const changeOrderType_prevButton = document.getElementById("changeOrderType-prev");
 const changeOrderType_nextButton = document.getElementById("changeOrderType-next");
 
